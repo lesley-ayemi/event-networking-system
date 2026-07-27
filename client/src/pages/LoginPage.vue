@@ -1,29 +1,39 @@
 <template>
   <AuthLayout>
-    <section>
-      <h1>Log in</h1>
-      <form @submit.prevent="handleSubmit">
-        <label>
-          Email
-          <input v-model="email" type="email" required />
-        </label>
-        <label>
-          Password
-          <input v-model="password" type="password" required />
-        </label>
-        <p v-if="errorMessage" role="alert">{{ errorMessage }}</p>
-        <button type="submit" :disabled="isSubmitting">
+    <h1 class="text-lg font-medium text-gray-900 mb-4">Log in</h1>
+    <form @submit.prevent="handleSubmit">
+      <div>
+        <InputLabel for-id="email" value="Email" />
+        <TextInput id="email" v-model="email" type="email" autocomplete="username" required />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for-id="password" value="Password" />
+        <TextInput id="password" v-model="password" type="password" autocomplete="current-password" required />
+      </div>
+
+      <InputError :message="errorMessage" />
+
+      <div class="flex items-center justify-between mt-6">
+        <RouterLink to="/register" class="underline text-sm text-gray-600 hover:text-gray-900">
+          Need an account?
+        </RouterLink>
+        <PrimaryButton :disabled="isSubmitting">
           {{ isSubmitting ? "Logging in…" : "Log in" }}
-        </button>
-      </form>
-    </section>
+        </PrimaryButton>
+      </div>
+    </form>
   </AuthLayout>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import AuthLayout from "../layouts/AuthLayout.vue";
+import InputLabel from "../components/InputLabel.vue";
+import TextInput from "../components/TextInput.vue";
+import InputError from "../components/InputError.vue";
+import PrimaryButton from "../components/PrimaryButton.vue";
 import { useAuthStore } from "../stores/authStore.js";
 
 const email = ref("");

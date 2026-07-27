@@ -1,41 +1,61 @@
 <template>
   <AuthLayout>
-    <section>
-      <h1>Create your account</h1>
-      <form @submit.prevent="handleSubmit">
-        <label>
-          First name
-          <input v-model="firstName" type="text" required />
-        </label>
-        <label>
-          Last name
-          <input v-model="lastName" type="text" required />
-        </label>
-        <label>
-          Email
-          <input v-model="email" type="email" required />
-        </label>
-        <label>
-          Password
-          <input v-model="password" type="password" minlength="8" required />
-        </label>
-        <label>
-          Confirm password
-          <input v-model="passwordConfirmation" type="password" minlength="8" required />
-        </label>
-        <p v-if="errorMessage" role="alert">{{ errorMessage }}</p>
-        <button type="submit" :disabled="isSubmitting">
+    <h1 class="text-lg font-medium text-gray-900 mb-4">Create your account</h1>
+    <form @submit.prevent="handleSubmit">
+      <div>
+        <InputLabel for-id="first_name" value="First name" />
+        <TextInput id="first_name" v-model="firstName" type="text" autocomplete="given-name" required />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for-id="last_name" value="Last name" />
+        <TextInput id="last_name" v-model="lastName" type="text" autocomplete="family-name" required />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for-id="email" value="Email" />
+        <TextInput id="email" v-model="email" type="email" autocomplete="username" required />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for-id="password" value="Password" />
+        <TextInput id="password" v-model="password" type="password" minlength="8" autocomplete="new-password" required />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for-id="password_confirmation" value="Confirm password" />
+        <TextInput
+          id="password_confirmation"
+          v-model="passwordConfirmation"
+          type="password"
+          minlength="8"
+          autocomplete="new-password"
+          required
+        />
+      </div>
+
+      <InputError :message="errorMessage" />
+
+      <div class="flex items-center justify-between mt-6">
+        <RouterLink to="/login" class="underline text-sm text-gray-600 hover:text-gray-900">
+          Already registered?
+        </RouterLink>
+        <PrimaryButton :disabled="isSubmitting">
           {{ isSubmitting ? "Creating account…" : "Create account" }}
-        </button>
-      </form>
-    </section>
+        </PrimaryButton>
+      </div>
+    </form>
   </AuthLayout>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import AuthLayout from "../layouts/AuthLayout.vue";
+import InputLabel from "../components/InputLabel.vue";
+import TextInput from "../components/TextInput.vue";
+import InputError from "../components/InputError.vue";
+import PrimaryButton from "../components/PrimaryButton.vue";
 import { useAuthStore } from "../stores/authStore.js";
 
 const firstName = ref("");
