@@ -58,25 +58,32 @@ describe("eventsStore", () => {
     expect(store.currentEvent).toEqual({ id: 5, name: "Design Mixer" });
   });
 
-  it("register() marks the event as registered in the list and current event", async () => {
-    post.mockResolvedValue({ data: { message: "You are registered for this event." } });
+  it("register() sends the matching answers and adopts the server's updated event", async () => {
+    const answers = {
+      interaction_mode: "one_to_one",
+      open_to_matching: true,
+      message_before_event: false,
+      preferred_group_size: 4,
+      attendance_format: "virtual",
+    };
+    const updatedEvent = { id: 1, is_registered: true, attendees_count: 4, my_registration: answers };
+    post.mockResolvedValue({ data: { data: updatedEvent } });
 
     const store = useEventsStore();
     store.events = [{ id: 1, is_registered: false, attendees_count: 3 }];
     store.currentEvent = { id: 1, is_registered: false, attendees_count: 3 };
 
     // route params always arrive as strings
-    await store.register("1");
+    await store.register("1", answers);
 
-    expect(post).toHaveBeenCalledWith("/events/1/register");
-    expect(store.events[0].is_registered).toBe(true);
-    expect(store.events[0].attendees_count).toBe(4);
-    expect(store.currentEvent.is_registered).toBe(true);
-    expect(store.currentEvent.attendees_count).toBe(4);
+    expect(post).toHaveBeenCalledWith("/events/1/register", answers);
+    expect(store.events[0]).toEqual(updatedEvent);
+    expect(store.currentEvent).toEqual(updatedEvent);
   });
 
-  it("cancelRegistration() unmarks the event as registered", async () => {
-    del.mockResolvedValue({ data: { message: "Your registration has been cancelled." } });
+  it("cancelRegistration() adopts the server's updated event", async () => {
+    const updatedEvent = { id: 1, is_registered: false, attendees_count: 3, my_registration: null };
+    del.mockResolvedValue({ data: { data: updatedEvent } });
 
     const store = useEventsStore();
     store.events = [{ id: 1, is_registered: true, attendees_count: 4 }];
@@ -85,9 +92,7 @@ describe("eventsStore", () => {
     await store.cancelRegistration("1");
 
     expect(del).toHaveBeenCalledWith("/events/1/register");
-    expect(store.events[0].is_registered).toBe(false);
-    expect(store.events[0].attendees_count).toBe(3);
-    expect(store.currentEvent.is_registered).toBe(false);
-    expect(store.currentEvent.attendees_count).toBe(3);
+    expect(store.events[0]).toEqual(updatedEvent);
+    expect(store.currentEvent).toEqual(updatedEvent);
   });
 });

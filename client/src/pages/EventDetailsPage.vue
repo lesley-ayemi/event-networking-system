@@ -58,13 +58,114 @@
 
       <p v-if="event.description" class="text-sm text-gray-700 mt-4">{{ event.description }}</p>
 
-      <p v-if="registrationError" class="text-sm text-red-600 mt-4">{{ registrationError }}</p>
+      <!-- Not registered: either a plain Register button, or the matching-question form -->
+      <div v-if="!event.is_registered" class="mt-6">
+        <PrimaryButton v-if="!showForm" @click="openForm">Register</PrimaryButton>
 
-      <div class="mt-6">
-        <PrimaryButton v-if="!event.is_registered" :disabled="isSubmitting" @click="handleRegister">
-          {{ isSubmitting ? "Registering…" : "Register" }}
-        </PrimaryButton>
-        <SecondaryButton v-else :disabled="isSubmitting" @click="handleCancel">
+        <form v-else @submit.prevent="handleRegister" class="border-t border-gray-100 pt-5 space-y-5">
+          <p class="text-sm text-gray-600">A few quick questions — these help us match you well.</p>
+
+          <div>
+            <InputLabel value="Which interaction mode do you prefer?" />
+            <div class="mt-1 space-y-1">
+              <label v-for="option in interactionModeOptions" :key="option.value" class="flex items-center text-sm text-gray-700">
+                <input
+                  type="radio"
+                  v-model="answers.interaction_mode"
+                  :value="option.value"
+                  class="text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span class="ms-2">{{ option.label }}</span>
+              </label>
+            </div>
+          </div>
+
+          <label class="flex items-center">
+            <Checkbox v-model="answers.open_to_matching" />
+            <span class="ms-2 text-sm text-gray-700">Are you open to being matched?</span>
+          </label>
+
+          <label class="flex items-center">
+            <Checkbox v-model="answers.message_before_event" />
+            <span class="ms-2 text-sm text-gray-700">Would you like to message your match before the event?</span>
+          </label>
+
+          <div>
+            <InputLabel for-id="preferred_group_size" value="What group size feels comfortable?" />
+            <TextInput
+              id="preferred_group_size"
+              v-model.number="answers.preferred_group_size"
+              type="number"
+              min="2"
+              max="50"
+              class="sm:w-40"
+            />
+          </div>
+
+          <div>
+            <InputLabel value="Are you attending virtually or physically?" />
+            <div class="mt-1 flex gap-4">
+              <label class="flex items-center text-sm text-gray-700">
+                <input
+                  type="radio"
+                  v-model="answers.attendance_format"
+                  value="virtual"
+                  class="text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span class="ms-2">Virtual</span>
+              </label>
+              <label class="flex items-center text-sm text-gray-700">
+                <input
+                  type="radio"
+                  v-model="answers.attendance_format"
+                  value="physical"
+                  class="text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span class="ms-2">Physical</span>
+              </label>
+            </div>
+          </div>
+
+          <InputError :message="registrationError" />
+
+          <div class="flex items-center gap-3">
+            <SecondaryButton type="button" :disabled="isSubmitting" @click="showForm = false">Cancel</SecondaryButton>
+            <PrimaryButton :disabled="isSubmitting">
+              {{ isSubmitting ? "Registering…" : "Confirm registration" }}
+            </PrimaryButton>
+          </div>
+        </form>
+      </div>
+
+      <!-- Registered: show what was submitted -->
+      <div v-else class="mt-6 border-t border-gray-100 pt-5">
+        <p class="font-medium text-gray-900 text-sm mb-2">You're registered</p>
+        <dl class="text-sm text-gray-600 space-y-1 mb-4">
+          <div class="flex gap-2">
+            <dt class="w-40 shrink-0">Interaction mode</dt>
+            <dd>{{ interactionModeLabel }}</dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="w-40 shrink-0">Attending</dt>
+            <dd>{{ event.my_registration?.attendance_format === "virtual" ? "Virtual" : "Physical" }}</dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="w-40 shrink-0">Open to matching</dt>
+            <dd>{{ event.my_registration?.open_to_matching ? "Yes" : "No" }}</dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="w-40 shrink-0">Message before event</dt>
+            <dd>{{ event.my_registration?.message_before_event ? "Yes" : "No" }}</dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="w-40 shrink-0">Comfortable group size</dt>
+            <dd>{{ event.my_registration?.preferred_group_size }}</dd>
+          </div>
+        </dl>
+
+        <p v-if="registrationError" class="text-sm text-red-600 mb-4">{{ registrationError }}</p>
+
+        <SecondaryButton :disabled="isSubmitting" @click="handleCancel">
           {{ isSubmitting ? "Cancelling…" : "Cancel registration" }}
         </SecondaryButton>
       </div>
@@ -73,11 +174,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
+import InputLabel from "../components/InputLabel.vue";
+import TextInput from "../components/TextInput.vue";
+import InputError from "../components/InputError.vue";
+import Checkbox from "../components/Checkbox.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
+import { useAuthStore } from "../stores/authStore.js";
 import { useEventsStore } from "../stores/eventsStore.js";
 
 const ACCESSIBILITY_LABELS = {
@@ -87,12 +193,44 @@ const ACCESSIBILITY_LABELS = {
   captioning: "Captioning",
 };
 
+const INTERACTION_MODE_LABELS = {
+  one_to_one: "One-to-one",
+  small_group: "Small group",
+  either: "No preference",
+};
+
 const route = useRoute();
+const authStore = useAuthStore();
 const eventsStore = useEventsStore();
 const isSubmitting = ref(false);
 const registrationError = ref("");
+const showForm = ref(false);
+
+const answers = reactive({
+  interaction_mode: "either",
+  open_to_matching: true,
+  message_before_event: false,
+  preferred_group_size: 4,
+  attendance_format: "physical",
+});
 
 const event = computed(() => eventsStore.currentEvent);
+
+const interactionModeOptions = computed(() => {
+  const options = [];
+  if (event.value?.one_to_one_available) {
+    options.push({ value: "one_to_one", label: "One-to-one" });
+  }
+  if (event.value?.small_group_available) {
+    options.push({ value: "small_group", label: "Small group" });
+  }
+  options.push({ value: "either", label: "No preference" });
+  return options;
+});
+
+const interactionModeLabel = computed(
+  () => INTERACTION_MODE_LABELS[event.value?.my_registration?.interaction_mode] ?? "—"
+);
 
 const accessibilityLabels = computed(
   () => event.value?.accessibility_options?.map((option) => ACCESSIBILITY_LABELS[option] ?? option) ?? []
@@ -113,13 +251,30 @@ const formattedDateRange = computed(() => {
   return `${starts} – ${ends}`;
 });
 
+function openForm() {
+  const user = authStore.user;
+  const prefersOneToOne = event.value?.one_to_one_available && user?.interaction_preferences?.one_to_one;
+  const prefersSmallGroup = event.value?.small_group_available && user?.interaction_preferences?.small_groups;
+
+  Object.assign(answers, {
+    interaction_mode: prefersOneToOne ? "one_to_one" : prefersSmallGroup ? "small_group" : "either",
+    open_to_matching: user?.comfort_settings?.auto_matching ?? true,
+    message_before_event: user?.interaction_preferences?.meet_before_event ?? false,
+    preferred_group_size: user?.comfort_settings?.max_group_size ?? 4,
+    attendance_format: event.value?.is_virtual ? "virtual" : "physical",
+  });
+  registrationError.value = "";
+  showForm.value = true;
+}
+
 async function handleRegister() {
   registrationError.value = "";
   isSubmitting.value = true;
   try {
-    await eventsStore.register(route.params.id);
+    await eventsStore.register(route.params.id, { ...answers });
+    showForm.value = false;
   } catch (error) {
-    registrationError.value = "We couldn't register you for this event. Please try again.";
+    registrationError.value = "We couldn't register you for this event. Please check your answers and try again.";
   } finally {
     isSubmitting.value = false;
   }

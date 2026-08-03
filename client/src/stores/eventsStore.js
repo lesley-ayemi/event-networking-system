@@ -38,29 +38,25 @@ export const useEventsStore = defineStore("events", {
       }
     },
 
-    async register(eventId) {
-      await apiClient.post(`/events/${eventId}/register`);
-      this._setRegistered(eventId, true, 1);
+    async register(eventId, answers) {
+      const response = await apiClient.post(`/events/${eventId}/register`, answers);
+      this._applyEventUpdate(response.data.data);
     },
 
     async cancelRegistration(eventId) {
-      await apiClient.delete(`/events/${eventId}/register`);
-      this._setRegistered(eventId, false, -1);
+      const response = await apiClient.delete(`/events/${eventId}/register`);
+      this._applyEventUpdate(response.data.data);
     },
 
-    _setRegistered(eventId, value, attendeesDelta) {
-      // route params always arrive as strings, so compare numerically rather
-      // than with strict equality against the numeric ids returned by the API.
-      const id = Number(eventId);
-
-      const event = this.events.find((event) => event.id === id);
-      if (event) {
-        event.is_registered = value;
-        event.attendees_count += attendeesDelta;
+    // register/cancel return the full updated event, so the store adopts
+    // that as the source of truth instead of patching fields by hand.
+    _applyEventUpdate(updatedEvent) {
+      const index = this.events.findIndex((event) => event.id === updatedEvent.id);
+      if (index !== -1) {
+        this.events[index] = updatedEvent;
       }
-      if (this.currentEvent?.id === id) {
-        this.currentEvent.is_registered = value;
-        this.currentEvent.attendees_count += attendeesDelta;
+      if (this.currentEvent?.id === updatedEvent.id) {
+        this.currentEvent = updatedEvent;
       }
     },
   },

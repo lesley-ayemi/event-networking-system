@@ -27,6 +27,13 @@ class EventResource extends JsonResource
             'created_by' => $this->created_by,
             'attendees_count' => $this->registrations_count ?? 0,
             'is_registered' => (bool) ($this->is_registered ?? false),
+            'my_registration' => $this->when($this->my_registration, fn () => [
+                'interaction_mode' => $this->my_registration->interaction_mode,
+                'open_to_matching' => $this->my_registration->open_to_matching,
+                'message_before_event' => $this->my_registration->message_before_event,
+                'preferred_group_size' => $this->my_registration->preferred_group_size,
+                'attendance_format' => $this->my_registration->attendance_format,
+            ], null),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

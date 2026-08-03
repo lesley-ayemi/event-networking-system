@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreEventRegistrationRequest;
 use App\Http\Requests\Api\StoreEventRequest;
 use App\Http\Requests\Api\UpdateEventRequest;
 use App\Http\Resources\EventResource;
@@ -95,7 +96,12 @@ class EventController extends Controller
         return response()->json(null, 204);
     }
 
-    public function register(Request $request, Event $event)
+    /**
+     * Registration doubles as the first step of the matching process, so it
+     * collects the attendee's interaction preferences for this event rather
+     * than a bare "attending: yes" flag.
+     */
+    public function register(StoreEventRegistrationRequest $request, Event $event)
     {
         $user = $request->user();
 
@@ -107,9 +113,12 @@ class EventController extends Controller
             return response()->json(['message' => 'This event is full.'], 422);
         }
 
-        $event->registrations()->create(['user_id' => $user->id]);
+        $event->registrations()->create($request->validated() + ['user_id' => $user->id]);
 
-        return response()->json(['message' => 'You are registered for this event.'], 201);
+        $event->loadCount('registrations');
+        $this->attachMyRegistrations(collect([$event]), $user);
+
+        return (new EventResource($event))->response()->setStatusCode(201);
     }
 
     public function cancelRegistration(Request $request, Event $event)
@@ -120,7 +129,10 @@ class EventController extends Controller
             return response()->json(['message' => 'You are not registered for this event.'], 404);
         }
 
-        return response()->json(['message' => 'Your registration has been cancelled.']);
+        $event->loadCount('registrations');
+        $this->attachMyRegistrations(collect([$event]), $request->user());
+
+        return new EventResource($event);
     }
 
     public function myEvents(Request $request)
@@ -131,7 +143,7 @@ class EventController extends Controller
             ->orderBy('starts_at')
             ->get();
 
-        $events->each(fn (Event $event) => $event->is_registered = true);
+        $this->attachMyRegistrations($events, $request->user());
 
         return EventResource::collection($events);
     }

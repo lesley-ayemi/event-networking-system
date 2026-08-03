@@ -61,6 +61,7 @@ cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Re
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateProfileRequest.php" app/Http/Requests/Api/UpdateProfileRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRequest.php" app/Http/Requests/Api/StoreEventRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateEventRequest.php" app/Http/Requests/Api/UpdateEventRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRegistrationRequest.php" app/Http/Requests/Api/StoreEventRegistrationRequest.php
 mkdir -p app/Http/Controllers/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
