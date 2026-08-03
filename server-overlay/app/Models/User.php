@@ -28,6 +28,8 @@ class User extends Authenticatable
         'quiz_answers',
         'compatibility_profile',
         'onboarding_completed',
+        'availability_status',
+        'conversation_boundaries',
     ];
 
     protected $hidden = [
@@ -42,6 +44,7 @@ class User extends Authenticatable
         'industry' => '',
         'profile_image' => '',
         'onboarding_completed' => false,
+        'availability_status' => 'available',
     ];
 
     protected function casts(): array
@@ -54,6 +57,7 @@ class User extends Authenticatable
             'quiz_answers' => 'array',
             'compatibility_profile' => 'array',
             'onboarding_completed' => 'boolean',
+            'conversation_boundaries' => 'array',
         ];
     }
 
@@ -92,6 +96,17 @@ class User extends Authenticatable
 
             if (is_null($user->compatibility_profile)) {
                 $user->compatibility_profile = [];
+            }
+
+            if (is_null($user->conversation_boundaries)) {
+                $user->conversation_boundaries = [
+                    'text_only' => false,
+                    'no_video_calls' => false,
+                    'one_message_at_a_time' => false,
+                    'event_only_meeting' => false,
+                    'no_spontaneous_calls' => false,
+                    'ask_before_groups' => false,
+                ];
             }
         });
     }

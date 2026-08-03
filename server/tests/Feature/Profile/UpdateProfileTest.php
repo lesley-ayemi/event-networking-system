@@ -116,6 +116,68 @@ test('a user can update comfort settings without losing other keys', function ()
     ]);
 });
 
+test('a user can set their availability status', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    $response = $this->patchJson('/api/profile', [
+        'availability_status' => 'messages_welcome',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(200);
+    $response->assertJsonPath('availability_status', 'messages_welcome');
+});
+
+test('an invalid availability status is rejected', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    $response = $this->patchJson('/api/profile', [
+        'availability_status' => 'on-the-moon',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(422);
+});
+
+test('a user can update conversation boundaries without losing other keys', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    $response = $this->patchJson('/api/profile', [
+        'conversation_boundaries' => [
+            'text_only' => true,
+            'no_video_calls' => true,
+        ],
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(200);
+    $boundaries = $response->json('conversation_boundaries');
+
+    expect($boundaries)->toMatchArray([
+        'text_only' => true,
+        'no_video_calls' => true,
+        'one_message_at_a_time' => false,
+        'event_only_meeting' => false,
+        'no_spontaneous_calls' => false,
+        'ask_before_groups' => false,
+    ]);
+});
+
 test('a user can mark onboarding as completed', function () {
     $user = User::create([
         'first_name' => 'Lesley',

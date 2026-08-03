@@ -6,9 +6,12 @@
       <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-100">
         <div class="flex items-center gap-3">
           <Avatar :user="conversation.other_user" />
-          <p class="font-semibold text-gray-900 text-sm">
-            {{ conversation.other_user.first_name }} {{ conversation.other_user.last_name }}
-          </p>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">
+              {{ conversation.other_user.first_name }} {{ conversation.other_user.last_name }}
+            </p>
+            <AvailabilityBadge :status="conversation.other_user.availability_status" class="mt-0.5" />
+          </div>
         </div>
         <div class="flex items-center gap-4">
           <button type="button" class="text-xs text-gray-500 hover:text-gray-900" @click="handleReport">Report</button>
@@ -16,10 +19,33 @@
         </div>
       </div>
 
+      <div v-if="otherBoundaries.length > 0" class="flex flex-wrap gap-1.5 px-5 pt-3">
+        <span
+          v-for="boundary in otherBoundaries"
+          :key="boundary"
+          class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"
+        >
+          {{ boundary }}
+        </span>
+      </div>
+
       <p v-if="actionStatus" class="text-xs text-gray-500 px-5 pt-3">{{ actionStatus }}</p>
 
       <div ref="scrollRegion" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-        <p v-if="conversationsStore.messages.length === 0" class="text-sm text-gray-400 text-center">Say hello 👋</p>
+        <div v-if="conversationsStore.messages.length === 0" class="text-center">
+          <p class="text-sm text-gray-400 mb-3">Say hello 👋 — or try an opener:</p>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              v-for="starter in CONVERSATION_STARTERS"
+              :key="starter"
+              type="button"
+              class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50"
+              @click="useStarter(starter)"
+            >
+              {{ starter }}
+            </button>
+          </div>
+        </div>
         <div
           v-for="message in conversationsStore.messages"
           :key="message.id"
@@ -54,11 +80,13 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
 import Avatar from "../components/Avatar.vue";
+import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import TextInput from "../components/TextInput.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import { useAuthStore } from "../stores/authStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
+import { CONVERSATION_BOUNDARIES, CONVERSATION_STARTERS } from "../constants/conversationTools.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -72,6 +100,15 @@ const scrollRegion = ref(null);
 const actionStatus = ref("");
 
 const conversation = computed(() => conversationsStore.currentConversation);
+
+const otherBoundaries = computed(() => {
+  const boundaries = conversation.value?.other_user?.conversation_boundaries ?? {};
+  return CONVERSATION_BOUNDARIES.filter((boundary) => boundaries[boundary.key]).map((boundary) => boundary.label);
+});
+
+function useStarter(starter) {
+  draft.value = starter;
+}
 
 function isMine(message) {
   return message.sender.id === authStore.user?.id;

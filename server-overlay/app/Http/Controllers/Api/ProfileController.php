@@ -32,6 +32,13 @@ class ProfileController extends Controller
             );
         }
 
+        if (array_key_exists('conversation_boundaries', $validated)) {
+            $validated['conversation_boundaries'] = array_merge(
+                $user->conversation_boundaries ?? [],
+                $validated['conversation_boundaries']
+            );
+        }
+
         $user->fill($validated);
         $user->save();
 

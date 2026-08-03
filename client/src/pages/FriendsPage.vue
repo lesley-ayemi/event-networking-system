@@ -52,6 +52,7 @@
               <div>
                 <p class="font-semibold text-gray-900 text-sm">{{ friend.first_name }} {{ friend.last_name }}</p>
                 <p class="text-xs text-gray-500">{{ personLine(friend) }}</p>
+                <AvailabilityBadge :status="friend.availability_status" class="mt-1" />
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-3 mt-4">
@@ -72,6 +73,7 @@ import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
 import Avatar from "../components/Avatar.vue";
+import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
 import { useFriendsStore } from "../stores/friendsStore.js";

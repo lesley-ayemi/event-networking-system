@@ -29,6 +29,15 @@ test('creating a user applies interaction preference and comfort setting default
         'pre_event_introductions' => true,
         'event_reminders' => true,
     ]);
+    expect($user->availability_status)->toBe('available');
+    expect($user->conversation_boundaries)->toBe([
+        'text_only' => false,
+        'no_video_calls' => false,
+        'one_message_at_a_time' => false,
+        'event_only_meeting' => false,
+        'no_spontaneous_calls' => false,
+        'ask_before_groups' => false,
+    ]);
 });
 
 test('the password is hashed automatically', function () {

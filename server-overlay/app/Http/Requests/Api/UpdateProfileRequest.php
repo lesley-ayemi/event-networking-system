@@ -52,6 +52,16 @@ class UpdateProfileRequest extends FormRequest
             'comfort_settings.pre_event_introductions' => ['sometimes', 'boolean'],
             'comfort_settings.event_reminders' => ['sometimes', 'boolean'],
 
+            'availability_status' => ['sometimes', 'string', 'in:available,messages_welcome,prefer_later,observing,unavailable'],
+
+            'conversation_boundaries' => ['sometimes', 'array'],
+            'conversation_boundaries.text_only' => ['sometimes', 'boolean'],
+            'conversation_boundaries.no_video_calls' => ['sometimes', 'boolean'],
+            'conversation_boundaries.one_message_at_a_time' => ['sometimes', 'boolean'],
+            'conversation_boundaries.event_only_meeting' => ['sometimes', 'boolean'],
+            'conversation_boundaries.no_spontaneous_calls' => ['sometimes', 'boolean'],
+            'conversation_boundaries.ask_before_groups' => ['sometimes', 'boolean'],
+
             'onboarding_completed' => ['sometimes', 'boolean'],
         ];
     }
