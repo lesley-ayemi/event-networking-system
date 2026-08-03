@@ -18,15 +18,7 @@
           <div v-for="match in group.matches" :key="match.user.id" class="bg-white shadow-sm rounded-lg p-5">
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3">
-                <img
-                  v-if="match.user.profile_image"
-                  :src="match.user.profile_image"
-                  alt=""
-                  class="w-10 h-10 rounded-full object-cover bg-gray-100"
-                />
-                <div v-else class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-semibold shrink-0">
-                  {{ initials(match.user) }}
-                </div>
+                <Avatar :user="match.user" />
                 <div>
                   <p class="font-semibold text-gray-900 text-sm">{{ match.user.first_name }} {{ match.user.last_name }}</p>
                   <p class="text-xs text-gray-500">{{ personLine(match.user) }}</p>
@@ -43,6 +35,20 @@
                 <li v-for="reason in match.reasons" :key="reason">{{ reason }}</li>
               </ul>
             </div>
+
+            <div class="flex flex-wrap items-center gap-3 mt-4">
+              <SecondaryButton :disabled="isMessaging(match.user.id)" @click="message(match.user.id)">
+                Message
+              </SecondaryButton>
+              <template v-if="!statusFor(match.user.id)">
+                <SecondaryButton :disabled="isBusy(match.user.id)" @click="sendRequest(match.user.id)">
+                  Send friend request
+                </SecondaryButton>
+                <SecondaryButton :disabled="isBusy(match.user.id)" @click="block(match.user.id)">Block</SecondaryButton>
+              </template>
+              <span v-else class="text-xs text-gray-500">{{ statusFor(match.user.id) }}</span>
+            </div>
+            <p v-if="messageErrorFor(match.user.id)" class="text-xs text-red-600 mt-2">{{ messageErrorFor(match.user.id) }}</p>
           </div>
         </div>
       </section>
@@ -51,11 +57,82 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, reactive } from "vue";
+import { useRouter } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
+import Avatar from "../components/Avatar.vue";
+import SecondaryButton from "../components/SecondaryButton.vue";
 import { useMatchesStore } from "../stores/matchesStore.js";
+import { useFriendsStore } from "../stores/friendsStore.js";
+import { useConversationsStore } from "../stores/conversationsStore.js";
 
+const router = useRouter();
 const matchesStore = useMatchesStore();
+const friendsStore = useFriendsStore();
+const conversationsStore = useConversationsStore();
+
+// Per-match UI state, keyed by the other user's id: "" while actionable,
+// a busy flag while a request is in flight, or a short status once resolved.
+const busyUserIds = reactive(new Set());
+const statusMessages = reactive({});
+const messagingUserIds = reactive(new Set());
+const messageErrors = reactive({});
+
+function isBusy(userId) {
+  return busyUserIds.has(userId);
+}
+
+function statusFor(userId) {
+  return statusMessages[userId] ?? "";
+}
+
+function isMessaging(userId) {
+  return messagingUserIds.has(userId);
+}
+
+function messageErrorFor(userId) {
+  return messageErrors[userId] ?? "";
+}
+
+async function message(userId) {
+  messagingUserIds.add(userId);
+  messageErrors[userId] = "";
+  try {
+    const conversation = await conversationsStore.startConversation(userId);
+    router.push(`/messages/${conversation.id}`);
+  } catch (error) {
+    messageErrors[userId] =
+      error?.response?.status === 403
+        ? "You can only message this person once you're friends, or if you both allow open messaging."
+        : "We couldn't start that conversation. Please try again.";
+  } finally {
+    messagingUserIds.delete(userId);
+  }
+}
+
+async function sendRequest(userId) {
+  busyUserIds.add(userId);
+  try {
+    await friendsStore.sendFriendRequest(userId);
+    statusMessages[userId] = "Friend request sent";
+  } catch (error) {
+    statusMessages[userId] = "We couldn't send that request. Please try again.";
+  } finally {
+    busyUserIds.delete(userId);
+  }
+}
+
+async function block(userId) {
+  busyUserIds.add(userId);
+  try {
+    await friendsStore.blockUser(userId);
+    statusMessages[userId] = "User blocked";
+  } catch (error) {
+    statusMessages[userId] = "We couldn't block this user. Please try again.";
+  } finally {
+    busyUserIds.delete(userId);
+  }
+}
 
 const groupedMatches = computed(() => {
   const groups = new Map();
@@ -67,10 +144,6 @@ const groupedMatches = computed(() => {
   }
   return Array.from(groups.values());
 });
-
-function initials(user) {
-  return `${user.first_name?.charAt(0) ?? ""}${user.last_name?.charAt(0) ?? ""}`.toUpperCase();
-}
 
 function personLine(user) {
   return [user.job_title, user.industry].filter(Boolean).join(" · ");

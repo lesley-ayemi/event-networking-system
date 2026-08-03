@@ -21,4 +21,16 @@ class UserBlock extends Model
     {
         return $this->belongsTo(User::class, 'blocked_id');
     }
+
+    public static function existsBetween(int $userIdA, int $userIdB): bool
+    {
+        return self::query()
+            ->where(function ($query) use ($userIdA, $userIdB) {
+                $query->where('blocker_id', $userIdA)->where('blocked_id', $userIdB);
+            })
+            ->orWhere(function ($query) use ($userIdA, $userIdB) {
+                $query->where('blocker_id', $userIdB)->where('blocked_id', $userIdA);
+            })
+            ->exists();
+    }
 }

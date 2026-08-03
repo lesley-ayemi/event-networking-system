@@ -191,13 +191,6 @@ class CompatibilityCalculator
 
     private static function isBlocked(int $userIdA, int $userIdB): bool
     {
-        return UserBlock::query()
-            ->where(function ($query) use ($userIdA, $userIdB) {
-                $query->where('blocker_id', $userIdA)->where('blocked_id', $userIdB);
-            })
-            ->orWhere(function ($query) use ($userIdA, $userIdB) {
-                $query->where('blocker_id', $userIdB)->where('blocked_id', $userIdA);
-            })
-            ->exists();
+        return UserBlock::existsBetween($userIdA, $userIdB);
     }
 }

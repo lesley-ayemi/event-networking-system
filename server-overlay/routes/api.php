@@ -1,15 +1,28 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\FriendRequestController;
 use App\Http\Controllers\Api\MatchController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\QuizController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// This app uses Sanctum token auth (not SPA cookie sessions), so the
+// broadcasting auth route needs auth:sanctum instead of Laravel's default
+// 'web' guard — otherwise Echo's private-channel subscriptions can never
+// authenticate. Registered here (inside routes/api.php) so it lands at
+// /api/broadcasting/auth alongside the rest of the API.
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
@@ -33,4 +46,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/bookmarks/{event}', [BookmarkController::class, 'destroy']);
 
     Route::get('/matches', [MatchController::class, 'index']);
+
+    Route::post('/friends/requests', [FriendRequestController::class, 'store']);
+    Route::get('/friends/requests/incoming', [FriendRequestController::class, 'incoming']);
+    Route::get('/friends/requests/outgoing', [FriendRequestController::class, 'outgoing']);
+    Route::patch('/friends/requests/{friendRequest}/accept', [FriendRequestController::class, 'accept']);
+    Route::patch('/friends/requests/{friendRequest}/decline', [FriendRequestController::class, 'decline']);
+    Route::get('/friends', [FriendController::class, 'index']);
+    Route::delete('/friends/{user}', [FriendController::class, 'destroy']);
+
+    Route::get('/blocks', [BlockController::class, 'index']);
+    Route::post('/blocks/{user}', [BlockController::class, 'store']);
+    Route::delete('/blocks/{user}', [BlockController::class, 'destroy']);
+
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::post('/conversations', [ConversationController::class, 'store']);
+    Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
+    Route::post('/conversations/{conversation}/read', [ConversationController::class, 'markRead']);
+    Route::post('/conversations/{conversation}/report', [ConversationController::class, 'report']);
+    Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
+    Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
 });

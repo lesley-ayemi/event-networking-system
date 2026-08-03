@@ -28,6 +28,11 @@ cd server
 echo "=== 3/9: Installing Sanctum + API routes ==="
 php artisan install:api --no-interaction || php artisan install:api
 
+echo "=== 3a/9: Installing Laravel Reverb (real-time messaging, replaces Firebase) ==="
+composer require laravel/reverb --no-interaction
+# reverb:install is interactive with no non-interactive mode, so config/env
+# are supplied directly by the overlay + .env.additions instead of running it.
+
 echo "=== 4/9: Configuring .env for MySQL and the client origin ==="
 if ! grep -q "^CLIENT_URL=" .env; then
   {
@@ -38,6 +43,14 @@ fi
 sed -i.bak "s/^DB_CONNECTION=.*/DB_CONNECTION=mysql/" .env
 sed -i.bak "s/^DB_DATABASE=.*/DB_DATABASE=${DB_NAME}/" .env 2>/dev/null || true
 sed -i.bak "s#^APP_URL=.*#APP_URL=http://localhost:8000#" .env 2>/dev/null || true
+sed -i.bak "s/^BROADCAST_CONNECTION=.*/BROADCAST_CONNECTION=reverb/" .env 2>/dev/null || true
+# The CLIENT_URL guard above only appends .env.additions once, so on a machine
+# that ran setup.sh before Reverb was added, these keys can be left over from
+# an earlier ad-hoc `reverb:install` run with random values. Force them back
+# to the fixed values the client's .env expects, so the two never drift.
+sed -i.bak "s/^REVERB_APP_ID=.*/REVERB_APP_ID=event-networking/" .env 2>/dev/null || true
+sed -i.bak "s/^REVERB_APP_KEY=.*/REVERB_APP_KEY=event-networking-key/" .env 2>/dev/null || true
+sed -i.bak "s/^REVERB_APP_SECRET=.*/REVERB_APP_SECRET=event-networking-secret/" .env 2>/dev/null || true
 rm -f .env.bak
 
 echo "=== 5/9: Installing Pest ==="
@@ -57,6 +70,11 @@ cp "$ROOT_DIR/server-overlay/app/Models/Event.php" app/Models/Event.php
 cp "$ROOT_DIR/server-overlay/app/Models/EventRegistration.php" app/Models/EventRegistration.php
 cp "$ROOT_DIR/server-overlay/app/Models/Bookmark.php" app/Models/Bookmark.php
 cp "$ROOT_DIR/server-overlay/app/Models/UserBlock.php" app/Models/UserBlock.php
+cp "$ROOT_DIR/server-overlay/app/Models/FriendRequest.php" app/Models/FriendRequest.php
+cp "$ROOT_DIR/server-overlay/app/Models/Conversation.php" app/Models/Conversation.php
+cp "$ROOT_DIR/server-overlay/app/Models/ConversationParticipant.php" app/Models/ConversationParticipant.php
+cp "$ROOT_DIR/server-overlay/app/Models/Message.php" app/Models/Message.php
+cp "$ROOT_DIR/server-overlay/app/Models/ConversationReport.php" app/Models/ConversationReport.php
 mkdir -p app/Http/Requests/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/RegisterRequest.php" app/Http/Requests/Api/RegisterRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Requests/Api/LoginRequest.php
@@ -65,6 +83,10 @@ cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRequest.php" app/Ht
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateEventRequest.php" app/Http/Requests/Api/UpdateEventRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRegistrationRequest.php" app/Http/Requests/Api/StoreEventRegistrationRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateQuizRequest.php" app/Http/Requests/Api/UpdateQuizRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreFriendRequestRequest.php" app/Http/Requests/Api/StoreFriendRequestRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreConversationRequest.php" app/Http/Requests/Api/StoreConversationRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreMessageRequest.php" app/Http/Requests/Api/StoreMessageRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/ReportConversationRequest.php" app/Http/Requests/Api/ReportConversationRequest.php
 mkdir -p app/Http/Controllers/Api/Concerns
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
@@ -72,19 +94,29 @@ cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/EventController.php" app/H
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BookmarkController.php" app/Http/Controllers/Api/BookmarkController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/QuizController.php" app/Http/Controllers/Api/QuizController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/MatchController.php" app/Http/Controllers/Api/MatchController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/FriendRequestController.php" app/Http/Controllers/Api/FriendRequestController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/FriendController.php" app/Http/Controllers/Api/FriendController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BlockController.php" app/Http/Controllers/Api/BlockController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ConversationController.php" app/Http/Controllers/Api/ConversationController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/MessageController.php" app/Http/Controllers/Api/MessageController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php" app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php
-mkdir -p app/Http/Resources app/Services
+mkdir -p app/Http/Resources app/Services app/Events
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/app/Services/CompatibilityCalculator.php" app/Services/CompatibilityCalculator.php
+cp "$ROOT_DIR/server-overlay/app/Services/MessagingPolicy.php" app/Services/MessagingPolicy.php
+cp "$ROOT_DIR/server-overlay/app/Events/MessageSent.php" app/Events/MessageSent.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
+cp "$ROOT_DIR/server-overlay/config/broadcasting.php" config/broadcasting.php
+cp "$ROOT_DIR/server-overlay/config/reverb.php" config/reverb.php
 cp "$ROOT_DIR/server-overlay/routes/api.php" routes/api.php
+cp "$ROOT_DIR/server-overlay/routes/channels.php" routes/channels.php
 cp "$ROOT_DIR/server-overlay/database/migrations/"*.php database/migrations/
 cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factories/UserFactory.php
 cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php
 cp "$ROOT_DIR/server-overlay/database/seeders/DatabaseSeeder.php" database/seeders/DatabaseSeeder.php
 cp "$ROOT_DIR/server-overlay/database/seeders/EventSeeder.php" database/seeders/EventSeeder.php
-mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services tests/Feature/Friends tests/Feature/Blocks tests/Feature/Messaging
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -99,6 +131,9 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Bookmarks/"*.php tests/Feature/Bookma
 cp "$ROOT_DIR/server-overlay/tests/Feature/Quiz/"*.php tests/Feature/Quiz/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Matches/"*.php tests/Feature/Matches/
 cp "$ROOT_DIR/server-overlay/tests/Unit/Services/"*.php tests/Unit/Services/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Friends/"*.php tests/Feature/Friends/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Blocks/"*.php tests/Feature/Blocks/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Messaging/"*.php tests/Feature/Messaging/
 
 echo "=== 6a/9: Linking public storage for profile photo uploads ==="
 php artisan storage:link
@@ -124,4 +159,5 @@ npm test
 echo ""
 echo "All done. Start the app with:"
 echo "  Terminal 1: cd server && php artisan serve"
-echo "  Terminal 2: cd client && npm run dev"
+echo "  Terminal 2: cd server && php artisan reverb:start"
+echo "  Terminal 3: cd client && npm run dev"

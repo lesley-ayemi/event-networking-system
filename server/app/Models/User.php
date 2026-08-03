@@ -105,4 +105,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Event::class, 'bookmarks')->withTimestamps();
     }
+
+    public function blockedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_blocks', 'blocker_id', 'blocked_id')->withTimestamps();
+    }
 }
