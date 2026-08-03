@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\MatchController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\QuizController;
 use Illuminate\Support\Facades\Route;
@@ -30,4 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookmarks', [BookmarkController::class, 'index']);
     Route::post('/bookmarks/{event}', [BookmarkController::class, 'store']);
     Route::delete('/bookmarks/{event}', [BookmarkController::class, 'destroy']);
+
+    Route::get('/matches', [MatchController::class, 'index']);
 });

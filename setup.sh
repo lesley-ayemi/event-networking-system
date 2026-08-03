@@ -56,6 +56,7 @@ cp "$ROOT_DIR/server-overlay/app/Models/User.php" app/Models/User.php
 cp "$ROOT_DIR/server-overlay/app/Models/Event.php" app/Models/Event.php
 cp "$ROOT_DIR/server-overlay/app/Models/EventRegistration.php" app/Models/EventRegistration.php
 cp "$ROOT_DIR/server-overlay/app/Models/Bookmark.php" app/Models/Bookmark.php
+cp "$ROOT_DIR/server-overlay/app/Models/UserBlock.php" app/Models/UserBlock.php
 mkdir -p app/Http/Requests/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/RegisterRequest.php" app/Http/Requests/Api/RegisterRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Requests/Api/LoginRequest.php
@@ -70,9 +71,11 @@ cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/EventController.php" app/Http/Controllers/Api/EventController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BookmarkController.php" app/Http/Controllers/Api/BookmarkController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/QuizController.php" app/Http/Controllers/Api/QuizController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/MatchController.php" app/Http/Controllers/Api/MatchController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php" app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php
-mkdir -p app/Http/Resources
+mkdir -p app/Http/Resources app/Services
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
+cp "$ROOT_DIR/server-overlay/app/Services/CompatibilityCalculator.php" app/Services/CompatibilityCalculator.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
 cp "$ROOT_DIR/server-overlay/routes/api.php" routes/api.php
@@ -81,7 +84,7 @@ cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factor
 cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php
 cp "$ROOT_DIR/server-overlay/database/seeders/DatabaseSeeder.php" database/seeders/DatabaseSeeder.php
 cp "$ROOT_DIR/server-overlay/database/seeders/EventSeeder.php" database/seeders/EventSeeder.php
-mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -94,6 +97,8 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" t
 cp "$ROOT_DIR/server-overlay/tests/Feature/Events/"*.php tests/Feature/Events/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Bookmarks/"*.php tests/Feature/Bookmarks/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Quiz/"*.php tests/Feature/Quiz/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Matches/"*.php tests/Feature/Matches/
+cp "$ROOT_DIR/server-overlay/tests/Unit/Services/"*.php tests/Unit/Services/
 
 echo "=== 6a/9: Linking public storage for profile photo uploads ==="
 php artisan storage:link
