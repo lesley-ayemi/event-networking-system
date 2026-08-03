@@ -135,4 +135,56 @@ describe("eventsStore", () => {
     expect(store.events[0]).toEqual(updatedEvent);
     expect(store.bookmarkedEvents).toEqual([]);
   });
+
+  it("fetchMyEvents() stores the viewer's registered events", async () => {
+    get.mockResolvedValue({ data: { data: [{ id: 3, name: "Founders Mixer" }] } });
+
+    const store = useEventsStore();
+    await store.fetchMyEvents();
+
+    expect(get).toHaveBeenCalledWith("/users/me/events");
+    expect(store.myEvents).toEqual([{ id: 3, name: "Founders Mixer" }]);
+  });
+
+  it("fetchMyEvents() records an error on failure", async () => {
+    get.mockRejectedValue(new Error("network error"));
+
+    const store = useEventsStore();
+    await store.fetchMyEvents();
+
+    expect(store.myEventsError).toBe("We couldn't load your registered events. Please try again.");
+  });
+
+  it("fetchRecommendedEvents() filters out registered/bookmarked/past events and caps at 4", async () => {
+    const future = new Date(Date.now() + 86400000).toISOString();
+    const past = new Date(Date.now() - 86400000).toISOString();
+    get.mockResolvedValue({
+      data: {
+        data: [
+          { id: 1, starts_at: future, is_registered: false, is_bookmarked: false },
+          { id: 2, starts_at: future, is_registered: true, is_bookmarked: false },
+          { id: 3, starts_at: future, is_registered: false, is_bookmarked: true },
+          { id: 4, starts_at: past, is_registered: false, is_bookmarked: false },
+          { id: 5, starts_at: future, is_registered: false, is_bookmarked: false },
+          { id: 6, starts_at: future, is_registered: false, is_bookmarked: false },
+          { id: 7, starts_at: future, is_registered: false, is_bookmarked: false },
+        ],
+      },
+    });
+
+    const store = useEventsStore();
+    await store.fetchRecommendedEvents("Technology");
+
+    expect(get).toHaveBeenCalledWith("/events", { params: { industry: "Technology" } });
+    expect(store.recommendedEvents.map((event) => event.id)).toEqual([1, 5, 6, 7]);
+  });
+
+  it("fetchRecommendedEvents() omits the industry param when none is given", async () => {
+    get.mockResolvedValue({ data: { data: [] } });
+
+    const store = useEventsStore();
+    await store.fetchRecommendedEvents();
+
+    expect(get).toHaveBeenCalledWith("/events", { params: {} });
+  });
 });

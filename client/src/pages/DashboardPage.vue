@@ -1,35 +1,134 @@
 <template>
   <DefaultLayout>
-    <h1 class="text-lg font-medium text-gray-900 mb-6">Dashboard</h1>
+    <div class="flex items-center justify-between gap-3 mb-6">
+      <h1 class="text-lg font-medium text-gray-900">
+        Welcome back{{ authStore.user?.first_name ? `, ${authStore.user.first_name}` : "" }}
+      </h1>
+      <InteractionStatus v-if="authStore.user" :status="authStore.user.availability_status" />
+    </div>
 
-    <section>
-      <h2 class="text-base font-semibold text-gray-900 mb-4">Saved events</h2>
+    <div class="space-y-8">
+      <section>
+        <ProfileProgress v-if="authStore.user" :user="authStore.user" />
+      </section>
 
-      <p v-if="eventsStore.isLoadingBookmarks" class="text-sm text-gray-500">Loading…</p>
-      <p v-else-if="eventsStore.bookmarksError" class="text-sm text-red-600">{{ eventsStore.bookmarksError }}</p>
-      <p v-else-if="eventsStore.bookmarkedEvents.length === 0" class="text-sm text-gray-500">
-        You haven't saved any events yet. Browse
-        <RouterLink to="/events" class="underline text-gray-700 hover:text-gray-900">events</RouterLink>
-        and tap the bookmark icon to save one here.
-      </p>
+      <section>
+        <h2 class="text-base font-semibold text-gray-900 mb-3">Upcoming events</h2>
+        <p v-if="eventsStore.isLoadingMyEvents" class="text-sm text-gray-500">Loading…</p>
+        <p v-else-if="eventsStore.myEventsError" class="text-sm text-red-600">{{ eventsStore.myEventsError }}</p>
+        <p v-else-if="upcomingEvents.length === 0" class="text-sm text-gray-500">
+          You're not registered for any upcoming events. Browse
+          <RouterLink to="/events" class="underline text-gray-700 hover:text-gray-900">events</RouterLink>
+          to find one.
+        </p>
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <UpcomingEventCard v-for="event in upcomingEvents" :key="event.id" :event="event" />
+        </div>
+      </section>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <EventCard v-for="event in eventsStore.bookmarkedEvents" :key="event.id" :event="event" />
-      </div>
-    </section>
+      <section>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold text-gray-900">Saved events</h2>
+          <RouterLink
+            v-if="eventsStore.bookmarkedEvents.length > 0"
+            to="/saved-events"
+            class="text-xs font-medium text-indigo-600 hover:text-indigo-700"
+          >
+            View all
+          </RouterLink>
+        </div>
+        <p v-if="eventsStore.isLoadingBookmarks" class="text-sm text-gray-500">Loading…</p>
+        <p v-else-if="eventsStore.bookmarksError" class="text-sm text-red-600">{{ eventsStore.bookmarksError }}</p>
+        <p v-else-if="eventsStore.bookmarkedEvents.length === 0" class="text-sm text-gray-500">
+          You haven't saved any events yet. Browse
+          <RouterLink to="/events" class="underline text-gray-700 hover:text-gray-900">events</RouterLink>
+          and tap the bookmark icon to save one here.
+        </p>
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <SavedEventCard v-for="event in eventsStore.bookmarkedEvents.slice(0, 4)" :key="event.id" :event="event" />
+        </div>
+      </section>
+
+      <section v-if="eventsStore.recommendedEvents.length > 0">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold text-gray-900">Recommended for you</h2>
+          <RouterLink to="/events" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Browse all</RouterLink>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <UpcomingEventCard v-for="event in eventsStore.recommendedEvents" :key="event.id" :event="event" />
+        </div>
+      </section>
+
+      <section v-if="topMatches.length > 0">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold text-gray-900">Compatible attendees</h2>
+          <RouterLink to="/matches" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</RouterLink>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <MatchCard v-for="match in topMatches" :key="match.user.id" :match="match" />
+        </div>
+      </section>
+
+      <section v-if="friendsStore.incomingRequests.length > 0">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold text-gray-900">Pending friend requests</h2>
+          <RouterLink to="/friends" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</RouterLink>
+        </div>
+        <div class="space-y-3">
+          <FriendRequestCard v-for="request in friendsStore.incomingRequests.slice(0, 3)" :key="request.id" :request="request" />
+        </div>
+      </section>
+
+      <section v-if="recentConversations.length > 0">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold text-gray-900">Recent messages</h2>
+          <RouterLink to="/messages" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</RouterLink>
+        </div>
+        <div class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
+          <ConversationPreview v-for="conversation in recentConversations" :key="conversation.id" :conversation="conversation" />
+        </div>
+      </section>
+    </div>
   </DefaultLayout>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
-import EventCard from "../components/EventCard.vue";
+import InteractionStatus from "../components/InteractionStatus.vue";
+import ProfileProgress from "../components/ProfileProgress.vue";
+import UpcomingEventCard from "../components/UpcomingEventCard.vue";
+import SavedEventCard from "../components/SavedEventCard.vue";
+import MatchCard from "../components/MatchCard.vue";
+import FriendRequestCard from "../components/FriendRequestCard.vue";
+import ConversationPreview from "../components/ConversationPreview.vue";
+import { useAuthStore } from "../stores/authStore.js";
 import { useEventsStore } from "../stores/eventsStore.js";
+import { useMatchesStore } from "../stores/matchesStore.js";
+import { useFriendsStore } from "../stores/friendsStore.js";
+import { useConversationsStore } from "../stores/conversationsStore.js";
 
+const authStore = useAuthStore();
 const eventsStore = useEventsStore();
+const matchesStore = useMatchesStore();
+const friendsStore = useFriendsStore();
+const conversationsStore = useConversationsStore();
+
+const upcomingEvents = computed(() => {
+  const now = new Date();
+  return eventsStore.myEvents.filter((event) => new Date(event.starts_at) >= now).slice(0, 4);
+});
+
+const topMatches = computed(() => matchesStore.matches.slice(0, 3));
+const recentConversations = computed(() => conversationsStore.conversations.slice(0, 3));
 
 onMounted(() => {
+  eventsStore.fetchMyEvents();
   eventsStore.fetchBookmarks();
+  eventsStore.fetchRecommendedEvents(authStore.user?.industry);
+  matchesStore.fetchMatches();
+  friendsStore.fetchAll();
+  conversationsStore.fetchConversations();
 });
 </script>

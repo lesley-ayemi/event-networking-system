@@ -11,6 +11,12 @@ export const useEventsStore = defineStore("events", {
     bookmarkedEvents: [],
     isLoadingBookmarks: false,
     bookmarksError: "",
+    myEvents: [],
+    isLoadingMyEvents: false,
+    myEventsError: "",
+    recommendedEvents: [],
+    isLoadingRecommended: false,
+    recommendedError: "",
   }),
 
   actions: {
@@ -73,6 +79,38 @@ export const useEventsStore = defineStore("events", {
 
       if (!updatedEvent.is_bookmarked) {
         this.bookmarkedEvents = this.bookmarkedEvents.filter((event) => event.id !== updatedEvent.id);
+      }
+    },
+
+    async fetchMyEvents() {
+      this.isLoadingMyEvents = true;
+      this.myEventsError = "";
+      try {
+        const response = await apiClient.get("/users/me/events");
+        this.myEvents = response.data.data;
+      } catch (error) {
+        this.myEventsError = "We couldn't load your registered events. Please try again.";
+      } finally {
+        this.isLoadingMyEvents = false;
+      }
+    },
+
+    // "Recommended" is intentionally simple for the dashboard: events in the
+    // viewer's industry they haven't already registered for or saved, rather
+    // than a separate scoring model.
+    async fetchRecommendedEvents(industry) {
+      this.isLoadingRecommended = true;
+      this.recommendedError = "";
+      try {
+        const response = await apiClient.get("/events", { params: industry ? { industry } : {} });
+        const now = new Date();
+        this.recommendedEvents = response.data.data
+          .filter((event) => !event.is_registered && !event.is_bookmarked && new Date(event.starts_at) >= now)
+          .slice(0, 4);
+      } catch (error) {
+        this.recommendedError = "We couldn't load recommended events. Please try again.";
+      } finally {
+        this.isLoadingRecommended = false;
       }
     },
 
