@@ -17,20 +17,20 @@
 
 <script setup>
 import { ref } from "vue";
-import { useEventsStore } from "../stores/eventsStore.js";
+import { useBookmarkStore } from "../stores/bookmarkStore.js";
 
 const props = defineProps({
   eventId: { type: [Number, String], required: true },
   isBookmarked: { type: Boolean, default: false },
 });
 
-const eventsStore = useEventsStore();
+const bookmarkStore = useBookmarkStore();
 const isToggling = ref(false);
 
 async function handleClick() {
   isToggling.value = true;
   try {
-    await eventsStore.toggleBookmark(props.eventId, props.isBookmarked);
+    await bookmarkStore.toggleBookmark(props.eventId, props.isBookmarked);
   } catch (error) {
     // is_bookmarked simply won't flip on failure, which is signal enough here
   } finally {

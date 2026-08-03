@@ -8,9 +8,6 @@ export const useEventsStore = defineStore("events", {
     currentEvent: null,
     isLoading: false,
     error: "",
-    bookmarkedEvents: [],
-    isLoadingBookmarks: false,
-    bookmarksError: "",
     myEvents: [],
     isLoadingMyEvents: false,
     myEventsError: "",
@@ -55,31 +52,6 @@ export const useEventsStore = defineStore("events", {
     async cancelRegistration(eventId) {
       const response = await apiClient.delete(`/events/${eventId}/register`);
       this._applyEventUpdate(response.data.data);
-    },
-
-    async fetchBookmarks() {
-      this.isLoadingBookmarks = true;
-      this.bookmarksError = "";
-      try {
-        const response = await apiClient.get("/bookmarks");
-        this.bookmarkedEvents = response.data.data;
-      } catch (error) {
-        this.bookmarksError = "We couldn't load your saved events. Please try again.";
-      } finally {
-        this.isLoadingBookmarks = false;
-      }
-    },
-
-    async toggleBookmark(eventId, isBookmarked) {
-      const response = isBookmarked
-        ? await apiClient.delete(`/bookmarks/${eventId}`)
-        : await apiClient.post(`/bookmarks/${eventId}`);
-      const updatedEvent = response.data.data;
-      this._applyEventUpdate(updatedEvent);
-
-      if (!updatedEvent.is_bookmarked) {
-        this.bookmarkedEvents = this.bookmarkedEvents.filter((event) => event.id !== updatedEvent.id);
-      }
     },
 
     async fetchMyEvents() {

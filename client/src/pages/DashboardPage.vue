@@ -2,14 +2,14 @@
   <DefaultLayout>
     <div class="flex items-center justify-between gap-3 mb-6">
       <h1 class="text-lg font-medium text-gray-900">
-        Welcome back{{ authStore.user?.first_name ? `, ${authStore.user.first_name}` : "" }}
+        Welcome back{{ userStore.user?.first_name ? `, ${userStore.user.first_name}` : "" }}
       </h1>
-      <InteractionStatus v-if="authStore.user" :status="authStore.user.availability_status" />
+      <InteractionStatus v-if="userStore.user" :status="userStore.user.availability_status" />
     </div>
 
     <div class="space-y-8">
       <section>
-        <ProfileProgress v-if="authStore.user" :user="authStore.user" />
+        <ProfileProgress v-if="userStore.user" :user="userStore.user" />
       </section>
 
       <section>
@@ -30,22 +30,22 @@
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-base font-semibold text-gray-900">Saved events</h2>
           <RouterLink
-            v-if="eventsStore.bookmarkedEvents.length > 0"
+            v-if="bookmarkStore.bookmarkedEvents.length > 0"
             to="/saved-events"
             class="text-xs font-medium text-indigo-600 hover:text-indigo-700"
           >
             View all
           </RouterLink>
         </div>
-        <p v-if="eventsStore.isLoadingBookmarks" class="text-sm text-gray-500">Loading…</p>
-        <p v-else-if="eventsStore.bookmarksError" class="text-sm text-red-600">{{ eventsStore.bookmarksError }}</p>
-        <p v-else-if="eventsStore.bookmarkedEvents.length === 0" class="text-sm text-gray-500">
+        <p v-if="bookmarkStore.isLoading" class="text-sm text-gray-500">Loading…</p>
+        <p v-else-if="bookmarkStore.error" class="text-sm text-red-600">{{ bookmarkStore.error }}</p>
+        <p v-else-if="bookmarkStore.bookmarkedEvents.length === 0" class="text-sm text-gray-500">
           You haven't saved any events yet. Browse
           <RouterLink to="/events" class="underline text-gray-700 hover:text-gray-900">events</RouterLink>
           and tap the bookmark icon to save one here.
         </p>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <SavedEventCard v-for="event in eventsStore.bookmarkedEvents.slice(0, 4)" :key="event.id" :event="event" />
+          <SavedEventCard v-for="event in bookmarkStore.bookmarkedEvents.slice(0, 4)" :key="event.id" :event="event" />
         </div>
       </section>
 
@@ -103,17 +103,19 @@ import SavedEventCard from "../components/SavedEventCard.vue";
 import MatchCard from "../components/MatchCard.vue";
 import FriendRequestCard from "../components/FriendRequestCard.vue";
 import ConversationPreview from "../components/ConversationPreview.vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 import { useEventsStore } from "../stores/eventsStore.js";
 import { useMatchesStore } from "../stores/matchesStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
+import { useBookmarkStore } from "../stores/bookmarkStore.js";
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 const eventsStore = useEventsStore();
 const matchesStore = useMatchesStore();
 const friendsStore = useFriendsStore();
 const conversationsStore = useConversationsStore();
+const bookmarkStore = useBookmarkStore();
 
 const upcomingEvents = computed(() => {
   const now = new Date();
@@ -125,8 +127,8 @@ const recentConversations = computed(() => conversationsStore.conversations.slic
 
 onMounted(() => {
   eventsStore.fetchMyEvents();
-  eventsStore.fetchBookmarks();
-  eventsStore.fetchRecommendedEvents(authStore.user?.industry);
+  bookmarkStore.fetchBookmarks();
+  eventsStore.fetchRecommendedEvents(userStore.user?.industry);
   matchesStore.fetchMatches();
   friendsStore.fetchAll();
   conversationsStore.fetchConversations();

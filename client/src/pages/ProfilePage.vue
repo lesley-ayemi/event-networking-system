@@ -44,17 +44,17 @@ import { reactive, ref } from "vue";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
 import Checkbox from "../components/Checkbox.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 import { AVAILABILITY_STATUSES, CONVERSATION_BOUNDARIES } from "../constants/conversationTools.js";
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 
-const availabilityStatus = ref(authStore.user?.availability_status ?? "available");
+const availabilityStatus = ref(userStore.user?.availability_status ?? "available");
 const boundaries = reactive(
   Object.fromEntries(
     CONVERSATION_BOUNDARIES.map((boundary) => [
       boundary.key,
-      authStore.user?.conversation_boundaries?.[boundary.key] ?? false,
+      userStore.user?.conversation_boundaries?.[boundary.key] ?? false,
     ])
   )
 );
@@ -68,7 +68,7 @@ async function save() {
   statusMessage.value = "";
   errorMessage.value = "";
   try {
-    await authStore.updateProfile({
+    await userStore.updateProfile({
       availability_status: availabilityStatus.value,
       conversation_boundaries: { ...boundaries },
     });

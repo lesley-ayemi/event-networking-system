@@ -187,7 +187,7 @@ import Checkbox from "../components/Checkbox.vue";
 import BookmarkButton from "../components/BookmarkButton.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 import { useEventsStore } from "../stores/eventsStore.js";
 
 const ACCESSIBILITY_LABELS = {
@@ -204,7 +204,7 @@ const INTERACTION_MODE_LABELS = {
 };
 
 const route = useRoute();
-const authStore = useAuthStore();
+const userStore = useUserStore();
 const eventsStore = useEventsStore();
 const isSubmitting = ref(false);
 const registrationError = ref("");
@@ -256,7 +256,7 @@ const formattedDateRange = computed(() => {
 });
 
 function openForm() {
-  const user = authStore.user;
+  const user = userStore.user;
   const prefersOneToOne = event.value?.one_to_one_available && user?.interaction_preferences?.one_to_one;
   const prefersSmallGroup = event.value?.small_group_available && user?.interaction_preferences?.small_groups;
 

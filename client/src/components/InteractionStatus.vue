@@ -16,20 +16,20 @@
 
 <script setup>
 import { ref } from "vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 import { AVAILABILITY_STATUSES } from "../constants/conversationTools.js";
 
 defineProps({
   status: { type: String, default: "available" },
 });
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 const isSaving = ref(false);
 
 async function handleChange(event) {
   isSaving.value = true;
   try {
-    await authStore.updateProfile({ availability_status: event.target.value });
+    await userStore.updateProfile({ availability_status: event.target.value });
   } finally {
     isSaving.value = false;
   }

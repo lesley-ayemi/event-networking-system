@@ -45,9 +45,9 @@ import DefaultLayout from "../layouts/DefaultLayout.vue";
 import QuizQuestion from "../components/QuizQuestion.vue";
 import InputError from "../components/InputError.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 
 const questions = [
   {
@@ -162,7 +162,7 @@ const questions = [
   },
 ];
 
-const existingAnswers = authStore.user?.quiz_answers ?? {};
+const existingAnswers = userStore.user?.quiz_answers ?? {};
 const answers = reactive(
   Object.fromEntries(questions.map((question) => [question.key, existingAnswers[question.key] ?? 3]))
 );
@@ -175,7 +175,7 @@ async function handleSubmit() {
   error.value = "";
   isSubmitting.value = true;
   try {
-    await authStore.updateQuizAnswers({ ...answers });
+    await userStore.updateQuizAnswers({ ...answers });
     submitted.value = true;
   } catch (err) {
     error.value = "We couldn't save your answers. Please try again.";

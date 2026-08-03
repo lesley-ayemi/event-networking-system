@@ -12,8 +12,8 @@
 
           <div class="flex items-center gap-4 mb-6">
             <img
-              v-if="authStore.user?.profile_image"
-              :src="authStore.user.profile_image"
+              v-if="userStore.user?.profile_image"
+              :src="userStore.user.profile_image"
               alt="Profile photo"
               class="w-16 h-16 rounded-full object-cover bg-gray-100"
             />
@@ -189,35 +189,35 @@ import InputError from "../components/InputError.vue";
 import Checkbox from "../components/Checkbox.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 
 const steps = ["Profile", "Preferences", "Compatibility Quiz", "Complete"];
 const currentStep = ref(1);
 
-const firstName = ref(authStore.user?.first_name ?? "");
-const lastName = ref(authStore.user?.last_name ?? "");
-const jobTitle = ref(authStore.user?.job_title ?? "");
-const industry = ref(authStore.user?.industry ?? "");
-const bio = ref(authStore.user?.bio ?? "");
-const networkingGoals = ref(authStore.user?.networking_goals ?? "");
+const firstName = ref(userStore.user?.first_name ?? "");
+const lastName = ref(userStore.user?.last_name ?? "");
+const jobTitle = ref(userStore.user?.job_title ?? "");
+const industry = ref(userStore.user?.industry ?? "");
+const bio = ref(userStore.user?.bio ?? "");
+const networkingGoals = ref(userStore.user?.networking_goals ?? "");
 
 const preferences = reactive({
-  one_to_one: authStore.user?.interaction_preferences?.one_to_one ?? true,
-  small_groups: authStore.user?.interaction_preferences?.small_groups ?? false,
-  virtual_interaction: authStore.user?.interaction_preferences?.virtual_interaction ?? false,
-  text_communication: authStore.user?.interaction_preferences?.text_communication ?? true,
-  meet_before_event: authStore.user?.interaction_preferences?.meet_before_event ?? false,
-  observe_first: authStore.user?.interaction_preferences?.observe_first ?? false,
+  one_to_one: userStore.user?.interaction_preferences?.one_to_one ?? true,
+  small_groups: userStore.user?.interaction_preferences?.small_groups ?? false,
+  virtual_interaction: userStore.user?.interaction_preferences?.virtual_interaction ?? false,
+  text_communication: userStore.user?.interaction_preferences?.text_communication ?? true,
+  meet_before_event: userStore.user?.interaction_preferences?.meet_before_event ?? false,
+  observe_first: userStore.user?.interaction_preferences?.observe_first ?? false,
 });
 
 const comfort = reactive({
-  max_group_size: authStore.user?.comfort_settings?.max_group_size ?? 4,
-  allow_message_first: authStore.user?.comfort_settings?.allow_message_first ?? true,
-  auto_matching: authStore.user?.comfort_settings?.auto_matching ?? true,
-  pre_event_introductions: authStore.user?.comfort_settings?.pre_event_introductions ?? true,
-  event_reminders: authStore.user?.comfort_settings?.event_reminders ?? true,
+  max_group_size: userStore.user?.comfort_settings?.max_group_size ?? 4,
+  allow_message_first: userStore.user?.comfort_settings?.allow_message_first ?? true,
+  auto_matching: userStore.user?.comfort_settings?.auto_matching ?? true,
+  pre_event_introductions: userStore.user?.comfort_settings?.pre_event_introductions ?? true,
+  event_reminders: userStore.user?.comfort_settings?.event_reminders ?? true,
 });
 
 const initials = computed(() => `${firstName.value.charAt(0)}${lastName.value.charAt(0)}`.toUpperCase());
@@ -234,7 +234,7 @@ async function saveStep1() {
   step1Error.value = "";
   isSavingStep1.value = true;
   try {
-    await authStore.updateProfile({
+    await userStore.updateProfile({
       first_name: firstName.value,
       last_name: lastName.value,
       job_title: jobTitle.value,
@@ -254,7 +254,7 @@ async function saveStep2() {
   step2Error.value = "";
   isSavingStep2.value = true;
   try {
-    await authStore.updateProfile({
+    await userStore.updateProfile({
       interaction_preferences: { ...preferences },
       comfort_settings: { ...comfort },
     });
@@ -274,7 +274,7 @@ async function handlePhotoChange(event) {
   photoError.value = "";
   isUploadingPhoto.value = true;
   try {
-    await authStore.uploadProfilePhoto(file);
+    await userStore.uploadProfilePhoto(file);
   } catch (error) {
     photoError.value = "We couldn't upload that photo. Please try a smaller image file.";
   } finally {
@@ -285,7 +285,7 @@ async function handlePhotoChange(event) {
 async function completeOnboarding() {
   isCompleting.value = true;
   try {
-    await authStore.updateProfile({ onboarding_completed: true });
+    await userStore.updateProfile({ onboarding_completed: true });
   } catch (error) {
     // Non-blocking — the user can still finish; onboarding_completed can be retried from their profile page.
   } finally {

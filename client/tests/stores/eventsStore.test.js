@@ -96,46 +96,6 @@ describe("eventsStore", () => {
     expect(store.currentEvent).toEqual(updatedEvent);
   });
 
-  it("fetchBookmarks() stores the saved events", async () => {
-    get.mockResolvedValue({ data: { data: [{ id: 2, name: "Design Mixer", is_bookmarked: true }] } });
-
-    const store = useEventsStore();
-    await store.fetchBookmarks();
-
-    expect(get).toHaveBeenCalledWith("/bookmarks");
-    expect(store.bookmarkedEvents).toEqual([{ id: 2, name: "Design Mixer", is_bookmarked: true }]);
-  });
-
-  it("toggleBookmark() saves an event via POST when currently unbookmarked", async () => {
-    const updatedEvent = { id: 1, is_bookmarked: true };
-    post.mockResolvedValue({ data: { data: updatedEvent } });
-
-    const store = useEventsStore();
-    store.events = [{ id: 1, is_bookmarked: false }];
-
-    await store.toggleBookmark("1", false);
-
-    expect(post).toHaveBeenCalledWith("/bookmarks/1");
-    expect(del).not.toHaveBeenCalled();
-    expect(store.events[0]).toEqual(updatedEvent);
-  });
-
-  it("toggleBookmark() removes an event via DELETE when currently bookmarked, and drops it from bookmarkedEvents", async () => {
-    const updatedEvent = { id: 1, is_bookmarked: false };
-    del.mockResolvedValue({ data: { data: updatedEvent } });
-
-    const store = useEventsStore();
-    store.events = [{ id: 1, is_bookmarked: true }];
-    store.bookmarkedEvents = [{ id: 1, is_bookmarked: true }];
-
-    await store.toggleBookmark("1", true);
-
-    expect(del).toHaveBeenCalledWith("/bookmarks/1");
-    expect(post).not.toHaveBeenCalled();
-    expect(store.events[0]).toEqual(updatedEvent);
-    expect(store.bookmarkedEvents).toEqual([]);
-  });
-
   it("fetchMyEvents() stores the viewer's registered events", async () => {
     get.mockResolvedValue({ data: { data: [{ id: 3, name: "Founders Mixer" }] } });
 

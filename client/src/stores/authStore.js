@@ -1,13 +1,10 @@
 import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
+import { useUserStore } from "./userStore.js";
 
 export const useAuthStore = defineStore("auth", {
-  state: () => ({
-    user: null,
-  }),
-
   getters: {
-    isAuthenticated: (state) => state.user !== null,
+    isAuthenticated: () => useUserStore().user !== null,
   },
 
   actions: {
@@ -32,36 +29,17 @@ export const useAuthStore = defineStore("auth", {
         return;
       }
       const response = await apiClient.get("/user");
-      this.user = response.data;
-    },
-
-    async updateProfile(payload) {
-      const response = await apiClient.patch("/profile", payload);
-      this.user = response.data;
-    },
-
-    async uploadProfilePhoto(file) {
-      const formData = new FormData();
-      formData.append("photo", file);
-      const response = await apiClient.post("/profile/photo", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      this.user = response.data;
-    },
-
-    async updateQuizAnswers(answers) {
-      const response = await apiClient.patch("/quiz", answers);
-      this.user = response.data;
+      useUserStore().setUser(response.data);
     },
 
     _setSession(user, token) {
       localStorage.setItem("authToken", token);
-      this.user = user;
+      useUserStore().setUser(user);
     },
 
     _clearSession() {
       localStorage.removeItem("authToken");
-      this.user = null;
+      useUserStore().clearUser();
     },
   },
 });

@@ -3,16 +3,15 @@ import { setActivePinia, createPinia } from "pinia";
 
 const post = vi.fn();
 const get = vi.fn();
-const patch = vi.fn();
 vi.mock("../../src/services/apiClient.js", () => ({
   apiClient: {
     post: (...args) => post(...args),
     get: (...args) => get(...args),
-    patch: (...args) => patch(...args),
   },
 }));
 
 const { useAuthStore } = await import("../../src/stores/authStore.js");
+const { useUserStore } = await import("../../src/stores/userStore.js");
 
 describe("authStore", () => {
   beforeEach(() => {
@@ -20,13 +19,12 @@ describe("authStore", () => {
     localStorage.clear();
     post.mockReset();
     get.mockReset();
-    patch.mockReset();
   });
 
   it("starts unauthenticated", () => {
     const store = useAuthStore();
     expect(store.isAuthenticated).toBe(false);
-    expect(store.user).toBeNull();
+    expect(useUserStore().user).toBeNull();
   });
 
   it("register() stores the user and token", async () => {
@@ -51,7 +49,7 @@ describe("authStore", () => {
       password_confirmation: "supersecret",
     });
     expect(store.isAuthenticated).toBe(true);
-    expect(store.user.email).toBe("lesley@example.com");
+    expect(useUserStore().user.email).toBe("lesley@example.com");
     expect(localStorage.getItem("authToken")).toBe("token-1");
   });
 
@@ -83,7 +81,7 @@ describe("authStore", () => {
 
     expect(post).toHaveBeenCalledWith("/logout");
     expect(store.isAuthenticated).toBe(false);
-    expect(store.user).toBeNull();
+    expect(useUserStore().user).toBeNull();
     expect(localStorage.getItem("authToken")).toBeNull();
   });
 
@@ -96,7 +94,7 @@ describe("authStore", () => {
 
     expect(get).toHaveBeenCalledWith("/user");
     expect(store.isAuthenticated).toBe(true);
-    expect(store.user.email).toBe("restored@example.com");
+    expect(useUserStore().user.email).toBe("restored@example.com");
   });
 
   it("restoreSession() does nothing when there is no stored token", async () => {
@@ -105,47 +103,5 @@ describe("authStore", () => {
 
     expect(get).not.toHaveBeenCalled();
     expect(store.isAuthenticated).toBe(false);
-  });
-
-  it("updateProfile() sends the payload and stores the returned user", async () => {
-    patch.mockResolvedValue({
-      data: { id: 1, email: "lesley@example.com", job_title: "Product Designer" },
-    });
-
-    const store = useAuthStore();
-    await store.updateProfile({ job_title: "Product Designer" });
-
-    expect(patch).toHaveBeenCalledWith("/profile", { job_title: "Product Designer" });
-    expect(store.user.job_title).toBe("Product Designer");
-  });
-
-  it("uploadProfilePhoto() sends multipart form data and stores the returned user", async () => {
-    post.mockResolvedValue({
-      data: { id: 1, email: "lesley@example.com", profile_image: "http://localhost:8000/storage/profile-photos/a.jpg" },
-    });
-
-    const store = useAuthStore();
-    const file = new File(["fake-bytes"], "avatar.jpg", { type: "image/jpeg" });
-    await store.uploadProfilePhoto(file);
-
-    expect(post).toHaveBeenCalledWith(
-      "/profile/photo",
-      expect.any(FormData),
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-    expect(store.user.profile_image).toBe("http://localhost:8000/storage/profile-photos/a.jpg");
-  });
-
-  it("updateQuizAnswers() sends the answers and stores the returned user", async () => {
-    const answers = { oneToOnePreference: 5, preferredGroupSize: 2 };
-    patch.mockResolvedValue({
-      data: { id: 1, email: "lesley@example.com", quiz_answers: answers },
-    });
-
-    const store = useAuthStore();
-    await store.updateQuizAnswers(answers);
-
-    expect(patch).toHaveBeenCalledWith("/quiz", answers);
-    expect(store.user.quiz_answers).toEqual(answers);
   });
 });

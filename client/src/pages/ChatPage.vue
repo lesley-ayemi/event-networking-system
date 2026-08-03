@@ -83,14 +83,14 @@ import Avatar from "../components/Avatar.vue";
 import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import TextInput from "../components/TextInput.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
-import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { CONVERSATION_BOUNDARIES, CONVERSATION_STARTERS } from "../constants/conversationTools.js";
 
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
+const userStore = useUserStore();
 const conversationsStore = useConversationsStore();
 const friendsStore = useFriendsStore();
 
@@ -111,7 +111,7 @@ function useStarter(starter) {
 }
 
 function isMine(message) {
-  return message.sender.id === authStore.user?.id;
+  return message.sender.id === userStore.user?.id;
 }
 
 function isRead(message) {
