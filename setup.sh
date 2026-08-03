@@ -53,18 +53,29 @@ PESTPHP
 
 echo "=== 6/9: Overlaying application code from server-overlay/ ==="
 cp "$ROOT_DIR/server-overlay/app/Models/User.php" app/Models/User.php
+cp "$ROOT_DIR/server-overlay/app/Models/Event.php" app/Models/Event.php
+cp "$ROOT_DIR/server-overlay/app/Models/EventRegistration.php" app/Models/EventRegistration.php
 mkdir -p app/Http/Requests/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/RegisterRequest.php" app/Http/Requests/Api/RegisterRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Requests/Api/LoginRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateProfileRequest.php" app/Http/Requests/Api/UpdateProfileRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRequest.php" app/Http/Requests/Api/StoreEventRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateEventRequest.php" app/Http/Requests/Api/UpdateEventRequest.php
 mkdir -p app/Http/Controllers/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/EventController.php" app/Http/Controllers/Api/EventController.php
+mkdir -p app/Http/Resources
+cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
 cp "$ROOT_DIR/server-overlay/routes/api.php" routes/api.php
 cp "$ROOT_DIR/server-overlay/database/migrations/"*.php database/migrations/
-mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile
+cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factories/UserFactory.php
+cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php
+cp "$ROOT_DIR/server-overlay/database/seeders/DatabaseSeeder.php" database/seeders/DatabaseSeeder.php
+cp "$ROOT_DIR/server-overlay/database/seeders/EventSeeder.php" database/seeders/EventSeeder.php
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -74,6 +85,7 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/ProtectedRouteTest.php" tests/Fe
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LogoutTest.php" tests/Feature/Auth/LogoutTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/Events/"*.php tests/Feature/Events/
 
 echo "=== 6a/9: Linking public storage for profile photo uploads ==="
 php artisan storage:link
@@ -86,8 +98,9 @@ if ! grep -q 'name="DB_CONNECTION" value="sqlite"' phpunit.xml; then
   echo '  <env name="DB_DATABASE" value=":memory:"/>'
 fi
 
-echo "=== 8/9: Running migrations (MySQL) and the backend test suite (SQLite) ==="
+echo "=== 8/9: Running migrations + seed (MySQL) and the backend test suite (SQLite) ==="
 php artisan migrate --force
+php artisan db:seed --force
 php artisan test
 
 echo "=== 9/9: Installing and testing the Vue client ==="
