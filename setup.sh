@@ -55,6 +55,7 @@ echo "=== 6/9: Overlaying application code from server-overlay/ ==="
 cp "$ROOT_DIR/server-overlay/app/Models/User.php" app/Models/User.php
 cp "$ROOT_DIR/server-overlay/app/Models/Event.php" app/Models/Event.php
 cp "$ROOT_DIR/server-overlay/app/Models/EventRegistration.php" app/Models/EventRegistration.php
+cp "$ROOT_DIR/server-overlay/app/Models/Bookmark.php" app/Models/Bookmark.php
 mkdir -p app/Http/Requests/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/RegisterRequest.php" app/Http/Requests/Api/RegisterRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Requests/Api/LoginRequest.php
@@ -62,10 +63,12 @@ cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateProfileRequest.php" app
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRequest.php" app/Http/Requests/Api/StoreEventRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateEventRequest.php" app/Http/Requests/Api/UpdateEventRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreEventRegistrationRequest.php" app/Http/Requests/Api/StoreEventRegistrationRequest.php
-mkdir -p app/Http/Controllers/Api
+mkdir -p app/Http/Controllers/Api/Concerns
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/EventController.php" app/Http/Controllers/Api/EventController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BookmarkController.php" app/Http/Controllers/Api/BookmarkController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php" app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php
 mkdir -p app/Http/Resources
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
@@ -76,7 +79,7 @@ cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factor
 cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php
 cp "$ROOT_DIR/server-overlay/database/seeders/DatabaseSeeder.php" database/seeders/DatabaseSeeder.php
 cp "$ROOT_DIR/server-overlay/database/seeders/EventSeeder.php" database/seeders/EventSeeder.php
-mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -87,6 +90,7 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LogoutTest.php" tests/Feature/Au
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Events/"*.php tests/Feature/Events/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Bookmarks/"*.php tests/Feature/Bookmarks/
 
 echo "=== 6a/9: Linking public storage for profile photo uploads ==="
 php artisan storage:link

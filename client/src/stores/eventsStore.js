@@ -8,6 +8,9 @@ export const useEventsStore = defineStore("events", {
     currentEvent: null,
     isLoading: false,
     error: "",
+    bookmarkedEvents: [],
+    isLoadingBookmarks: false,
+    bookmarksError: "",
   }),
 
   actions: {
@@ -48,8 +51,34 @@ export const useEventsStore = defineStore("events", {
       this._applyEventUpdate(response.data.data);
     },
 
-    // register/cancel return the full updated event, so the store adopts
-    // that as the source of truth instead of patching fields by hand.
+    async fetchBookmarks() {
+      this.isLoadingBookmarks = true;
+      this.bookmarksError = "";
+      try {
+        const response = await apiClient.get("/bookmarks");
+        this.bookmarkedEvents = response.data.data;
+      } catch (error) {
+        this.bookmarksError = "We couldn't load your saved events. Please try again.";
+      } finally {
+        this.isLoadingBookmarks = false;
+      }
+    },
+
+    async toggleBookmark(eventId, isBookmarked) {
+      const response = isBookmarked
+        ? await apiClient.delete(`/bookmarks/${eventId}`)
+        : await apiClient.post(`/bookmarks/${eventId}`);
+      const updatedEvent = response.data.data;
+      this._applyEventUpdate(updatedEvent);
+
+      if (!updatedEvent.is_bookmarked) {
+        this.bookmarkedEvents = this.bookmarkedEvents.filter((event) => event.id !== updatedEvent.id);
+      }
+    },
+
+    // register/cancel/bookmark actions all return the full updated event, so
+    // the store adopts that as the source of truth instead of patching fields
+    // by hand.
     _applyEventUpdate(updatedEvent) {
       const index = this.events.findIndex((event) => event.id === updatedEvent.id);
       if (index !== -1) {

@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\AttachesEventUserContext;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreEventRegistrationRequest;
 use App\Http\Requests\Api\StoreEventRequest;
 use App\Http\Requests\Api\UpdateEventRequest;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
-use App\Models\EventRegistration;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
+    use AttachesEventUserContext;
+
     public function index(Request $request)
     {
         $query = Event::query()->withCount('registrations');
@@ -56,7 +58,7 @@ class EventController extends Controller
 
         $events = $query->orderBy('starts_at')->paginate(12)->withQueryString();
 
-        $this->attachMyRegistrations($events->getCollection(), $request->user());
+        $this->attachUserContext($events->getCollection(), $request->user());
 
         return EventResource::collection($events);
     }
@@ -64,7 +66,7 @@ class EventController extends Controller
     public function show(Request $request, Event $event)
     {
         $event->loadCount('registrations');
-        $this->attachMyRegistrations(collect([$event]), $request->user());
+        $this->attachUserContext(collect([$event]), $request->user());
 
         return new EventResource($event);
     }
@@ -72,10 +74,10 @@ class EventController extends Controller
     public function store(StoreEventRequest $request)
     {
         $event = Event::create($request->validated() + ['created_by' => $request->user()->id]);
+        $event->loadCount('registrations');
+        $this->attachUserContext(collect([$event]), $request->user());
 
-        return (new EventResource($event->loadCount('registrations')))
-            ->response()
-            ->setStatusCode(201);
+        return (new EventResource($event))->response()->setStatusCode(201);
     }
 
     public function update(UpdateEventRequest $request, Event $event)
@@ -83,8 +85,10 @@ class EventController extends Controller
         abort_if($event->created_by !== $request->user()->id, 403, 'You can only edit events you created.');
 
         $event->update($request->validated());
+        $event->loadCount('registrations');
+        $this->attachUserContext(collect([$event]), $request->user());
 
-        return new EventResource($event->loadCount('registrations'));
+        return new EventResource($event);
     }
 
     public function destroy(Request $request, Event $event)
@@ -116,7 +120,7 @@ class EventController extends Controller
         $event->registrations()->create($request->validated() + ['user_id' => $user->id]);
 
         $event->loadCount('registrations');
-        $this->attachMyRegistrations(collect([$event]), $user);
+        $this->attachUserContext(collect([$event]), $user);
 
         return (new EventResource($event))->response()->setStatusCode(201);
     }
@@ -130,7 +134,7 @@ class EventController extends Controller
         }
 
         $event->loadCount('registrations');
-        $this->attachMyRegistrations(collect([$event]), $request->user());
+        $this->attachUserContext(collect([$event]), $request->user());
 
         return new EventResource($event);
     }
@@ -143,23 +147,8 @@ class EventController extends Controller
             ->orderBy('starts_at')
             ->get();
 
-        $this->attachMyRegistrations($events, $request->user());
+        $this->attachUserContext($events, $request->user());
 
         return EventResource::collection($events);
-    }
-
-    private function attachMyRegistrations($events, $user): void
-    {
-        $registrationsByEventId = EventRegistration::query()
-            ->where('user_id', $user->id)
-            ->whereIn('event_id', $events->pluck('id'))
-            ->get()
-            ->keyBy('event_id');
-
-        $events->each(function (Event $event) use ($registrationsByEventId) {
-            $registration = $registrationsByEventId->get($event->id);
-            $event->is_registered = (bool) $registration;
-            $event->my_registration = $registration;
-        });
     }
 }

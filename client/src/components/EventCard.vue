@@ -2,16 +2,7 @@
   <div class="bg-white shadow-sm rounded-lg p-5 flex flex-col">
     <div class="flex items-start justify-between gap-2">
       <h3 class="font-semibold text-gray-900">{{ event.name }}</h3>
-      <button
-        type="button"
-        disabled
-        title="Saving events is coming soon"
-        class="shrink-0 text-gray-300 cursor-not-allowed"
-      >
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 4.5h12a1 1 0 0 1 1 1V21l-7-4-7 4V5.5a1 1 0 0 1 1-1Z" />
-        </svg>
-      </button>
+      <BookmarkButton :event-id="event.id" :is-bookmarked="event.is_bookmarked" />
     </div>
 
     <p class="text-sm text-gray-500 mt-1">{{ formattedDate }}</p>
@@ -47,6 +38,7 @@
 <script setup>
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
+import BookmarkButton from "./BookmarkButton.vue";
 
 const props = defineProps({
   event: { type: Object, required: true },

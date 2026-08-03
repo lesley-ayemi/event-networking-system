@@ -8,12 +8,15 @@
     <div v-else-if="event" class="bg-white shadow-md rounded-lg px-6 py-6 mt-4 max-w-2xl">
       <div class="flex items-start justify-between gap-4">
         <h1 class="text-lg font-semibold text-gray-900">{{ event.name }}</h1>
-        <span
-          class="inline-flex shrink-0 items-center text-xs font-medium px-2 py-0.5 rounded-full"
-          :class="event.is_virtual ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'"
-        >
-          {{ event.is_virtual ? "Virtual" : "In person" }}
-        </span>
+        <div class="flex items-center gap-3 shrink-0">
+          <span
+            class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full"
+            :class="event.is_virtual ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'"
+          >
+            {{ event.is_virtual ? "Virtual" : "In person" }}
+          </span>
+          <BookmarkButton :event-id="event.id" :is-bookmarked="event.is_bookmarked" />
+        </div>
       </div>
 
       <dl class="mt-4 space-y-2 text-sm">
@@ -181,6 +184,7 @@ import InputLabel from "../components/InputLabel.vue";
 import TextInput from "../components/TextInput.vue";
 import InputError from "../components/InputError.vue";
 import Checkbox from "../components/Checkbox.vue";
+import BookmarkButton from "../components/BookmarkButton.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
 import { useAuthStore } from "../stores/authStore.js";

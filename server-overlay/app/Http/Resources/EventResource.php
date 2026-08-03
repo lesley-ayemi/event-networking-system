@@ -34,6 +34,7 @@ class EventResource extends JsonResource
                 'preferred_group_size' => $this->my_registration->preferred_group_size,
                 'attendance_format' => $this->my_registration->attendance_format,
             ], null),
+            'is_bookmarked' => (bool) ($this->is_bookmarked ?? false),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

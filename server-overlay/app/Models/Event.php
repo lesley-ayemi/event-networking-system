@@ -57,4 +57,9 @@ class Event extends Model
     {
         return $this->belongsToMany(User::class, 'event_registrations')->withTimestamps();
     }
+
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class);
+    }
 }
