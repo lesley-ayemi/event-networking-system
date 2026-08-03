@@ -49,6 +49,11 @@ export const useAuthStore = defineStore("auth", {
       this.user = response.data;
     },
 
+    async updateQuizAnswers(answers) {
+      const response = await apiClient.patch("/quiz", answers);
+      this.user = response.data;
+    },
+
     _setSession(user, token) {
       localStorage.setItem("authToken", token);
       this.user = user;

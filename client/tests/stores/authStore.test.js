@@ -135,4 +135,17 @@ describe("authStore", () => {
     );
     expect(store.user.profile_image).toBe("http://localhost:8000/storage/profile-photos/a.jpg");
   });
+
+  it("updateQuizAnswers() sends the answers and stores the returned user", async () => {
+    const answers = { oneToOnePreference: 5, preferredGroupSize: 2 };
+    patch.mockResolvedValue({
+      data: { id: 1, email: "lesley@example.com", quiz_answers: answers },
+    });
+
+    const store = useAuthStore();
+    await store.updateQuizAnswers(answers);
+
+    expect(patch).toHaveBeenCalledWith("/quiz", answers);
+    expect(store.user.quiz_answers).toEqual(answers);
+  });
 });

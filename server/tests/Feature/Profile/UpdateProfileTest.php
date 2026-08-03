@@ -36,6 +36,29 @@ test('a user can update their personal information', function () {
     expect($user->fresh()->job_title)->toBe('Product Designer');
 });
 
+test('a user can leave optional profile fields blank', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    // Laravel's ConvertEmptyStringsToNull middleware turns "" into null
+    // before validation runs, which used to fail the plain "string" rule.
+    $response = $this->patchJson('/api/profile', [
+        'job_title' => '',
+        'industry' => '',
+        'bio' => '',
+        'networking_goals' => '',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(200);
+    $response->assertJsonPath('job_title', '');
+    $response->assertJsonPath('industry', '');
+});
+
 test('a user can update communication preferences without losing other keys', function () {
     $user = User::create([
         'first_name' => 'Lesley',

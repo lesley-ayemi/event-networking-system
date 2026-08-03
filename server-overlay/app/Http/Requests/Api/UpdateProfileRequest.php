@@ -11,6 +11,22 @@ class UpdateProfileRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Laravel's default ConvertEmptyStringsToNull middleware turns a blank
+     * "" input into null before validation runs. These fields are optional
+     * text the frontend lets users leave blank, so restore "" here rather
+     * than loosening the rules to accept null (which the User model's own
+     * '' defaults don't expect).
+     */
+    protected function prepareForValidation(): void
+    {
+        foreach (['job_title', 'industry', 'bio', 'networking_goals'] as $field) {
+            if ($this->has($field) && $this->input($field) === null) {
+                $this->merge([$field => '']);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [
