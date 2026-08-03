@@ -37,6 +37,7 @@ if ! grep -q "^CLIENT_URL=" .env; then
 fi
 sed -i.bak "s/^DB_CONNECTION=.*/DB_CONNECTION=mysql/" .env
 sed -i.bak "s/^DB_DATABASE=.*/DB_DATABASE=${DB_NAME}/" .env 2>/dev/null || true
+sed -i.bak "s#^APP_URL=.*#APP_URL=http://localhost:8000#" .env 2>/dev/null || true
 rm -f .env.bak
 
 echo "=== 5/9: Installing Pest ==="
@@ -55,13 +56,15 @@ cp "$ROOT_DIR/server-overlay/app/Models/User.php" app/Models/User.php
 mkdir -p app/Http/Requests/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/RegisterRequest.php" app/Http/Requests/Api/RegisterRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Requests/Api/LoginRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateProfileRequest.php" app/Http/Requests/Api/UpdateProfileRequest.php
 mkdir -p app/Http/Controllers/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
 cp "$ROOT_DIR/server-overlay/routes/api.php" routes/api.php
 cp "$ROOT_DIR/server-overlay/database/migrations/"*.php database/migrations/
-mkdir -p tests/Feature/Auth tests/Unit/Models
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -69,6 +72,11 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/RegisterTest.php" tests/Feature/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LoginTest.php" tests/Feature/Auth/LoginTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/ProtectedRouteTest.php" tests/Feature/Auth/ProtectedRouteTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LogoutTest.php" tests/Feature/Auth/LogoutTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php
+
+echo "=== 6a/9: Linking public storage for profile photo uploads ==="
+php artisan storage:link
 
 echo "=== 7/9: Confirming phpunit.xml runs tests against in-memory SQLite ==="
 if ! grep -q 'name="DB_CONNECTION" value="sqlite"' phpunit.xml; then

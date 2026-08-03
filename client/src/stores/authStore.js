@@ -35,6 +35,20 @@ export const useAuthStore = defineStore("auth", {
       this.user = response.data;
     },
 
+    async updateProfile(payload) {
+      const response = await apiClient.patch("/profile", payload);
+      this.user = response.data;
+    },
+
+    async uploadProfilePhoto(file) {
+      const formData = new FormData();
+      formData.append("photo", file);
+      const response = await apiClient.post("/profile/photo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      this.user = response.data;
+    },
+
     _setSession(user, token) {
       localStorage.setItem("authToken", token);
       this.user = user;
