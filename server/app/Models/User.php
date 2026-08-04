@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -30,6 +31,11 @@ class User extends Authenticatable
         'onboarding_completed',
         'availability_status',
         'conversation_boundaries',
+        'is_admin',
+        'is_suspended',
+        'suspended_at',
+        'organiser_status',
+        'organiser_requested_at',
     ];
 
     protected $hidden = [
@@ -45,6 +51,9 @@ class User extends Authenticatable
         'profile_image' => '',
         'onboarding_completed' => false,
         'availability_status' => 'available',
+        'is_admin' => false,
+        'is_suspended' => false,
+        'organiser_status' => 'none',
     ];
 
     protected function casts(): array
@@ -58,6 +67,10 @@ class User extends Authenticatable
             'compatibility_profile' => 'array',
             'onboarding_completed' => 'boolean',
             'conversation_boundaries' => 'array',
+            'is_admin' => 'boolean',
+            'is_suspended' => 'boolean',
+            'suspended_at' => 'datetime',
+            'organiser_requested_at' => 'datetime',
         ];
     }
 
@@ -124,5 +137,10 @@ class User extends Authenticatable
     public function blockedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_blocks', 'blocker_id', 'blocked_id')->withTimestamps();
+    }
+
+    public function receivedReports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }

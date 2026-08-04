@@ -14,7 +14,9 @@
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <button type="button" class="text-xs text-gray-500 hover:text-gray-900" @click="handleReport">Report</button>
+          <button type="button" class="text-xs text-gray-500 hover:text-gray-900" @click="showUserReportModal = true">
+            Report
+          </button>
           <button type="button" class="text-xs text-gray-500 hover:text-red-600" @click="handleBlock">Block</button>
         </div>
       </div>
@@ -29,7 +31,6 @@
         </span>
       </div>
 
-      <p v-if="actionStatus" class="text-xs text-gray-500 px-5 pt-3">{{ actionStatus }}</p>
       <p v-if="actionError" class="text-xs text-red-600 px-5 pt-3">{{ actionError }}</p>
 
       <div ref="scrollRegion" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
@@ -63,6 +64,14 @@
             <p class="text-xs text-gray-400 mt-0.5" :class="isMine(message) ? 'text-right' : 'text-left'">
               {{ formattedTime(message.created_at) }}
               <span v-if="isMine(message) && isRead(message)"> · Read</span>
+              <button
+                v-if="!isMine(message)"
+                type="button"
+                class="text-gray-300 hover:text-gray-500 underline"
+                @click="reportingMessage = message"
+              >
+                Report
+              </button>
             </p>
           </div>
         </div>
@@ -73,6 +82,21 @@
         <PrimaryButton :disabled="isSending || !draft.trim()">Send</PrimaryButton>
       </form>
     </div>
+
+    <ReportModal
+      v-if="showUserReportModal && conversation"
+      :title="`Report ${conversation.other_user.first_name} ${conversation.other_user.last_name}`"
+      reportable-type="user"
+      :reportable-id="conversation.other_user.id"
+      @close="showUserReportModal = false"
+    />
+    <ReportModal
+      v-if="reportingMessage"
+      title="Report this message"
+      reportable-type="message"
+      :reportable-id="reportingMessage.id"
+      @close="reportingMessage = null"
+    />
   </DefaultLayout>
 </template>
 
@@ -84,6 +108,7 @@ import Avatar from "../components/Avatar.vue";
 import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import TextInput from "../components/TextInput.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
+import ReportModal from "../components/ReportModal.vue";
 import { useUserStore } from "../stores/userStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
@@ -99,8 +124,9 @@ const friendsStore = useFriendsStore();
 const draft = ref("");
 const isSending = ref(false);
 const scrollRegion = ref(null);
-const actionStatus = ref("");
 const actionError = ref("");
+const showUserReportModal = ref(false);
+const reportingMessage = ref(null);
 
 const conversation = computed(() => conversationsStore.currentConversation);
 
@@ -136,7 +162,6 @@ async function scrollToBottom() {
 async function loadConversation(conversationId) {
   conversationsStore.unsubscribeFromConversation();
   conversationsStore.messages = [];
-  actionStatus.value = "";
 
   await Promise.all([
     conversationsStore.fetchConversation(conversationId),
@@ -174,20 +199,6 @@ async function handleSend() {
     actionError.value = getApiError(error, "We couldn't send that message. Please try again.").message;
   } finally {
     isSending.value = false;
-  }
-}
-
-async function handleReport() {
-  const reason = window.prompt("What's going on? This is optional.");
-  if (reason === null) {
-    return;
-  }
-  actionError.value = "";
-  try {
-    await conversationsStore.reportConversation(route.params.conversationId, reason || null);
-    actionStatus.value = "Thanks — we've received your report.";
-  } catch (error) {
-    actionError.value = getApiError(error, "We couldn't send that report. Please try again.").message;
   }
 }
 

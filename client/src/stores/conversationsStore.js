@@ -69,10 +69,6 @@ export const useConversationsStore = defineStore("conversations", {
       }
     },
 
-    async reportConversation(conversationId, reason) {
-      await apiClient.post(`/conversations/${conversationId}/report`, { reason });
-    },
-
     subscribeToConversation(conversationId) {
       this.unsubscribeFromConversation();
       this.subscribedConversationId = conversationId;

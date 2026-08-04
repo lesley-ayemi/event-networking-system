@@ -172,7 +172,23 @@
           {{ isSubmitting ? "Cancelling…" : "Cancel registration" }}
         </SecondaryButton>
       </div>
+
+      <button
+        type="button"
+        class="text-xs text-gray-400 hover:text-gray-600 underline mt-6"
+        @click="showReportModal = true"
+      >
+        Report this event
+      </button>
     </div>
+
+    <ReportModal
+      v-if="showReportModal && event"
+      :title="`Report ${event.name}`"
+      reportable-type="event"
+      :reportable-id="event.id"
+      @close="showReportModal = false"
+    />
   </DefaultLayout>
 </template>
 
@@ -187,6 +203,7 @@ import Checkbox from "../components/Checkbox.vue";
 import BookmarkButton from "../components/BookmarkButton.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
+import ReportModal from "../components/ReportModal.vue";
 import { useUserStore } from "../stores/userStore.js";
 import { useEventsStore } from "../stores/eventsStore.js";
 import { getApiError } from "../services/apiError.js";
@@ -207,6 +224,7 @@ const INTERACTION_MODE_LABELS = {
 const route = useRoute();
 const userStore = useUserStore();
 const eventsStore = useEventsStore();
+const showReportModal = ref(false);
 const isSubmitting = ref(false);
 const registrationError = ref("");
 const showForm = ref(false);

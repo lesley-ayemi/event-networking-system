@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { resolveNavigation } from "./guards.js";
 import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
 
 import LandingPage from "../pages/LandingPage.vue";
 import RegisterPage from "../pages/RegisterPage.vue";
@@ -16,6 +17,12 @@ import FriendsPage from "../pages/FriendsPage.vue";
 import MessagesPage from "../pages/MessagesPage.vue";
 import ChatPage from "../pages/ChatPage.vue";
 import ProfilePage from "../pages/ProfilePage.vue";
+import AdminReportsPage from "../pages/admin/AdminReportsPage.vue";
+import AdminFlaggedAccountsPage from "../pages/admin/AdminFlaggedAccountsPage.vue";
+import AdminOrganiserRequestsPage from "../pages/admin/AdminOrganiserRequestsPage.vue";
+import AdminEventsPage from "../pages/admin/AdminEventsPage.vue";
+import AdminAuditLogPage from "../pages/admin/AdminAuditLogPage.vue";
+import AdminAdminsPage from "../pages/admin/AdminAdminsPage.vue";
 
 const routes = [
   { path: "/", component: LandingPage, meta: { requiresAuth: false } },
@@ -36,6 +43,20 @@ const routes = [
     meta: { requiresAuth: true },
   },
   { path: "/profile", component: ProfilePage, meta: { requiresAuth: true } },
+  { path: "/admin/reports", component: AdminReportsPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  {
+    path: "/admin/flagged-accounts",
+    component: AdminFlaggedAccountsPage,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: "/admin/organiser-requests",
+    component: AdminOrganiserRequestsPage,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  { path: "/admin/events", component: AdminEventsPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: "/admin/audit-log", component: AdminAuditLogPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: "/admin/admins", component: AdminAdminsPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 export const router = createRouter({
@@ -45,5 +66,9 @@ export const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore();
-  return resolveNavigation(to, { isAuthenticated: authStore.isAuthenticated });
+  const userStore = useUserStore();
+  return resolveNavigation(to, {
+    isAuthenticated: authStore.isAuthenticated,
+    isAdmin: Boolean(userStore.user?.is_admin),
+  });
 });

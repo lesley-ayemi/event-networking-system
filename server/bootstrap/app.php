@@ -21,7 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'active' => \App\Http\Middleware\EnsureAccountActive::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Every API error — whether an intentional ApiException or a

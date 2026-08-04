@@ -38,6 +38,9 @@ test('creating a user applies interaction preference and comfort setting default
         'no_spontaneous_calls' => false,
         'ask_before_groups' => false,
     ]);
+    expect($user->is_admin)->toBeFalse();
+    expect($user->is_suspended)->toBeFalse();
+    expect($user->organiser_status)->toBe('none');
 });
 
 test('the password is hashed automatically', function () {

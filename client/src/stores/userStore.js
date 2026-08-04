@@ -36,5 +36,10 @@ export const useUserStore = defineStore("user", {
       const response = await apiClient.patch("/quiz", answers);
       this.user = response.data;
     },
+
+    async requestOrganiserStatus() {
+      const response = await apiClient.post("/organiser-requests");
+      this.user = response.data;
+    },
   },
 });

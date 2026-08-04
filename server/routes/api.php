@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminUserController;
+use App\Http\Controllers\Api\Admin\AuditLogController;
+use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Api\Admin\OrganiserRequestController as AdminOrganiserRequestController;
+use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Api\Admin\UserController as AdminUserModerationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\BookmarkController;
@@ -9,8 +15,10 @@ use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\FriendRequestController;
 use App\Http\Controllers\Api\MatchController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\OrganiserRequestController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\QuizController;
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +32,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // /api/broadcasting/auth alongside the rest of the API.
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::patch('/profile', [ProfileController::class, 'update']);
@@ -63,7 +71,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/conversations', [ConversationController::class, 'store']);
     Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
     Route::post('/conversations/{conversation}/read', [ConversationController::class, 'markRead']);
-    Route::post('/conversations/{conversation}/report', [ConversationController::class, 'report']);
     Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
     Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
+
+    Route::post('/reports', [ReportController::class, 'store']);
+    Route::post('/organiser-requests', [OrganiserRequestController::class, 'store']);
+
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/reports', [AdminReportController::class, 'index']);
+        Route::patch('/reports/{report}', [AdminReportController::class, 'update']);
+
+        Route::get('/flagged-accounts', [AdminUserModerationController::class, 'flagged']);
+        Route::post('/users/{user}/suspend', [AdminUserModerationController::class, 'suspend']);
+        Route::post('/users/{user}/unsuspend', [AdminUserModerationController::class, 'unsuspend']);
+
+        Route::delete('/events/{event}', [AdminEventController::class, 'destroy']);
+
+        Route::get('/organiser-requests', [AdminOrganiserRequestController::class, 'index']);
+        Route::post('/organiser-requests/{user}/approve', [AdminOrganiserRequestController::class, 'approve']);
+        Route::post('/organiser-requests/{user}/reject', [AdminOrganiserRequestController::class, 'reject']);
+
+        Route::get('/audit-logs', [AuditLogController::class, 'index']);
+
+        Route::get('/admins', [AdminUserController::class, 'index']);
+        Route::post('/admins', [AdminUserController::class, 'store']);
+        Route::patch('/admins/{user}', [AdminUserController::class, 'update']);
+        Route::delete('/admins/{user}', [AdminUserController::class, 'destroy']);
+    });
 });

@@ -169,31 +169,6 @@ test('a user can mark a conversation as read', function () {
     expect($conversation->participants()->where('user_id', $me->id)->first()->last_read_at)->not->toBeNull();
 });
 
-test('a user can report a conversation', function () {
-    $me = User::create([
-        'first_name' => 'Lesley', 'last_name' => 'Ayemi',
-        'email' => 'lesley@example.com', 'password' => 'supersecret',
-    ]);
-    $token = $me->createToken('api-token')->plainTextToken;
-    $friend = User::create([
-        'first_name' => 'Sam', 'last_name' => 'Rivera',
-        'email' => 'sam@example.com', 'password' => 'supersecret',
-    ]);
-
-    $conversation = Conversation::create();
-    $conversation->participants()->createMany([
-        ['user_id' => $me->id],
-        ['user_id' => $friend->id],
-    ]);
-
-    $response = $this->postJson("/api/conversations/{$conversation->id}/report", [
-        'reason' => 'Spam links.',
-    ], ['Authorization' => "Bearer {$token}"]);
-
-    $response->assertStatus(201);
-    expect(\App\Models\ConversationReport::where('conversation_id', $conversation->id)->exists())->toBeTrue();
-});
-
 test('the conversation list includes an unread count and last-message preview', function () {
     $me = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',

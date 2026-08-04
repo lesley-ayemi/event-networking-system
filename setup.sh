@@ -74,7 +74,8 @@ cp "$ROOT_DIR/server-overlay/app/Models/FriendRequest.php" app/Models/FriendRequ
 cp "$ROOT_DIR/server-overlay/app/Models/Conversation.php" app/Models/Conversation.php
 cp "$ROOT_DIR/server-overlay/app/Models/ConversationParticipant.php" app/Models/ConversationParticipant.php
 cp "$ROOT_DIR/server-overlay/app/Models/Message.php" app/Models/Message.php
-cp "$ROOT_DIR/server-overlay/app/Models/ConversationReport.php" app/Models/ConversationReport.php
+cp "$ROOT_DIR/server-overlay/app/Models/Report.php" app/Models/Report.php
+cp "$ROOT_DIR/server-overlay/app/Models/AuditLog.php" app/Models/AuditLog.php
 mkdir -p app/Http/Requests/Api
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/RegisterRequest.php" app/Http/Requests/Api/RegisterRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/LoginRequest.php" app/Http/Requests/Api/LoginRequest.php
@@ -86,8 +87,8 @@ cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/UpdateQuizRequest.php" app/Ht
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreFriendRequestRequest.php" app/Http/Requests/Api/StoreFriendRequestRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreConversationRequest.php" app/Http/Requests/Api/StoreConversationRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreMessageRequest.php" app/Http/Requests/Api/StoreMessageRequest.php
-cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/ReportConversationRequest.php" app/Http/Requests/Api/ReportConversationRequest.php
-mkdir -p app/Http/Controllers/Api/Concerns
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreReportRequest.php" app/Http/Requests/Api/StoreReportRequest.php
+mkdir -p app/Http/Controllers/Api/Concerns app/Http/Controllers/Api/Admin app/Http/Middleware app/Console/Commands
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/EventController.php" app/Http/Controllers/Api/EventController.php
@@ -99,13 +100,20 @@ cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/FriendController.php" app/
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BlockController.php" app/Http/Controllers/Api/BlockController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ConversationController.php" app/Http/Controllers/Api/ConversationController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/MessageController.php" app/Http/Controllers/Api/MessageController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ReportController.php" app/Http/Controllers/Api/ReportController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/OrganiserRequestController.php" app/Http/Controllers/Api/OrganiserRequestController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php" app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Admin/"*.php app/Http/Controllers/Api/Admin/
+cp "$ROOT_DIR/server-overlay/app/Http/Middleware/EnsureUserIsAdmin.php" app/Http/Middleware/EnsureUserIsAdmin.php
+cp "$ROOT_DIR/server-overlay/app/Http/Middleware/EnsureAccountActive.php" app/Http/Middleware/EnsureAccountActive.php
+cp "$ROOT_DIR/server-overlay/app/Console/Commands/PromoteAdmin.php" app/Console/Commands/PromoteAdmin.php
 mkdir -p app/Http/Resources app/Services app/Events app/Exceptions
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/app/Services/CompatibilityCalculator.php" app/Services/CompatibilityCalculator.php
 cp "$ROOT_DIR/server-overlay/app/Services/MessagingPolicy.php" app/Services/MessagingPolicy.php
 cp "$ROOT_DIR/server-overlay/app/Events/MessageSent.php" app/Events/MessageSent.php
 cp "$ROOT_DIR/server-overlay/app/Exceptions/ApiException.php" app/Exceptions/ApiException.php
+cp "$ROOT_DIR/server-overlay/app/Providers/AppServiceProvider.php" app/Providers/AppServiceProvider.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
 cp "$ROOT_DIR/server-overlay/config/broadcasting.php" config/broadcasting.php
@@ -117,7 +125,7 @@ cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factor
 cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php
 cp "$ROOT_DIR/server-overlay/database/seeders/DatabaseSeeder.php" database/seeders/DatabaseSeeder.php
 cp "$ROOT_DIR/server-overlay/database/seeders/EventSeeder.php" database/seeders/EventSeeder.php
-mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services tests/Feature/Friends tests/Feature/Blocks tests/Feature/Messaging tests/Feature/ErrorHandling
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services tests/Feature/Friends tests/Feature/Blocks tests/Feature/Messaging tests/Feature/ErrorHandling tests/Feature/Admin tests/Feature/Reports tests/Feature/Organisers
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -136,6 +144,9 @@ cp "$ROOT_DIR/server-overlay/tests/Unit/Services/"*.php tests/Unit/Services/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Friends/"*.php tests/Feature/Friends/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Blocks/"*.php tests/Feature/Blocks/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Messaging/"*.php tests/Feature/Messaging/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Admin/"*.php tests/Feature/Admin/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Reports/"*.php tests/Feature/Reports/
+cp "$ROOT_DIR/server-overlay/tests/Feature/Organisers/"*.php tests/Feature/Organisers/
 
 echo "=== 6a/9: Linking public storage for profile photo uploads ==="
 php artisan storage:link

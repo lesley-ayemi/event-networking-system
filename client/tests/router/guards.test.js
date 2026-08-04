@@ -19,4 +19,16 @@ describe("resolveNavigation", () => {
     const result = resolveNavigation(to, { isAuthenticated: false });
     expect(result).toEqual({ path: "/login", query: { redirect: "/dashboard" } });
   });
+
+  it("allows navigation to an admin route when authenticated and an admin", () => {
+    const to = { meta: { requiresAuth: true, requiresAdmin: true }, path: "/admin/reports" };
+    const result = resolveNavigation(to, { isAuthenticated: true, isAdmin: true });
+    expect(result).toBe(true);
+  });
+
+  it("redirects to /dashboard when navigating to an admin route as a non-admin", () => {
+    const to = { meta: { requiresAuth: true, requiresAdmin: true }, path: "/admin/reports" };
+    const result = resolveNavigation(to, { isAuthenticated: true, isAdmin: false });
+    expect(result).toEqual({ path: "/dashboard" });
+  });
 });

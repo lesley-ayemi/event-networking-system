@@ -11,10 +11,11 @@ test('an unauthenticated request to create an event is rejected', function () {
     $response->assertStatus(401);
 });
 
-test('a user can create an event', function () {
+test('an approved organiser can create an event', function () {
     $user = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',
         'email' => 'lesley@example.com', 'password' => 'supersecret',
+        'organiser_status' => 'approved',
     ]);
     $token = $user->createToken('api-token')->plainTextToken;
 
@@ -30,10 +31,29 @@ test('a user can create an event', function () {
     $response->assertJsonPath('data.created_by', $user->id);
 });
 
+test('a user who is not an approved organiser cannot create an event', function () {
+    $user = User::create([
+        'first_name' => 'Lesley', 'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com', 'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    $response = $this->postJson('/api/events', [
+        'name' => 'Founders Mixer',
+        'starts_at' => '2026-09-01 18:00:00',
+        'is_virtual' => true,
+        'industry' => 'Technology',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(403);
+    $response->assertJsonPath('errorCode', 'ORGANISER_NOT_APPROVED');
+});
+
 test('creating an event requires a name and start date', function () {
     $user = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',
         'email' => 'lesley@example.com', 'password' => 'supersecret',
+        'organiser_status' => 'approved',
     ]);
     $token = $user->createToken('api-token')->plainTextToken;
 

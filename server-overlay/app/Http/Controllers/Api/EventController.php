@@ -74,6 +74,14 @@ class EventController extends Controller
 
     public function store(StoreEventRequest $request)
     {
+        if ($request->user()->organiser_status !== 'approved') {
+            throw new ApiException(
+                'You must be an approved event organiser to create events.',
+                'ORGANISER_NOT_APPROVED',
+                403,
+            );
+        }
+
         $event = Event::create($request->validated() + ['created_by' => $request->user()->id]);
         $event->loadCount('registrations');
         $this->attachUserContext(collect([$event]), $request->user());

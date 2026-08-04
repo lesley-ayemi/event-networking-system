@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\ReportConversationRequest;
 use App\Http\Requests\Api\StoreConversationRequest;
 use App\Models\Conversation;
 use App\Models\ConversationParticipant;
-use App\Models\ConversationReport;
 use App\Models\User;
 use App\Models\UserBlock;
 use App\Services\MessagingPolicy;
@@ -88,19 +86,6 @@ class ConversationController extends Controller
         $participant->update(['last_read_at' => now()]);
 
         return response()->json(['message' => 'Marked as read.']);
-    }
-
-    public function report(ReportConversationRequest $request, Conversation $conversation)
-    {
-        $this->authorizeParticipant($request, $conversation);
-
-        ConversationReport::create([
-            'conversation_id' => $conversation->id,
-            'reporter_id' => $request->user()->id,
-            'reason' => $request->validated('reason'),
-        ]);
-
-        return response()->json(['message' => 'Conversation reported.'], 201);
     }
 
     private function authorizeParticipant(Request $request, Conversation $conversation): ConversationParticipant
