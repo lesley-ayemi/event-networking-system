@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Api\Concerns\AttachesEventUserContext;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreEventRegistrationRequest;
@@ -110,11 +111,15 @@ class EventController extends Controller
         $user = $request->user();
 
         if ($event->registrations()->where('user_id', $user->id)->exists()) {
-            return response()->json(['message' => 'You are already registered for this event.'], 409);
+            throw new ApiException('You are already registered for this event.', 'EVENT_ALREADY_REGISTERED', 409);
+        }
+
+        if ($event->starts_at !== null && $event->starts_at->isPast()) {
+            throw new ApiException('Registration for this event is closed.', 'EVENT_REGISTRATION_CLOSED', 422);
         }
 
         if ($event->capacity !== null && $event->registrations()->count() >= $event->capacity) {
-            return response()->json(['message' => 'This event is full.'], 422);
+            throw new ApiException('This event is full.', 'EVENT_FULL', 422);
         }
 
         $event->registrations()->create($request->validated() + ['user_id' => $user->id]);
@@ -130,7 +135,7 @@ class EventController extends Controller
         $deleted = $event->registrations()->where('user_id', $request->user()->id)->delete();
 
         if (! $deleted) {
-            return response()->json(['message' => 'You are not registered for this event.'], 404);
+            throw new ApiException('You are not registered for this event.', 'EVENT_NOT_REGISTERED', 404);
         }
 
         $event->loadCount('registrations');

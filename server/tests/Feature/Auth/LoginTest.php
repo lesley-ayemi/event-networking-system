@@ -35,8 +35,12 @@ test('login fails with an incorrect password', function () {
         'password' => 'wrong-password',
     ]);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors('email');
+    $response->assertStatus(401);
+    $response->assertJson([
+        'success' => false,
+        'message' => 'These credentials do not match our records.',
+        'errorCode' => 'INVALID_CREDENTIALS',
+    ]);
 });
 
 test('login fails for an email that does not exist', function () {
@@ -45,6 +49,10 @@ test('login fails for an email that does not exist', function () {
         'password' => 'supersecret',
     ]);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors('email');
+    $response->assertStatus(401);
+    $response->assertJson([
+        'success' => false,
+        'message' => 'These credentials do not match our records.',
+        'errorCode' => 'INVALID_CREDENTIALS',
+    ]);
 });

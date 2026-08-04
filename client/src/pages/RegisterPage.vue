@@ -57,6 +57,7 @@ import TextInput from "../components/TextInput.vue";
 import InputError from "../components/InputError.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import { useAuthStore } from "../stores/authStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const firstName = ref("");
 const lastName = ref("");
@@ -82,8 +83,10 @@ async function handleSubmit() {
     });
     router.push("/onboarding");
   } catch (error) {
-    errorMessage.value =
-      "We couldn't create your account. Your information has not been lost. Please try again.";
+    errorMessage.value = getApiError(
+      error,
+      "We couldn't create your account. Your information has not been lost. Please try again."
+    ).message;
   } finally {
     isSubmitting.value = false;
   }

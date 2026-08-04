@@ -190,6 +190,7 @@ import Checkbox from "../components/Checkbox.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
 import { useUserStore } from "../stores/userStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const userStore = useUserStore();
 
@@ -244,7 +245,7 @@ async function saveStep1() {
     });
     currentStep.value = 2;
   } catch (error) {
-    step1Error.value = "We couldn't save your profile. Please try again.";
+    step1Error.value = getApiError(error, "We couldn't save your profile. Please try again.").message;
   } finally {
     isSavingStep1.value = false;
   }
@@ -260,7 +261,7 @@ async function saveStep2() {
     });
     currentStep.value = 3;
   } catch (error) {
-    step2Error.value = "We couldn't save your preferences. Please try again.";
+    step2Error.value = getApiError(error, "We couldn't save your preferences. Please try again.").message;
   } finally {
     isSavingStep2.value = false;
   }
@@ -276,7 +277,7 @@ async function handlePhotoChange(event) {
   try {
     await userStore.uploadProfilePhoto(file);
   } catch (error) {
-    photoError.value = "We couldn't upload that photo. Please try a smaller image file.";
+    photoError.value = getApiError(error, "We couldn't upload that photo. Please try a smaller image file.").message;
   } finally {
     isUploadingPhoto.value = false;
   }

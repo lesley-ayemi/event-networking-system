@@ -67,6 +67,7 @@ import SecondaryButton from "../components/SecondaryButton.vue";
 import { useMatchesStore } from "../stores/matchesStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const router = useRouter();
 const matchesStore = useMatchesStore();
@@ -103,10 +104,7 @@ async function message(userId) {
     const conversation = await conversationsStore.startConversation(userId);
     router.push(`/messages/${conversation.id}`);
   } catch (error) {
-    messageErrors[userId] =
-      error?.response?.status === 403
-        ? "You can only message this person once you're friends, or if you both allow open messaging."
-        : "We couldn't start that conversation. Please try again.";
+    messageErrors[userId] = getApiError(error, "We couldn't start that conversation. Please try again.").message;
   } finally {
     messagingUserIds.delete(userId);
   }
@@ -118,7 +116,7 @@ async function sendRequest(userId) {
     await friendsStore.sendFriendRequest(userId);
     statusMessages[userId] = "Friend request sent";
   } catch (error) {
-    statusMessages[userId] = "We couldn't send that request. Please try again.";
+    statusMessages[userId] = getApiError(error, "We couldn't send that request. Please try again.").message;
   } finally {
     busyUserIds.delete(userId);
   }
@@ -130,7 +128,7 @@ async function block(userId) {
     await friendsStore.blockUser(userId);
     statusMessages[userId] = "User blocked";
   } catch (error) {
-    statusMessages[userId] = "We couldn't block this user. Please try again.";
+    statusMessages[userId] = getApiError(error, "We couldn't block this user. Please try again.").message;
   } finally {
     busyUserIds.delete(userId);
   }

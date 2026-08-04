@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
+import { getApiError } from "../services/apiError.js";
 
 export const useEventsStore = defineStore("events", {
   state: () => ({
@@ -25,7 +26,7 @@ export const useEventsStore = defineStore("events", {
         this.events = response.data.data;
         this.pagination = response.data.meta;
       } catch (error) {
-        this.error = "We couldn't load events right now. Please try again.";
+        this.error = getApiError(error, "We couldn't load events right now. Please try again.").message;
       } finally {
         this.isLoading = false;
       }
@@ -38,7 +39,7 @@ export const useEventsStore = defineStore("events", {
         const response = await apiClient.get(`/events/${id}`);
         this.currentEvent = response.data.data;
       } catch (error) {
-        this.error = "We couldn't load this event.";
+        this.error = getApiError(error, "We couldn't load this event.").message;
       } finally {
         this.isLoading = false;
       }
@@ -61,7 +62,7 @@ export const useEventsStore = defineStore("events", {
         const response = await apiClient.get("/users/me/events");
         this.myEvents = response.data.data;
       } catch (error) {
-        this.myEventsError = "We couldn't load your registered events. Please try again.";
+        this.myEventsError = getApiError(error, "We couldn't load your registered events. Please try again.").message;
       } finally {
         this.isLoadingMyEvents = false;
       }
@@ -80,7 +81,7 @@ export const useEventsStore = defineStore("events", {
           .filter((event) => !event.is_registered && !event.is_bookmarked && new Date(event.starts_at) >= now)
           .slice(0, 4);
       } catch (error) {
-        this.recommendedError = "We couldn't load recommended events. Please try again.";
+        this.recommendedError = getApiError(error, "We couldn't load recommended events. Please try again.").message;
       } finally {
         this.isLoadingRecommended = false;
       }

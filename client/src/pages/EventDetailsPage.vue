@@ -189,6 +189,7 @@ import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
 import { useUserStore } from "../stores/userStore.js";
 import { useEventsStore } from "../stores/eventsStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const ACCESSIBILITY_LABELS = {
   wheelchair_accessible: "Wheelchair accessible",
@@ -278,7 +279,10 @@ async function handleRegister() {
     await eventsStore.register(route.params.id, { ...answers });
     showForm.value = false;
   } catch (error) {
-    registrationError.value = "We couldn't register you for this event. Please check your answers and try again.";
+    registrationError.value = getApiError(
+      error,
+      "We couldn't register you for this event. Please check your answers and try again."
+    ).message;
   } finally {
     isSubmitting.value = false;
   }
@@ -290,7 +294,7 @@ async function handleCancel() {
   try {
     await eventsStore.cancelRegistration(route.params.id);
   } catch (error) {
-    registrationError.value = "We couldn't cancel your registration. Please try again.";
+    registrationError.value = getApiError(error, "We couldn't cancel your registration. Please try again.").message;
   } finally {
     isSubmitting.value = false;
   }

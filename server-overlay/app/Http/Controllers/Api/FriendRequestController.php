@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreFriendRequestRequest;
 use App\Models\FriendRequest;
@@ -17,11 +18,11 @@ class FriendRequestController extends Controller
         $recipientId = (int) $request->validated('recipient_id');
 
         if ($recipientId === $sender->id) {
-            return response()->json(['message' => 'You cannot send a friend request to yourself.'], 422);
+            throw new ApiException('You cannot send a friend request to yourself.', 'CANNOT_FRIEND_SELF', 422);
         }
 
         if (UserBlock::existsBetween($sender->id, $recipientId)) {
-            return response()->json(['message' => 'You cannot send a friend request to this user.'], 403);
+            throw new ApiException('You cannot send a friend request to this user.', 'USER_BLOCKED', 403);
         }
 
         $alreadyExists = FriendRequest::query()
@@ -34,7 +35,11 @@ class FriendRequestController extends Controller
             ->exists();
 
         if ($alreadyExists) {
-            return response()->json(['message' => 'A friend request already exists between you and this user.'], 409);
+            throw new ApiException(
+                'A friend request already exists between you and this user.',
+                'DUPLICATE_FRIEND_REQUEST',
+                409,
+            );
         }
 
         $friendRequest = FriendRequest::create([

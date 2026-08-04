@@ -4,6 +4,7 @@
 
     <p v-if="friendsStore.isLoading" class="text-sm text-gray-500">Loading…</p>
     <p v-else-if="friendsStore.error" class="text-sm text-red-600">{{ friendsStore.error }}</p>
+    <p v-if="actionError" class="text-sm text-red-600 mb-4">{{ actionError }}</p>
 
     <div v-else class="space-y-8">
       <section v-if="friendsStore.incomingRequests.length > 0">
@@ -78,11 +79,13 @@ import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const router = useRouter();
 const friendsStore = useFriendsStore();
 const conversationsStore = useConversationsStore();
 const isBusy = ref(false);
+const actionError = ref("");
 const messagingUserIds = reactive(new Set());
 const messageErrors = reactive({});
 
@@ -101,7 +104,7 @@ async function message(userId) {
     const conversation = await conversationsStore.startConversation(userId);
     router.push(`/messages/${conversation.id}`);
   } catch (error) {
-    messageErrors[userId] = "We couldn't start that conversation. Please try again.";
+    messageErrors[userId] = getApiError(error, "We couldn't start that conversation. Please try again.").message;
   } finally {
     messagingUserIds.delete(userId);
   }
@@ -113,8 +116,11 @@ function personLine(user) {
 
 async function accept(requestId) {
   isBusy.value = true;
+  actionError.value = "";
   try {
     await friendsStore.acceptRequest(requestId);
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't accept that request. Please try again.").message;
   } finally {
     isBusy.value = false;
   }
@@ -122,8 +128,11 @@ async function accept(requestId) {
 
 async function decline(requestId) {
   isBusy.value = true;
+  actionError.value = "";
   try {
     await friendsStore.declineRequest(requestId);
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't decline that request. Please try again.").message;
   } finally {
     isBusy.value = false;
   }
@@ -131,8 +140,11 @@ async function decline(requestId) {
 
 async function remove(userId) {
   isBusy.value = true;
+  actionError.value = "";
   try {
     await friendsStore.removeFriend(userId);
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't remove that friend. Please try again.").message;
   } finally {
     isBusy.value = false;
   }
@@ -140,8 +152,11 @@ async function remove(userId) {
 
 async function block(userId) {
   isBusy.value = true;
+  actionError.value = "";
   try {
     await friendsStore.blockUser(userId);
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't block this user. Please try again.").message;
   } finally {
     isBusy.value = false;
   }

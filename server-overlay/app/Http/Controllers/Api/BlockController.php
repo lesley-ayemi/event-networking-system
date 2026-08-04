@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\FriendRequest;
 use App\Models\User;
@@ -24,11 +25,11 @@ class BlockController extends Controller
         $blocker = $request->user();
 
         if ($user->id === $blocker->id) {
-            return response()->json(['message' => 'You cannot block yourself.'], 422);
+            throw new ApiException('You cannot block yourself.', 'CANNOT_BLOCK_SELF', 422);
         }
 
         if (UserBlock::where('blocker_id', $blocker->id)->where('blocked_id', $user->id)->exists()) {
-            return response()->json(['message' => 'You have already blocked this user.'], 409);
+            throw new ApiException('You have already blocked this user.', 'USER_ALREADY_BLOCKED', 409);
         }
 
         UserBlock::create(['blocker_id' => $blocker->id, 'blocked_id' => $user->id]);
@@ -54,7 +55,7 @@ class BlockController extends Controller
             ->delete();
 
         if (! $deleted) {
-            return response()->json(['message' => 'You have not blocked this user.'], 404);
+            throw new ApiException('You have not blocked this user.', 'BLOCK_NOT_FOUND', 404);
         }
 
         return response()->json(['message' => 'User unblocked.']);

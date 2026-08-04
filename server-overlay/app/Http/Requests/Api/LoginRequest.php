@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Exceptions\ApiException;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
@@ -26,9 +26,7 @@ class LoginRequest extends FormRequest
         $user = User::where('email', $this->validated('email'))->first();
 
         if (! $user || ! password_verify($this->validated('password'), $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['These credentials do not match our records.'],
-            ]);
+            throw new ApiException('These credentials do not match our records.', 'INVALID_CREDENTIALS', 401);
         }
 
         return $user;

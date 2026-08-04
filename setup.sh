@@ -100,11 +100,12 @@ cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BlockController.php" app/H
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ConversationController.php" app/Http/Controllers/Api/ConversationController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/MessageController.php" app/Http/Controllers/Api/MessageController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php" app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php
-mkdir -p app/Http/Resources app/Services app/Events
+mkdir -p app/Http/Resources app/Services app/Events app/Exceptions
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/app/Services/CompatibilityCalculator.php" app/Services/CompatibilityCalculator.php
 cp "$ROOT_DIR/server-overlay/app/Services/MessagingPolicy.php" app/Services/MessagingPolicy.php
 cp "$ROOT_DIR/server-overlay/app/Events/MessageSent.php" app/Events/MessageSent.php
+cp "$ROOT_DIR/server-overlay/app/Exceptions/ApiException.php" app/Exceptions/ApiException.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
 cp "$ROOT_DIR/server-overlay/config/broadcasting.php" config/broadcasting.php
@@ -116,7 +117,7 @@ cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factor
 cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php
 cp "$ROOT_DIR/server-overlay/database/seeders/DatabaseSeeder.php" database/seeders/DatabaseSeeder.php
 cp "$ROOT_DIR/server-overlay/database/seeders/EventSeeder.php" database/seeders/EventSeeder.php
-mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services tests/Feature/Friends tests/Feature/Blocks tests/Feature/Messaging
+mkdir -p tests/Feature/Auth tests/Unit/Models tests/Feature/Profile tests/Feature/Events tests/Feature/Bookmarks tests/Feature/Quiz tests/Feature/Matches tests/Unit/Services tests/Feature/Friends tests/Feature/Blocks tests/Feature/Messaging tests/Feature/ErrorHandling
 cp "$ROOT_DIR/server-overlay/tests/Feature/SmokeTest.php" tests/Feature/SmokeTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/UsersTableTest.php" tests/Feature/UsersTableTest.php
 cp "$ROOT_DIR/server-overlay/tests/Unit/Models/UserTest.php" tests/Unit/Models/UserTest.php
@@ -124,6 +125,7 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/RegisterTest.php" tests/Feature/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LoginTest.php" tests/Feature/Auth/LoginTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/ProtectedRouteTest.php" tests/Feature/Auth/ProtectedRouteTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LogoutTest.php" tests/Feature/Auth/LogoutTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/ErrorHandling/"*.php tests/Feature/ErrorHandling/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Events/"*.php tests/Feature/Events/

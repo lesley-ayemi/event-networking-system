@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
+import { getApiError } from "../services/apiError.js";
 
 export const useFriendsStore = defineStore("friends", {
   state: () => ({
@@ -24,7 +25,7 @@ export const useFriendsStore = defineStore("friends", {
         this.incomingRequests = incoming.data.data;
         this.outgoingRequests = outgoing.data.data;
       } catch (error) {
-        this.error = "We couldn't load your friends right now. Please try again.";
+        this.error = getApiError(error, "We couldn't load your friends right now. Please try again.").message;
       } finally {
         this.isLoading = false;
       }

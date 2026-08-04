@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ReportConversationRequest;
 use App\Http\Requests\Api\StoreConversationRequest;
@@ -36,19 +37,21 @@ class ConversationController extends Controller
         $recipientId = (int) $request->validated('recipient_id');
 
         if ($recipientId === $user->id) {
-            return response()->json(['message' => 'You cannot start a conversation with yourself.'], 422);
+            throw new ApiException('You cannot start a conversation with yourself.', 'CANNOT_MESSAGE_SELF', 422);
         }
 
         $recipient = User::findOrFail($recipientId);
 
         if (UserBlock::existsBetween($user->id, $recipient->id)) {
-            return response()->json(['message' => 'You cannot message this user.'], 403);
+            throw new ApiException('You cannot message this user.', 'USER_BLOCKED', 403);
         }
 
         if (! MessagingPolicy::canMessage($user, $recipient)) {
-            return response()->json([
-                'message' => 'You can only message this person once you are friends, or if you both allow open messaging.',
-            ], 403);
+            throw new ApiException(
+                'You can only message this person once you are friends, or if you both allow open messaging.',
+                'MESSAGING_NOT_PERMITTED',
+                403,
+            );
         }
 
         $conversation = Conversation::query()

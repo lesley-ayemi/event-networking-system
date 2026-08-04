@@ -30,6 +30,7 @@
       </div>
 
       <p v-if="actionStatus" class="text-xs text-gray-500 px-5 pt-3">{{ actionStatus }}</p>
+      <p v-if="actionError" class="text-xs text-red-600 px-5 pt-3">{{ actionError }}</p>
 
       <div ref="scrollRegion" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
         <div v-if="conversationsStore.messages.length === 0" class="text-center">
@@ -68,7 +69,7 @@
       </div>
 
       <form @submit.prevent="handleSend" class="flex items-center gap-3 px-5 py-4 border-t border-gray-100">
-        <TextInput v-model="draft" type="text" placeholder="Type a message…" class="flex-1" />
+        <TextInput v-model="draft" type="text" placeholder="Type a message…" class="flex-1" :disabled="isSending" />
         <PrimaryButton :disabled="isSending || !draft.trim()">Send</PrimaryButton>
       </form>
     </div>
@@ -87,6 +88,7 @@ import { useUserStore } from "../stores/userStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { CONVERSATION_BOUNDARIES, CONVERSATION_STARTERS } from "../constants/conversationTools.js";
+import { getApiError } from "../services/apiError.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -98,6 +100,7 @@ const draft = ref("");
 const isSending = ref(false);
 const scrollRegion = ref(null);
 const actionStatus = ref("");
+const actionError = ref("");
 
 const conversation = computed(() => conversationsStore.currentConversation);
 
@@ -163,9 +166,12 @@ async function handleSend() {
     return;
   }
   isSending.value = true;
+  actionError.value = "";
   try {
     await conversationsStore.sendMessage(route.params.conversationId, body);
     draft.value = "";
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't send that message. Please try again.").message;
   } finally {
     isSending.value = false;
   }
@@ -176,8 +182,13 @@ async function handleReport() {
   if (reason === null) {
     return;
   }
-  await conversationsStore.reportConversation(route.params.conversationId, reason || null);
-  actionStatus.value = "Thanks — we've received your report.";
+  actionError.value = "";
+  try {
+    await conversationsStore.reportConversation(route.params.conversationId, reason || null);
+    actionStatus.value = "Thanks — we've received your report.";
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't send that report. Please try again.").message;
+  }
 }
 
 async function handleBlock() {
@@ -185,8 +196,13 @@ async function handleBlock() {
   if (!otherId) {
     return;
   }
-  await friendsStore.blockUser(otherId);
-  router.push("/messages");
+  actionError.value = "";
+  try {
+    await friendsStore.blockUser(otherId);
+    router.push("/messages");
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't block this user. Please try again.").message;
+  }
 }
 
 onBeforeUnmount(() => {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Api\Concerns\AttachesEventUserContext;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
@@ -30,7 +31,7 @@ class BookmarkController extends Controller
         $user = $request->user();
 
         if ($event->bookmarks()->where('user_id', $user->id)->exists()) {
-            return response()->json(['message' => 'You have already saved this event.'], 409);
+            throw new ApiException('You have already saved this event.', 'EVENT_ALREADY_SAVED', 409);
         }
 
         $event->bookmarks()->create(['user_id' => $user->id]);
@@ -46,7 +47,7 @@ class BookmarkController extends Controller
         $deleted = $event->bookmarks()->where('user_id', $request->user()->id)->delete();
 
         if (! $deleted) {
-            return response()->json(['message' => 'You have not saved this event.'], 404);
+            throw new ApiException('You have not saved this event.', 'BOOKMARK_NOT_FOUND', 404);
         }
 
         $event->loadCount('registrations');

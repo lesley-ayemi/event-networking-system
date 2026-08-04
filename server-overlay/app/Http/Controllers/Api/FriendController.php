@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\FriendRequest;
 use App\Models\User;
@@ -44,7 +45,7 @@ class FriendController extends Controller
             ->first();
 
         if (! $friendRequest) {
-            return response()->json(['message' => 'You are not friends with this user.'], 404);
+            throw new ApiException('You are not friends with this user.', 'NOT_FRIENDS', 404);
         }
 
         $friendRequest->delete();

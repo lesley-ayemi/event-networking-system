@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
+import { getApiError } from "../services/apiError.js";
 import { echo } from "../services/echo.js";
 
 export const useConversationsStore = defineStore("conversations", {
@@ -24,7 +25,7 @@ export const useConversationsStore = defineStore("conversations", {
         const response = await apiClient.get("/conversations");
         this.conversations = response.data.data;
       } catch (error) {
-        this.error = "We couldn't load your conversations right now. Please try again.";
+        this.error = getApiError(error, "We couldn't load your conversations right now. Please try again.").message;
       } finally {
         this.isLoading = false;
       }
@@ -43,7 +44,7 @@ export const useConversationsStore = defineStore("conversations", {
         const response = await apiClient.get(`/conversations/${conversationId}`);
         this.currentConversation = response.data;
       } catch (error) {
-        this.error = "We couldn't load this conversation.";
+        this.error = getApiError(error, "We couldn't load this conversation.").message;
       } finally {
         this.isLoading = false;
       }

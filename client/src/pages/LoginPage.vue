@@ -35,6 +35,7 @@ import TextInput from "../components/TextInput.vue";
 import InputError from "../components/InputError.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import { useAuthStore } from "../stores/authStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const email = ref("");
 const password = ref("");
@@ -51,7 +52,7 @@ async function handleSubmit() {
     await authStore.login({ email: email.value, password: password.value });
     router.push("/dashboard");
   } catch (error) {
-    errorMessage.value = "We couldn't log you in. Please check your email and password.";
+    errorMessage.value = getApiError(error, "We couldn't log you in. Please check your email and password.").message;
   } finally {
     isSubmitting.value = false;
   }

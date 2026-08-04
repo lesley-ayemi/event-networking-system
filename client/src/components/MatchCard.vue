@@ -29,6 +29,7 @@ import Avatar from "./Avatar.vue";
 import AvailabilityBadge from "./AvailabilityBadge.vue";
 import SecondaryButton from "./SecondaryButton.vue";
 import { useConversationsStore } from "../stores/conversationsStore.js";
+import { getApiError } from "../services/apiError.js";
 
 const props = defineProps({
   match: { type: Object, required: true },
@@ -47,10 +48,7 @@ async function message() {
     const conversation = await conversationsStore.startConversation(props.match.user.id);
     router.push(`/messages/${conversation.id}`);
   } catch (error) {
-    errorMessage.value =
-      error?.response?.status === 403
-        ? "You can only message this person once you're friends, or if you both allow open messaging."
-        : "We couldn't start that conversation. Please try again.";
+    errorMessage.value = getApiError(error, "We couldn't start that conversation. Please try again.").message;
   } finally {
     isMessaging.value = false;
   }

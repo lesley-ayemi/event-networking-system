@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
+import { getApiError } from "../services/apiError.js";
 import { useEventsStore } from "./eventsStore.js";
 
 export const useBookmarkStore = defineStore("bookmarks", {
@@ -17,7 +18,7 @@ export const useBookmarkStore = defineStore("bookmarks", {
         const response = await apiClient.get("/bookmarks");
         this.bookmarkedEvents = response.data.data;
       } catch (error) {
-        this.error = "We couldn't load your saved events. Please try again.";
+        this.error = getApiError(error, "We couldn't load your saved events. Please try again.").message;
       } finally {
         this.isLoading = false;
       }

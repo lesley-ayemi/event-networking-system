@@ -46,6 +46,7 @@ import Checkbox from "../components/Checkbox.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import { useUserStore } from "../stores/userStore.js";
 import { AVAILABILITY_STATUSES, CONVERSATION_BOUNDARIES } from "../constants/conversationTools.js";
+import { getApiError } from "../services/apiError.js";
 
 const userStore = useUserStore();
 
@@ -74,7 +75,7 @@ async function save() {
     });
     statusMessage.value = "Saved.";
   } catch (error) {
-    errorMessage.value = "We couldn't save your changes. Please try again.";
+    errorMessage.value = getApiError(error, "We couldn't save your changes. Please try again.").message;
   } finally {
     isSaving.value = false;
   }
