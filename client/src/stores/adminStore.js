@@ -31,6 +31,11 @@ export const useAdminStore = defineStore("admin", {
     isLoadingUsers: false,
     usersError: "",
 
+    reportContext: [],
+    reportContextReportId: null,
+    isLoadingReportContext: false,
+    reportContextError: "",
+
     currentUser: null,
     isLoadingCurrentUser: false,
     currentUserError: "",
@@ -144,6 +149,29 @@ export const useAdminStore = defineStore("admin", {
     async updateEvent(eventId, payload) {
       const response = await apiClient.patch(`/admin/events/${eventId}`, payload);
       return response.data.data;
+    },
+
+    async fetchReportContext(reportId) {
+      this.isLoadingReportContext = true;
+      this.reportContextError = "";
+      this.reportContextReportId = reportId;
+      try {
+        const response = await apiClient.get(`/admin/reports/${reportId}/context`);
+        this.reportContext = response.data.data;
+      } catch (error) {
+        this.reportContextError = getApiError(
+          error,
+          "We couldn't load that conversation. Please try again."
+        ).message;
+      } finally {
+        this.isLoadingReportContext = false;
+      }
+    },
+
+    clearReportContext() {
+      this.reportContext = [];
+      this.reportContextReportId = null;
+      this.reportContextError = "";
     },
 
     async fetchOrganiserRequests() {

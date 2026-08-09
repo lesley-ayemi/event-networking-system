@@ -92,6 +92,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/reports', [AdminReportController::class, 'index']);
         Route::patch('/reports/{report}', [AdminReportController::class, 'update']);
+        Route::get('/reports/{report}/context', [AdminReportController::class, 'context']);
 
         Route::get('/flagged-accounts', [AdminUserModerationController::class, 'flagged']);
         Route::post('/users/{user}/suspend', [AdminUserModerationController::class, 'suspend']);

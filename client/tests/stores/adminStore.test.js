@@ -83,6 +83,32 @@ describe("adminStore", () => {
     expect(del).toHaveBeenCalledWith("/admin/events/9");
   });
 
+  it("fetchReportContext() loads the surrounding conversation for a reported message", async () => {
+    get.mockResolvedValue({
+      data: { data: [{ id: 1, body: "Hi", is_flagged: false }, { id: 2, body: "Rude", is_flagged: true }] },
+    });
+
+    const store = useAdminStore();
+    await store.fetchReportContext(7);
+
+    expect(get).toHaveBeenCalledWith("/admin/reports/7/context");
+    expect(store.reportContext).toHaveLength(2);
+    expect(store.reportContextReportId).toBe(7);
+  });
+
+  it("clearReportContext() resets the context state", () => {
+    const store = useAdminStore();
+    store.reportContext = [{ id: 1 }];
+    store.reportContextReportId = 7;
+    store.reportContextError = "oops";
+
+    store.clearReportContext();
+
+    expect(store.reportContext).toEqual([]);
+    expect(store.reportContextReportId).toBeNull();
+    expect(store.reportContextError).toBe("");
+  });
+
   it("updateEvent() patches the event and returns the updated data", async () => {
     const updated = { id: 9, name: "Updated by admin" };
     patch.mockResolvedValue({ data: { data: updated } });

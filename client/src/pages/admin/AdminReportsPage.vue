@@ -32,6 +32,14 @@
               on {{ formattedDate(report.created_at) }}
             </p>
             <p v-if="report.details" class="text-sm text-gray-600 mt-2">{{ report.details }}</p>
+            <button
+              v-if="report.reportable_type === 'message'"
+              type="button"
+              class="text-xs font-medium text-indigo-600 hover:text-indigo-700 mt-2"
+              @click="toggleContext(report.id)"
+            >
+              {{ expandedReportId === report.id ? "Hide conversation" : "View conversation" }}
+            </button>
           </div>
           <Select
             :model-value="report.status"
@@ -40,6 +48,24 @@
           >
             <option v-for="status in STATUSES" :key="status" :value="status">{{ status }}</option>
           </Select>
+        </div>
+
+        <div v-if="expandedReportId === report.id" class="mt-3 bg-gray-50 rounded-lg p-3 space-y-2">
+          <p v-if="adminStore.isLoadingReportContext" class="text-xs text-gray-500">Loading…</p>
+          <p v-else-if="adminStore.reportContextError" class="text-xs text-red-600">{{ adminStore.reportContextError }}</p>
+          <div
+            v-else
+            v-for="message in adminStore.reportContext"
+            :key="message.id"
+            class="text-xs rounded-lg p-2"
+            :class="message.is_flagged ? 'bg-red-50 ring-1 ring-red-200' : ''"
+          >
+            <p class="font-medium text-gray-900">
+              {{ message.sender?.first_name }} {{ message.sender?.last_name }}
+              <span v-if="message.is_flagged" class="text-red-600 font-semibold">· Reported message</span>
+            </p>
+            <p class="text-gray-600 mt-0.5">{{ message.body }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -80,6 +106,7 @@ const typeFilter = ref("");
 const statusFilter = ref("");
 const actionError = ref("");
 const currentPage = ref(1);
+const expandedReportId = ref(null);
 
 function reasonLabel(value) {
   return REPORT_REASONS.find((reason) => reason.value === value)?.label ?? value;
@@ -105,6 +132,16 @@ function applyFilters() {
 function goToPage(page) {
   currentPage.value = page;
   load();
+}
+
+async function toggleContext(reportId) {
+  if (expandedReportId.value === reportId) {
+    expandedReportId.value = null;
+    adminStore.clearReportContext();
+    return;
+  }
+  expandedReportId.value = reportId;
+  await adminStore.fetchReportContext(reportId);
 }
 
 async function updateStatus(reportId, status) {
