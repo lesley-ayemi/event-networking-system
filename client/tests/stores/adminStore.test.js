@@ -156,4 +156,80 @@ describe("adminStore", () => {
     expect(del).toHaveBeenCalledWith("/admin/admins/1");
     expect(store.admins).toEqual([{ id: 2 }]);
   });
+
+  it("fetchUsers() loads users with the given filters and stores pagination meta", async () => {
+    get.mockResolvedValue({
+      data: {
+        data: [{ id: 1, first_name: "Ben" }],
+        meta: { current_page: 1, last_page: 2 },
+      },
+    });
+
+    const store = useAdminStore();
+    await store.fetchUsers({ search: "Ben", page: 1 });
+
+    expect(get).toHaveBeenCalledWith("/admin/users", { params: { search: "Ben", page: 1 } });
+    expect(store.users).toEqual([{ id: 1, first_name: "Ben" }]);
+    expect(store.usersPagination).toEqual({ current_page: 1, last_page: 2 });
+  });
+
+  it("fetchUser() loads a single user", async () => {
+    get.mockResolvedValue({ data: { id: 1, first_name: "Ben" } });
+
+    const store = useAdminStore();
+    await store.fetchUser(1);
+
+    expect(get).toHaveBeenCalledWith("/admin/users/1");
+    expect(store.currentUser).toEqual({ id: 1, first_name: "Ben" });
+  });
+
+  it("updateUser() updates the currentUser and the matching row in the users list", async () => {
+    const updated = { id: 1, first_name: "Benjamin" };
+    patch.mockResolvedValue({ data: updated });
+
+    const store = useAdminStore();
+    store.currentUser = { id: 1, first_name: "Ben" };
+    store.users = [{ id: 1, first_name: "Ben" }, { id: 2, first_name: "Ava" }];
+
+    const result = await store.updateUser(1, { first_name: "Benjamin" });
+
+    expect(patch).toHaveBeenCalledWith("/admin/users/1", { first_name: "Benjamin" });
+    expect(store.currentUser).toEqual(updated);
+    expect(store.users[0]).toEqual(updated);
+    expect(result).toEqual(updated);
+  });
+
+  it("deleteUser() removes the user from the list and clears currentUser if it matches", async () => {
+    del.mockResolvedValue({});
+
+    const store = useAdminStore();
+    store.users = [{ id: 1 }, { id: 2 }];
+    store.currentUser = { id: 1 };
+
+    await store.deleteUser(1);
+
+    expect(del).toHaveBeenCalledWith("/admin/users/1");
+    expect(store.users).toEqual([{ id: 2 }]);
+    expect(store.currentUser).toBeNull();
+  });
+
+  it("suspendUser() and unsuspendUser() sync the updated user into currentUser and the users list", async () => {
+    const suspended = { id: 1, is_suspended: true };
+    post.mockResolvedValue({ data: suspended });
+
+    const store = useAdminStore();
+    store.currentUser = { id: 1, is_suspended: false };
+    store.users = [{ id: 1, is_suspended: false }];
+
+    await store.suspendUser(1);
+
+    expect(store.currentUser).toEqual(suspended);
+    expect(store.users[0]).toEqual(suspended);
+
+    const unsuspended = { id: 1, is_suspended: false };
+    post.mockResolvedValue({ data: unsuspended });
+    await store.unsuspendUser(1);
+
+    expect(store.currentUser).toEqual(unsuspended);
+  });
 });

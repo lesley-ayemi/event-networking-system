@@ -58,6 +58,7 @@ import { ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 
 const navLinks = [
+  { to: "/admin/users", label: "Users" },
   { to: "/admin/reports", label: "Reports" },
   { to: "/admin/flagged-accounts", label: "Flagged" },
   { to: "/admin/organiser-requests", label: "Organisers" },

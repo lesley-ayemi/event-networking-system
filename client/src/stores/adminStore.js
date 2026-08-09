@@ -25,6 +25,15 @@ export const useAdminStore = defineStore("admin", {
     admins: [],
     isLoadingAdmins: false,
     adminsError: "",
+
+    users: [],
+    usersPagination: null,
+    isLoadingUsers: false,
+    usersError: "",
+
+    currentUser: null,
+    isLoadingCurrentUser: false,
+    currentUserError: "",
   }),
 
   actions: {
@@ -65,12 +74,67 @@ export const useAdminStore = defineStore("admin", {
     },
 
     async suspendUser(userId) {
-      await apiClient.post(`/admin/users/${userId}/suspend`);
+      const response = await apiClient.post(`/admin/users/${userId}/suspend`);
       this.flaggedAccounts = this.flaggedAccounts.filter((user) => user.id !== userId);
+      this._applyUserUpdate(response.data);
     },
 
     async unsuspendUser(userId) {
-      await apiClient.post(`/admin/users/${userId}/unsuspend`);
+      const response = await apiClient.post(`/admin/users/${userId}/unsuspend`);
+      this._applyUserUpdate(response.data);
+    },
+
+    async fetchUsers(filters = {}) {
+      this.isLoadingUsers = true;
+      this.usersError = "";
+      try {
+        const response = await apiClient.get("/admin/users", { params: filters });
+        this.users = response.data.data;
+        this.usersPagination = response.data.meta;
+      } catch (error) {
+        this.usersError = getApiError(error, "We couldn't load users right now. Please try again.").message;
+      } finally {
+        this.isLoadingUsers = false;
+      }
+    },
+
+    async fetchUser(userId) {
+      this.isLoadingCurrentUser = true;
+      this.currentUserError = "";
+      try {
+        const response = await apiClient.get(`/admin/users/${userId}`);
+        this.currentUser = response.data;
+      } catch (error) {
+        this.currentUserError = getApiError(error, "We couldn't load this user.").message;
+      } finally {
+        this.isLoadingCurrentUser = false;
+      }
+    },
+
+    async updateUser(userId, payload) {
+      const response = await apiClient.patch(`/admin/users/${userId}`, payload);
+      this._applyUserUpdate(response.data);
+      return response.data;
+    },
+
+    async deleteUser(userId) {
+      await apiClient.delete(`/admin/users/${userId}`);
+      this.users = this.users.filter((user) => user.id !== userId);
+      if (this.currentUser?.id === userId) {
+        this.currentUser = null;
+      }
+    },
+
+    // suspend/unsuspend/updateUser all return the full updated user, so keep
+    // whichever cached copies (list row, detail view) happen to be loaded in sync.
+    _applyUserUpdate(updatedUser) {
+      if (this.currentUser?.id === updatedUser.id) {
+        this.currentUser = updatedUser;
+      }
+      const index = this.users.findIndex((user) => user.id === updatedUser.id);
+      if (index !== -1) {
+        this.users[index] = updatedUser;
+      }
     },
 
     async removeEvent(eventId) {

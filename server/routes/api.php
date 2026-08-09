@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\Admin\OrganiserRequestController as AdminOrganiserRequestController;
 use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserModerationController;
+use App\Http\Controllers\Api\Admin\UserManagementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\BookmarkController;
@@ -95,6 +96,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/flagged-accounts', [AdminUserModerationController::class, 'flagged']);
         Route::post('/users/{user}/suspend', [AdminUserModerationController::class, 'suspend']);
         Route::post('/users/{user}/unsuspend', [AdminUserModerationController::class, 'unsuspend']);
+
+        Route::get('/users', [UserManagementController::class, 'index']);
+        Route::get('/users/{id}', [UserManagementController::class, 'show']);
+        Route::patch('/users/{id}', [UserManagementController::class, 'update']);
+        Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
 
         Route::delete('/events/{event}', [AdminEventController::class, 'destroy']);
 

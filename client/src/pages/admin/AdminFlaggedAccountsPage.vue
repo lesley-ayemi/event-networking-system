@@ -15,7 +15,12 @@
           <p class="text-sm font-medium text-gray-900">{{ user.first_name }} {{ user.last_name }}</p>
           <p class="text-xs text-gray-500 break-words">{{ user.email }} · {{ user.reports_count }} reports</p>
         </div>
-        <SecondaryButton :disabled="isBusy(user.id)" @click="suspend(user.id)">Suspend</SecondaryButton>
+        <div class="flex items-center gap-3 shrink-0">
+          <RouterLink :to="`/admin/users/${user.id}`" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+            View
+          </RouterLink>
+          <SecondaryButton :disabled="isBusy(user.id)" @click="suspend(user.id)">Suspend</SecondaryButton>
+        </div>
       </div>
     </div>
     <p v-if="actionError" class="text-sm text-red-600 mt-4">{{ actionError }}</p>
@@ -24,6 +29,7 @@
 
 <script setup>
 import { onMounted, reactive, ref } from "vue";
+import { RouterLink } from "vue-router";
 import AdminLayout from "../../layouts/AdminLayout.vue";
 import SecondaryButton from "../../components/SecondaryButton.vue";
 import { useAdminStore } from "../../stores/adminStore.js";
