@@ -83,6 +83,27 @@ describe("adminStore", () => {
     expect(del).toHaveBeenCalledWith("/admin/events/9");
   });
 
+  it("fetchEventRegistrations() loads attendees for an event", async () => {
+    get.mockResolvedValue({ data: { data: [{ id: 1, user: { first_name: "Ben" } }] } });
+
+    const store = useAdminStore();
+    await store.fetchEventRegistrations(9);
+
+    expect(get).toHaveBeenCalledWith("/admin/events/9/registrations");
+    expect(store.eventRegistrations).toEqual([{ id: 1, user: { first_name: "Ben" } }]);
+  });
+
+  it("removeEventRegistration() removes the registration from the list", async () => {
+    del.mockResolvedValue({});
+
+    const store = useAdminStore();
+    store.eventRegistrations = [{ id: 1 }, { id: 2 }];
+    await store.removeEventRegistration(9, 1);
+
+    expect(del).toHaveBeenCalledWith("/admin/events/9/registrations/1");
+    expect(store.eventRegistrations).toEqual([{ id: 2 }]);
+  });
+
   it("fetchReportContext() loads the surrounding conversation for a reported message", async () => {
     get.mockResolvedValue({
       data: { data: [{ id: 1, body: "Hi", is_flagged: false }, { id: 2, body: "Rude", is_flagged: true }] },

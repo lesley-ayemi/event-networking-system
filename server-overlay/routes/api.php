@@ -105,6 +105,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
         Route::patch('/events/{event}', [AdminEventController::class, 'update']);
         Route::delete('/events/{event}', [AdminEventController::class, 'destroy']);
+        Route::get('/events/{event}/registrations', [AdminEventController::class, 'registrations']);
+        Route::delete('/events/{event}/registrations/{registration}', [AdminEventController::class, 'removeRegistration']);
 
         Route::get('/organiser-requests', [AdminOrganiserRequestController::class, 'index']);
         Route::post('/organiser-requests/{user}/approve', [AdminOrganiserRequestController::class, 'approve']);

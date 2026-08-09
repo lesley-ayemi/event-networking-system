@@ -36,6 +36,10 @@ export const useAdminStore = defineStore("admin", {
     isLoadingReportContext: false,
     reportContextError: "",
 
+    eventRegistrations: [],
+    isLoadingEventRegistrations: false,
+    eventRegistrationsError: "",
+
     currentUser: null,
     isLoadingCurrentUser: false,
     currentUserError: "",
@@ -149,6 +153,27 @@ export const useAdminStore = defineStore("admin", {
     async updateEvent(eventId, payload) {
       const response = await apiClient.patch(`/admin/events/${eventId}`, payload);
       return response.data.data;
+    },
+
+    async fetchEventRegistrations(eventId) {
+      this.isLoadingEventRegistrations = true;
+      this.eventRegistrationsError = "";
+      try {
+        const response = await apiClient.get(`/admin/events/${eventId}/registrations`);
+        this.eventRegistrations = response.data.data;
+      } catch (error) {
+        this.eventRegistrationsError = getApiError(
+          error,
+          "We couldn't load attendees for this event. Please try again."
+        ).message;
+      } finally {
+        this.isLoadingEventRegistrations = false;
+      }
+    },
+
+    async removeEventRegistration(eventId, registrationId) {
+      await apiClient.delete(`/admin/events/${eventId}/registrations/${registrationId}`);
+      this.eventRegistrations = this.eventRegistrations.filter((registration) => registration.id !== registrationId);
     },
 
     async fetchReportContext(reportId) {
