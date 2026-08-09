@@ -2,6 +2,11 @@
   <AdminLayout>
     <h1 class="text-lg font-medium text-gray-900 mb-6">Events</h1>
 
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      <TextInput v-model="search" type="search" placeholder="Search by event name" class="w-full sm:w-64" @keyup.enter="applyFilters" />
+      <SecondaryButton @click="applyFilters">Search</SecondaryButton>
+    </div>
+
     <p v-if="eventsStore.isLoading" class="text-sm text-gray-500">Loading…</p>
     <p v-else-if="eventsStore.error" class="text-sm text-red-600">{{ eventsStore.error }}</p>
     <p v-else-if="eventsStore.events.length === 0" class="text-sm text-gray-500">No events found.</p>
@@ -14,7 +19,12 @@
             {{ formattedDate(event.starts_at) }} · {{ event.is_virtual ? "Virtual" : event.location || "Location TBA" }}
           </p>
         </div>
-        <SecondaryButton :disabled="isBusy(event.id)" @click="remove(event.id)">Remove</SecondaryButton>
+        <div class="flex items-center gap-3 shrink-0">
+          <RouterLink :to="`/admin/events/${event.id}/edit`" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+            Edit
+          </RouterLink>
+          <SecondaryButton :disabled="isBusy(event.id)" @click="remove(event.id)">Remove</SecondaryButton>
+        </div>
       </div>
     </div>
 
@@ -37,7 +47,9 @@
 
 <script setup>
 import { onMounted, reactive, ref } from "vue";
+import { RouterLink } from "vue-router";
 import AdminLayout from "../../layouts/AdminLayout.vue";
+import TextInput from "../../components/TextInput.vue";
 import SecondaryButton from "../../components/SecondaryButton.vue";
 import { useEventsStore } from "../../stores/eventsStore.js";
 import { useAdminStore } from "../../stores/adminStore.js";
@@ -48,6 +60,7 @@ const adminStore = useAdminStore();
 const busyEventIds = reactive(new Set());
 const actionError = ref("");
 const currentPage = ref(1);
+const search = ref("");
 
 function isBusy(eventId) {
   return busyEventIds.has(eventId);
@@ -57,9 +70,18 @@ function formattedDate(timestamp) {
   return new Date(timestamp).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
+function load() {
+  eventsStore.fetchEvents({ search: search.value || undefined, page: currentPage.value });
+}
+
+function applyFilters() {
+  currentPage.value = 1;
+  load();
+}
+
 function goToPage(page) {
   currentPage.value = page;
-  eventsStore.fetchEvents({ page: currentPage.value });
+  load();
 }
 
 async function remove(eventId) {
@@ -75,7 +97,5 @@ async function remove(eventId) {
   }
 }
 
-onMounted(() => {
-  eventsStore.fetchEvents({ page: currentPage.value });
-});
+onMounted(load);
 </script>

@@ -22,6 +22,10 @@ class EventController extends Controller
     {
         $query = Event::query()->withCount('registrations');
 
+        $query->when($request->filled('search'), function ($query) use ($request) {
+            $query->where('name', 'like', '%'.$request->query('search').'%');
+        });
+
         $query->when($request->filled('date'), function ($query) use ($request) {
             $query->whereDate('starts_at', $request->query('date'));
         });

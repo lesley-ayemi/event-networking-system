@@ -102,6 +102,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::patch('/users/{id}', [UserManagementController::class, 'update']);
         Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
 
+        Route::patch('/events/{event}', [AdminEventController::class, 'update']);
         Route::delete('/events/{event}', [AdminEventController::class, 'destroy']);
 
         Route::get('/organiser-requests', [AdminOrganiserRequestController::class, 'index']);

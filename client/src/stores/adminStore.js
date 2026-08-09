@@ -141,6 +141,11 @@ export const useAdminStore = defineStore("admin", {
       await apiClient.delete(`/admin/events/${eventId}`);
     },
 
+    async updateEvent(eventId, payload) {
+      const response = await apiClient.patch(`/admin/events/${eventId}`, payload);
+      return response.data.data;
+    },
+
     async fetchOrganiserRequests() {
       this.isLoadingOrganiserRequests = true;
       this.organiserRequestsError = "";

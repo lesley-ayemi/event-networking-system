@@ -83,6 +83,17 @@ describe("adminStore", () => {
     expect(del).toHaveBeenCalledWith("/admin/events/9");
   });
 
+  it("updateEvent() patches the event and returns the updated data", async () => {
+    const updated = { id: 9, name: "Updated by admin" };
+    patch.mockResolvedValue({ data: { data: updated } });
+
+    const store = useAdminStore();
+    const result = await store.updateEvent(9, { name: "Updated by admin" });
+
+    expect(patch).toHaveBeenCalledWith("/admin/events/9", { name: "Updated by admin" });
+    expect(result).toEqual(updated);
+  });
+
   it("approveOrganiser() and rejectOrganiser() remove the user from the pending list", async () => {
     post.mockResolvedValue({ data: {} });
 

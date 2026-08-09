@@ -26,6 +26,22 @@ test('a user can list events', function () {
     expect($response->json('data'))->toHaveCount(3);
 });
 
+test('events can be filtered by a name search', function () {
+    $user = User::create([
+        'first_name' => 'Lesley', 'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com', 'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+    Event::factory()->create(['name' => 'Founders Mixer']);
+    Event::factory()->create(['name' => 'Design Meetup']);
+
+    $response = $this->getJson('/api/events?search=Founders', ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(200);
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.name'))->toBe('Founders Mixer');
+});
+
 test('events can be filtered by date', function () {
     $user = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',
