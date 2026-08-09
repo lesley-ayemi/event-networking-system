@@ -10,9 +10,12 @@
 
     <div v-else class="space-y-8">
       <section v-for="group in groupedMatches" :key="group.event.id">
-        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-          {{ group.event.name }}
-        </h2>
+        <div class="mb-3">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Matched at</p>
+          <RouterLink :to="`/events/${group.event.id}`" class="text-sm font-semibold text-gray-900 hover:text-indigo-600">
+            {{ group.event.name }}
+          </RouterLink>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="match in group.matches" :key="match.user.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">

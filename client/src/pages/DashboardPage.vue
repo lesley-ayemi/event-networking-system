@@ -1,10 +1,28 @@
 <template>
   <DefaultLayout>
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-2xl px-5 sm:px-6 py-6 shadow-sm">
-      <h1 class="text-xl font-bold text-white">
-        Welcome back{{ userStore.user?.first_name ? `, ${userStore.user.first_name}` : "" }}
-      </h1>
-      <InteractionStatus v-if="userStore.user" :status="userStore.user.availability_status" dark />
+    <div class="flex flex-col sm:flex-row sm:items-center flex-wrap justify-between gap-4 mb-6 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-2xl px-5 sm:px-6 py-6 shadow-sm">
+      <div class="min-w-0">
+        <h1 class="text-xl font-bold text-white">
+          Welcome back{{ userStore.user?.first_name ? `, ${userStore.user.first_name}` : "" }}
+        </h1>
+        <RouterLink
+          v-if="nextEvent"
+          :to="`/events/${nextEvent.id}`"
+          class="inline-flex items-center gap-1.5 text-sm text-indigo-100 hover:text-white mt-1"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+          </svg>
+          Next up: {{ nextEvent.name }} · {{ nextEventDate }}
+        </RouterLink>
+        <p v-else class="text-sm text-indigo-100 mt-1">
+          No upcoming events —
+          <RouterLink to="/events" class="underline hover:text-white">browse events</RouterLink>
+        </p>
+      </div>
+      <div class="shrink-0">
+        <InteractionStatus v-if="userStore.user" :status="userStore.user.availability_status" dark />
+      </div>
     </div>
 
     <div class="space-y-8">
@@ -120,6 +138,17 @@ const bookmarkStore = useBookmarkStore();
 const upcomingEvents = computed(() => {
   const now = new Date();
   return eventsStore.myEvents.filter((event) => new Date(event.starts_at) >= now).slice(0, 4);
+});
+
+const nextEvent = computed(() => {
+  return [...upcomingEvents.value].sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))[0] ?? null;
+});
+
+const nextEventDate = computed(() => {
+  if (!nextEvent.value?.starts_at) {
+    return "";
+  }
+  return new Date(nextEvent.value.starts_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 });
 
 const topMatches = computed(() => matchesStore.matches.slice(0, 3));
