@@ -30,10 +30,10 @@ const props = defineProps({
 });
 
 const CHECKLIST = [
-  { label: "Add a profile photo", to: "/onboarding", isComplete: (user) => Boolean(user.profile_image) },
+  { label: "Add a profile photo", to: "/profile", isComplete: (user) => Boolean(user.profile_image) },
   {
     label: "Fill in your bio and job details",
-    to: "/onboarding",
+    to: "/profile",
     isComplete: (user) => Boolean(user.bio && user.job_title && user.industry),
   },
   { label: "Take the compatibility quiz", to: "/quiz", isComplete: (user) => Object.keys(user.quiz_answers ?? {}).length > 0 },
