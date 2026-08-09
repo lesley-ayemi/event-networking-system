@@ -8,7 +8,12 @@
       </div>
 
       <div class="mt-4">
-        <InputLabel for-id="password" value="Password" />
+        <div class="flex items-center justify-between">
+          <InputLabel for-id="password" value="Password" />
+          <RouterLink to="/forgot-password" class="text-xs text-indigo-600 hover:text-indigo-700 mb-1.5">
+            Forgot password?
+          </RouterLink>
+        </div>
         <TextInput id="password" v-model="password" type="password" autocomplete="current-password" required />
       </div>
 

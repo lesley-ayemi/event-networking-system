@@ -104,4 +104,30 @@ describe("authStore", () => {
     expect(get).not.toHaveBeenCalled();
     expect(store.isAuthenticated).toBe(false);
   });
+
+  it("forgotPassword() posts the email and returns the response", async () => {
+    post.mockResolvedValue({ data: { message: "If an account exists for that email, a password reset link is on its way." } });
+
+    const store = useAuthStore();
+    const result = await store.forgotPassword("lesley@example.com");
+
+    expect(post).toHaveBeenCalledWith("/forgot-password", { email: "lesley@example.com" });
+    expect(result.message).toBe("If an account exists for that email, a password reset link is on its way.");
+  });
+
+  it("resetPassword() posts the token/email/password payload", async () => {
+    post.mockResolvedValue({ data: { message: "Your password has been reset. You can now log in." } });
+
+    const store = useAuthStore();
+    const payload = {
+      token: "abc123",
+      email: "lesley@example.com",
+      password: "new-password",
+      password_confirmation: "new-password",
+    };
+    const result = await store.resetPassword(payload);
+
+    expect(post).toHaveBeenCalledWith("/reset-password", payload);
+    expect(result.message).toBe("Your password has been reset. You can now log in.");
+  });
 });

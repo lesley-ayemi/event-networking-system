@@ -6,6 +6,8 @@ import { useUserStore } from "../stores/userStore.js";
 import LandingPage from "../pages/LandingPage.vue";
 import RegisterPage from "../pages/RegisterPage.vue";
 import LoginPage from "../pages/LoginPage.vue";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage.vue";
+import ResetPasswordPage from "../pages/ResetPasswordPage.vue";
 import OnboardingPage from "../pages/OnboardingPage.vue";
 import CompatibilityQuizPage from "../pages/CompatibilityQuizPage.vue";
 import DashboardPage from "../pages/DashboardPage.vue";
@@ -31,6 +33,8 @@ const routes = [
   { path: "/", component: LandingPage, meta: { requiresAuth: false } },
   { path: "/register", component: RegisterPage, meta: { requiresAuth: false } },
   { path: "/login", component: LoginPage, meta: { requiresAuth: false } },
+  { path: "/forgot-password", component: ForgotPasswordPage, meta: { requiresAuth: false } },
+  { path: "/reset-password", component: ResetPasswordPage, meta: { requiresAuth: false } },
   { path: "/onboarding", component: OnboardingPage, meta: { requiresAuth: true } },
   { path: "/quiz", component: CompatibilityQuizPage, meta: { requiresAuth: true } },
   { path: "/dashboard", component: DashboardPage, meta: { requiresAuth: true } },

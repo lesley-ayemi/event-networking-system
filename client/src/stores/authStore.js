@@ -23,6 +23,16 @@ export const useAuthStore = defineStore("auth", {
       this._clearSession();
     },
 
+    async forgotPassword(email) {
+      const response = await apiClient.post("/forgot-password", { email });
+      return response.data;
+    },
+
+    async resetPassword(payload) {
+      const response = await apiClient.post("/reset-password", payload);
+      return response.data;
+    },
+
     async restoreSession() {
       const token = localStorage.getItem("authToken");
       if (!token) {

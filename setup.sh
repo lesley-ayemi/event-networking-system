@@ -88,6 +88,8 @@ cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreFriendRequestRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreConversationRequest.php" app/Http/Requests/Api/StoreConversationRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreMessageRequest.php" app/Http/Requests/Api/StoreMessageRequest.php
 cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/StoreReportRequest.php" app/Http/Requests/Api/StoreReportRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/ForgotPasswordRequest.php" app/Http/Requests/Api/ForgotPasswordRequest.php
+cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/ResetPasswordRequest.php" app/Http/Requests/Api/ResetPasswordRequest.php
 mkdir -p app/Http/Controllers/Api/Concerns app/Http/Controllers/Api/Admin app/Http/Middleware app/Console/Commands
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
@@ -102,22 +104,25 @@ cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ConversationController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/MessageController.php" app/Http/Controllers/Api/MessageController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ReportController.php" app/Http/Controllers/Api/ReportController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/OrganiserRequestController.php" app/Http/Controllers/Api/OrganiserRequestController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/PasswordResetController.php" app/Http/Controllers/Api/PasswordResetController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php" app/Http/Controllers/Api/Concerns/AttachesEventUserContext.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Admin/"*.php app/Http/Controllers/Api/Admin/
 cp "$ROOT_DIR/server-overlay/app/Http/Middleware/EnsureUserIsAdmin.php" app/Http/Middleware/EnsureUserIsAdmin.php
 cp "$ROOT_DIR/server-overlay/app/Http/Middleware/EnsureAccountActive.php" app/Http/Middleware/EnsureAccountActive.php
 cp "$ROOT_DIR/server-overlay/app/Console/Commands/PromoteAdmin.php" app/Console/Commands/PromoteAdmin.php
-mkdir -p app/Http/Resources app/Services app/Events app/Exceptions
+mkdir -p app/Http/Resources app/Services app/Events app/Exceptions app/Notifications
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/app/Services/CompatibilityCalculator.php" app/Services/CompatibilityCalculator.php
 cp "$ROOT_DIR/server-overlay/app/Services/MessagingPolicy.php" app/Services/MessagingPolicy.php
 cp "$ROOT_DIR/server-overlay/app/Events/MessageSent.php" app/Events/MessageSent.php
 cp "$ROOT_DIR/server-overlay/app/Exceptions/ApiException.php" app/Exceptions/ApiException.php
+cp "$ROOT_DIR/server-overlay/app/Notifications/ResetPasswordNotification.php" app/Notifications/ResetPasswordNotification.php
 cp "$ROOT_DIR/server-overlay/app/Providers/AppServiceProvider.php" app/Providers/AppServiceProvider.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
 cp "$ROOT_DIR/server-overlay/config/broadcasting.php" config/broadcasting.php
 cp "$ROOT_DIR/server-overlay/config/reverb.php" config/reverb.php
+cp "$ROOT_DIR/server-overlay/config/frontend.php" config/frontend.php
 cp "$ROOT_DIR/server-overlay/routes/api.php" routes/api.php
 cp "$ROOT_DIR/server-overlay/routes/channels.php" routes/channels.php
 cp "$ROOT_DIR/server-overlay/database/migrations/"*.php database/migrations/
@@ -133,6 +138,7 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/RegisterTest.php" tests/Feature/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LoginTest.php" tests/Feature/Auth/LoginTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/ProtectedRouteTest.php" tests/Feature/Auth/ProtectedRouteTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LogoutTest.php" tests/Feature/Auth/LogoutTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/PasswordResetTest.php" tests/Feature/Auth/PasswordResetTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/ErrorHandling/"*.php tests/Feature/ErrorHandling/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php
