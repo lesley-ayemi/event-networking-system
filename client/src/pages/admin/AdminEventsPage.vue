@@ -17,6 +17,20 @@
         <SecondaryButton :disabled="isBusy(event.id)" @click="remove(event.id)">Remove</SecondaryButton>
       </div>
     </div>
+
+    <div
+      v-if="eventsStore.pagination && eventsStore.pagination.last_page > 1"
+      class="flex flex-wrap items-center justify-between gap-3 mt-6"
+    >
+      <SecondaryButton :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</SecondaryButton>
+      <span class="text-sm text-gray-500">
+        Page {{ eventsStore.pagination.current_page }} of {{ eventsStore.pagination.last_page }}
+      </span>
+      <SecondaryButton :disabled="currentPage === eventsStore.pagination.last_page" @click="goToPage(currentPage + 1)">
+        Next
+      </SecondaryButton>
+    </div>
+
     <p v-if="actionError" class="text-sm text-red-600 mt-4">{{ actionError }}</p>
   </AdminLayout>
 </template>
@@ -33,6 +47,7 @@ const eventsStore = useEventsStore();
 const adminStore = useAdminStore();
 const busyEventIds = reactive(new Set());
 const actionError = ref("");
+const currentPage = ref(1);
 
 function isBusy(eventId) {
   return busyEventIds.has(eventId);
@@ -40,6 +55,11 @@ function isBusy(eventId) {
 
 function formattedDate(timestamp) {
   return new Date(timestamp).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
+
+function goToPage(page) {
+  currentPage.value = page;
+  eventsStore.fetchEvents({ page: currentPage.value });
 }
 
 async function remove(eventId) {
@@ -56,6 +76,6 @@ async function remove(eventId) {
 }
 
 onMounted(() => {
-  eventsStore.fetchEvents();
+  eventsStore.fetchEvents({ page: currentPage.value });
 });
 </script>

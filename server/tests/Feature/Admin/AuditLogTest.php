@@ -34,4 +34,5 @@ test('an admin can view the audit log, newest first', function () {
     $response->assertStatus(200);
     $response->assertJsonPath('data.0.action', 'event.removed');
     $response->assertJsonPath('data.1.action', 'user.suspended');
+    $response->assertJsonStructure(['meta' => ['current_page', 'last_page', 'per_page', 'total']]);
 });

@@ -5,6 +5,7 @@ import { getApiError } from "../services/apiError.js";
 export const useAdminStore = defineStore("admin", {
   state: () => ({
     reports: [],
+    reportsPagination: null,
     isLoadingReports: false,
     reportsError: "",
 
@@ -17,6 +18,7 @@ export const useAdminStore = defineStore("admin", {
     organiserRequestsError: "",
 
     auditLogs: [],
+    auditLogsPagination: null,
     isLoadingAuditLogs: false,
     auditLogsError: "",
 
@@ -32,6 +34,7 @@ export const useAdminStore = defineStore("admin", {
       try {
         const response = await apiClient.get("/admin/reports", { params: filters });
         this.reports = response.data.data;
+        this.reportsPagination = response.data.meta;
       } catch (error) {
         this.reportsError = getApiError(error, "We couldn't load reports right now. Please try again.").message;
       } finally {
@@ -100,12 +103,13 @@ export const useAdminStore = defineStore("admin", {
       this.organiserRequests = this.organiserRequests.filter((user) => user.id !== userId);
     },
 
-    async fetchAuditLogs() {
+    async fetchAuditLogs(params = {}) {
       this.isLoadingAuditLogs = true;
       this.auditLogsError = "";
       try {
-        const response = await apiClient.get("/admin/audit-logs");
+        const response = await apiClient.get("/admin/audit-logs", { params });
         this.auditLogs = response.data.data;
+        this.auditLogsPagination = response.data.meta;
       } catch (error) {
         this.auditLogsError = getApiError(error, "We couldn't load the audit log right now. Please try again.").message;
       } finally {

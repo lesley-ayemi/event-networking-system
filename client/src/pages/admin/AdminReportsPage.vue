@@ -3,13 +3,13 @@
     <h1 class="text-lg font-medium text-gray-900 mb-6">Reports</h1>
 
     <div class="flex flex-wrap items-center gap-3 mb-4">
-      <Select v-model="typeFilter" @change="load">
+      <Select v-model="typeFilter" @change="applyFilters">
         <option value="">All types</option>
         <option value="user">Accounts</option>
         <option value="message">Messages</option>
         <option value="event">Events</option>
       </Select>
-      <Select v-model="statusFilter" @change="load">
+      <Select v-model="statusFilter" @change="applyFilters">
         <option value="">All statuses</option>
         <option v-for="status in STATUSES" :key="status" :value="status">{{ status }}</option>
       </Select>
@@ -43,6 +43,23 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="adminStore.reportsPagination && adminStore.reportsPagination.last_page > 1"
+      class="flex flex-wrap items-center justify-between gap-3 mt-6"
+    >
+      <SecondaryButton :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</SecondaryButton>
+      <span class="text-sm text-gray-500">
+        Page {{ adminStore.reportsPagination.current_page }} of {{ adminStore.reportsPagination.last_page }}
+      </span>
+      <SecondaryButton
+        :disabled="currentPage === adminStore.reportsPagination.last_page"
+        @click="goToPage(currentPage + 1)"
+      >
+        Next
+      </SecondaryButton>
+    </div>
+
     <p v-if="actionError" class="text-sm text-red-600 mt-4">{{ actionError }}</p>
   </AdminLayout>
 </template>
@@ -51,6 +68,7 @@
 import { onMounted, ref } from "vue";
 import AdminLayout from "../../layouts/AdminLayout.vue";
 import Select from "../../components/Select.vue";
+import SecondaryButton from "../../components/SecondaryButton.vue";
 import { useAdminStore } from "../../stores/adminStore.js";
 import { getApiError } from "../../services/apiError.js";
 import { REPORT_REASONS } from "../../constants/reportReasons.js";
@@ -61,6 +79,7 @@ const adminStore = useAdminStore();
 const typeFilter = ref("");
 const statusFilter = ref("");
 const actionError = ref("");
+const currentPage = ref(1);
 
 function reasonLabel(value) {
   return REPORT_REASONS.find((reason) => reason.value === value)?.label ?? value;
@@ -74,7 +93,18 @@ function load() {
   adminStore.fetchReports({
     type: typeFilter.value || undefined,
     status: statusFilter.value || undefined,
+    page: currentPage.value,
   });
+}
+
+function applyFilters() {
+  currentPage.value = 1;
+  load();
+}
+
+function goToPage(page) {
+  currentPage.value = page;
+  load();
 }
 
 async function updateStatus(reportId, status) {

@@ -19,7 +19,17 @@ class ReportController extends Controller
 
         $reports = $query->latest()->paginate(20)->withQueryString();
 
-        return response()->json($reports);
+        // Matches the {data, meta} envelope EventResource::collection() produces
+        // elsewhere, so the frontend can read pagination.meta consistently.
+        return response()->json([
+            'data' => $reports->items(),
+            'meta' => [
+                'current_page' => $reports->currentPage(),
+                'last_page' => $reports->lastPage(),
+                'per_page' => $reports->perPage(),
+                'total' => $reports->total(),
+            ],
+        ]);
     }
 
     public function update(Request $request, Report $report)

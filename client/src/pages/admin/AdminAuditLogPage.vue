@@ -18,21 +18,46 @@
         <p class="text-xs text-gray-400 mt-0.5">{{ formattedDate(log.created_at) }}</p>
       </div>
     </div>
+
+    <div
+      v-if="adminStore.auditLogsPagination && adminStore.auditLogsPagination.last_page > 1"
+      class="flex flex-wrap items-center justify-between gap-3 mt-6"
+    >
+      <SecondaryButton :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</SecondaryButton>
+      <span class="text-sm text-gray-500">
+        Page {{ adminStore.auditLogsPagination.current_page }} of {{ adminStore.auditLogsPagination.last_page }}
+      </span>
+      <SecondaryButton
+        :disabled="currentPage === adminStore.auditLogsPagination.last_page"
+        @click="goToPage(currentPage + 1)"
+      >
+        Next
+      </SecondaryButton>
+    </div>
   </AdminLayout>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import AdminLayout from "../../layouts/AdminLayout.vue";
+import SecondaryButton from "../../components/SecondaryButton.vue";
 import { useAdminStore } from "../../stores/adminStore.js";
 
 const adminStore = useAdminStore();
+const currentPage = ref(1);
 
 function formattedDate(timestamp) {
   return new Date(timestamp).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
-onMounted(() => {
-  adminStore.fetchAuditLogs();
-});
+function load() {
+  adminStore.fetchAuditLogs({ page: currentPage.value });
+}
+
+function goToPage(page) {
+  currentPage.value = page;
+  load();
+}
+
+onMounted(load);
 </script>

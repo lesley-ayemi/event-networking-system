@@ -14,6 +14,16 @@ class AuditLogController extends Controller
         // within the same second, so order by id as well.
         $logs = AuditLog::with('admin')->latest()->latest('id')->paginate(20)->withQueryString();
 
-        return response()->json($logs);
+        // Matches the {data, meta} envelope EventResource::collection() produces
+        // elsewhere, so the frontend can read pagination.meta consistently.
+        return response()->json([
+            'data' => $logs->items(),
+            'meta' => [
+                'current_page' => $logs->currentPage(),
+                'last_page' => $logs->lastPage(),
+                'per_page' => $logs->perPage(),
+                'total' => $logs->total(),
+            ],
+        ]);
     }
 }

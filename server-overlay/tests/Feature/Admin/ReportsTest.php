@@ -49,6 +49,7 @@ test('an admin can list and filter reports', function () {
     $response->assertStatus(200);
     expect($response->json('data'))->toHaveCount(1);
     $response->assertJsonPath('data.0.reportable_type', 'user');
+    $response->assertJsonStructure(['meta' => ['current_page', 'last_page', 'per_page', 'total']]);
 });
 
 test('an admin can mark a report as reviewed, recording who and when', function () {

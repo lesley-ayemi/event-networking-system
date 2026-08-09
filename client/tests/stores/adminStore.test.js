@@ -25,14 +25,20 @@ describe("adminStore", () => {
     del.mockReset();
   });
 
-  it("fetchReports() loads reports with the given filters", async () => {
-    get.mockResolvedValue({ data: { data: [{ id: 1, reason: "spam" }] } });
+  it("fetchReports() loads reports with the given filters and stores pagination meta", async () => {
+    get.mockResolvedValue({
+      data: {
+        data: [{ id: 1, reason: "spam" }],
+        meta: { current_page: 1, last_page: 3 },
+      },
+    });
 
     const store = useAdminStore();
-    await store.fetchReports({ type: "user", status: "pending" });
+    await store.fetchReports({ type: "user", status: "pending", page: 1 });
 
-    expect(get).toHaveBeenCalledWith("/admin/reports", { params: { type: "user", status: "pending" } });
+    expect(get).toHaveBeenCalledWith("/admin/reports", { params: { type: "user", status: "pending", page: 1 } });
     expect(store.reports).toEqual([{ id: 1, reason: "spam" }]);
+    expect(store.reportsPagination).toEqual({ current_page: 1, last_page: 3 });
   });
 
   it("updateReportStatus() updates the report in place", async () => {
@@ -91,14 +97,29 @@ describe("adminStore", () => {
     expect(store.organiserRequests).toEqual([]);
   });
 
-  it("fetchAuditLogs() loads the log", async () => {
-    get.mockResolvedValue({ data: { data: [{ id: 1, action: "user.suspended" }] } });
+  it("fetchAuditLogs() loads the log and stores pagination meta", async () => {
+    get.mockResolvedValue({
+      data: {
+        data: [{ id: 1, action: "user.suspended" }],
+        meta: { current_page: 1, last_page: 2 },
+      },
+    });
 
     const store = useAdminStore();
     await store.fetchAuditLogs();
 
-    expect(get).toHaveBeenCalledWith("/admin/audit-logs");
+    expect(get).toHaveBeenCalledWith("/admin/audit-logs", { params: {} });
     expect(store.auditLogs).toEqual([{ id: 1, action: "user.suspended" }]);
+    expect(store.auditLogsPagination).toEqual({ current_page: 1, last_page: 2 });
+  });
+
+  it("fetchAuditLogs() passes the requested page through", async () => {
+    get.mockResolvedValue({ data: { data: [], meta: { current_page: 2, last_page: 2 } } });
+
+    const store = useAdminStore();
+    await store.fetchAuditLogs({ page: 2 });
+
+    expect(get).toHaveBeenCalledWith("/admin/audit-logs", { params: { page: 2 } });
   });
 
   it("fetchAdmins() loads admin accounts", async () => {
