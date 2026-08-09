@@ -25,6 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'active' => \App\Http\Middleware\EnsureAccountActive::class,
         ]);
+
+        // Without this, the 'api' middleware group carries no rate limiter at
+        // all (Laravel 11 only wires one in when explicitly enabled) — every
+        // route was completely unthrottled. This adds the baseline for
+        // everything; login/register/forgot-password/reset-password and
+        // report submission get their own stricter limiters on top (see
+        // routes/api.php + AppServiceProvider's RateLimiter::for calls).
+        $middleware->throttleApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Every API error — whether an intentional ApiException or a

@@ -144,6 +144,7 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LoginTest.php" tests/Feature/Aut
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/ProtectedRouteTest.php" tests/Feature/Auth/ProtectedRouteTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/LogoutTest.php" tests/Feature/Auth/LogoutTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/PasswordResetTest.php" tests/Feature/Auth/PasswordResetTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/RateLimitingTest.php" tests/Feature/Auth/RateLimitingTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/ErrorHandling/"*.php tests/Feature/ErrorHandling/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php

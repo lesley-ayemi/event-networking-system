@@ -24,10 +24,15 @@ use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
-Route::post('/reset-password', [PasswordResetController::class, 'reset']);
+// Stricter than the general API baseline (5/min, keyed by email+IP) since
+// these are exactly the endpoints a brute-force or credential-stuffing
+// script would target — see AppServiceProvider's 'auth' RateLimiter.
+Route::middleware('throttle:auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+    Route::post('/reset-password', [PasswordResetController::class, 'reset']);
+});
 
 // This app uses Sanctum token auth (not SPA cookie sessions), so the
 // broadcasting auth route needs auth:sanctum instead of Laravel's default
@@ -79,7 +84,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
     Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
 
-    Route::post('/reports', [ReportController::class, 'store']);
+    Route::post('/reports', [ReportController::class, 'store'])->middleware('throttle:reports');
     Route::post('/organiser-requests', [OrganiserRequestController::class, 'store']);
 
     Route::middleware('admin')->prefix('admin')->group(function () {
