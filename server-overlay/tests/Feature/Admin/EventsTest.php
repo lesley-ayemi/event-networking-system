@@ -25,6 +25,26 @@ test('an admin can remove any event regardless of ownership', function () {
     expect(Event::find($event->id))->toBeNull();
 });
 
+test('admin removal soft-deletes the event, preserving the row and its registrations', function () {
+    $admin = User::create([
+        'first_name' => 'Admina', 'last_name' => 'Strator',
+        'email' => 'admin@example.com', 'password' => 'supersecret',
+        'is_admin' => true,
+    ]);
+    $token = $admin->createToken('api-token')->plainTextToken;
+    $owner = User::create([
+        'first_name' => 'Owner', 'last_name' => 'Person',
+        'email' => 'owner@example.com', 'password' => 'supersecret',
+    ]);
+    $event = Event::factory()->create(['created_by' => $owner->id]);
+
+    $this->deleteJson("/api/admin/events/{$event->id}", [], ['Authorization' => "Bearer {$token}"]);
+
+    $trashed = Event::withTrashed()->find($event->id);
+    expect($trashed)->not->toBeNull();
+    expect($trashed->deleted_at)->not->toBeNull();
+});
+
 test('a non-admin cannot use the admin event removal endpoint', function () {
     $user = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',
