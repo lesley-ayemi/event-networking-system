@@ -19,8 +19,14 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async logout() {
-      await apiClient.post("/logout");
-      this._clearSession();
+      // Always clear the local session, even if the request fails (e.g. the
+      // token was already invalid) — a broken network call shouldn't strand
+      // the user in a logged-in-looking state they can't get out of.
+      try {
+        await apiClient.post("/logout");
+      } finally {
+        this._clearSession();
+      }
     },
 
     async forgotPassword(email) {

@@ -85,6 +85,21 @@ describe("authStore", () => {
     expect(localStorage.getItem("authToken")).toBeNull();
   });
 
+  it("logout() clears local session even if the API call fails", async () => {
+    post.mockResolvedValueOnce({
+      data: { user: { id: 3, email: "someone@example.com" }, token: "token-3" },
+    });
+    post.mockRejectedValueOnce(new Error("network error"));
+
+    const store = useAuthStore();
+    await store.login({ email: "someone@example.com", password: "supersecret" });
+    await expect(store.logout()).rejects.toThrow("network error");
+
+    expect(store.isAuthenticated).toBe(false);
+    expect(useUserStore().user).toBeNull();
+    expect(localStorage.getItem("authToken")).toBeNull();
+  });
+
   it("restoreSession() re-hydrates from a stored token", async () => {
     localStorage.setItem("authToken", "existing-token");
     get.mockResolvedValue({ data: { id: 4, email: "restored@example.com" } });

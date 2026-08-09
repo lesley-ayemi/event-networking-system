@@ -32,6 +32,13 @@
             <NotificationBell />
             <button
               type="button"
+              class="hidden md:inline text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+              @click="handleLogout"
+            >
+              Log out
+            </button>
+            <button
+              type="button"
               class="md:hidden text-gray-500 hover:text-gray-900 p-1"
               :aria-expanded="isMobileMenuOpen"
               aria-label="Toggle menu"
@@ -70,6 +77,13 @@
           >
             + Create event
           </RouterLink>
+          <button
+            type="button"
+            class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            @click="handleLogout"
+          >
+            Log out
+          </button>
         </div>
       </div>
     </nav>
@@ -81,11 +95,12 @@
 
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 import NotificationBell from "../components/NotificationBell.vue";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useUserStore } from "../stores/userStore.js";
+import { useAuthStore } from "../stores/authStore.js";
 
 const navLinks = [
   { to: "/dashboard", label: "Dashboard" },
@@ -102,12 +117,24 @@ const navLinks = [
 const conversationsStore = useConversationsStore();
 const friendsStore = useFriendsStore();
 const userStore = useUserStore();
+const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const isMobileMenuOpen = ref(false);
 
 watch(() => route.fullPath, () => {
   isMobileMenuOpen.value = false;
 });
+
+async function handleLogout() {
+  try {
+    await authStore.logout();
+  } catch (error) {
+    // logout() clears the local session in its own finally block even when
+    // the request fails, so there's nothing left to recover from here.
+  }
+  router.push("/login");
+}
 
 onMounted(() => {
   conversationsStore.fetchConversations();

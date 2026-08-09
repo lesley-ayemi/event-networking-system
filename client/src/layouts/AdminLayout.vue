@@ -14,6 +14,9 @@
             <RouterLink to="/dashboard" class="text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap">
               &larr; Back to app
             </RouterLink>
+            <button type="button" class="text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap" @click="handleLogout">
+              Log out
+            </button>
           </div>
 
           <button
@@ -44,6 +47,13 @@
           <RouterLink to="/dashboard" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white">
             &larr; Back to app
           </RouterLink>
+          <button
+            type="button"
+            class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white"
+            @click="handleLogout"
+          >
+            Log out
+          </button>
         </div>
       </div>
     </nav>
@@ -55,7 +65,8 @@
 
 <script setup>
 import { ref, watch } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "../stores/authStore.js";
 
 const navLinks = [
   { to: "/admin/users", label: "Users" },
@@ -67,10 +78,22 @@ const navLinks = [
   { to: "/admin/admins", label: "Admins" },
 ];
 
+const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const isMobileMenuOpen = ref(false);
 
 watch(() => route.fullPath, () => {
   isMobileMenuOpen.value = false;
 });
+
+async function handleLogout() {
+  try {
+    await authStore.logout();
+  } catch (error) {
+    // logout() clears the local session in its own finally block even when
+    // the request fails, so there's nothing left to recover from here.
+  }
+  router.push("/login");
+}
 </script>
