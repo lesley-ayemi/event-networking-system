@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Event;
 use App\Models\Message;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -34,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'message' => Message::class,
             'event' => Event::class,
+            // Not a valid reportable_type (Report::REPORTABLE_TYPES doesn't
+            // include it) — this only keeps AuditLog::subject_type readable
+            // when the subject is a Report itself, e.g. report.updated.
+            'report' => Report::class,
         ]);
 
         // Baseline for every route carrying the 'api' middleware group
