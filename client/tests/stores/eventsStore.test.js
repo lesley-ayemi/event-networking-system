@@ -191,6 +191,29 @@ describe("eventsStore", () => {
     expect(store.organizedEvents[0]).toEqual(updated);
   });
 
+  it("uploadCoverImage() posts multipart form data and updates events/currentEvent/organizedEvents", async () => {
+    const updated = { id: 1, name: "Old Mixer", cover_image: "https://example.com/storage/event-covers/abc.jpg" };
+    post.mockResolvedValue({ data: { data: updated } });
+
+    const store = useEventsStore();
+    store.events = [{ id: 1, name: "Old Mixer", cover_image: null }];
+    store.currentEvent = { id: 1, name: "Old Mixer", cover_image: null };
+    store.organizedEvents = [{ id: 1, name: "Old Mixer", cover_image: null }];
+
+    const file = new File(["fake-image-bytes"], "cover.jpg", { type: "image/jpeg" });
+    const result = await store.uploadCoverImage(1, file);
+
+    expect(post).toHaveBeenCalledWith(
+      "/events/1/cover-image",
+      expect.any(FormData),
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    expect(store.events[0]).toEqual(updated);
+    expect(store.currentEvent).toEqual(updated);
+    expect(store.organizedEvents[0]).toEqual(updated);
+    expect(result).toEqual(updated);
+  });
+
   it("deleteEvent() removes the event from organizedEvents", async () => {
     del.mockResolvedValue({});
 

@@ -2,8 +2,11 @@
 
 use App\Models\Report;
 use App\Models\User;
+use App\Notifications\AccountSuspendedNotification;
+use App\Notifications\AccountUnsuspendedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -43,6 +46,8 @@ test('flagged accounts surfaces users with several reports against them', functi
 });
 
 test('an admin can suspend a user, which revokes their active tokens', function () {
+    Notification::fake();
+
     $admin = User::create([
         'first_name' => 'Admina', 'last_name' => 'Strator',
         'email' => 'admin@example.com', 'password' => 'supersecret',
@@ -60,6 +65,7 @@ test('an admin can suspend a user, which revokes their active tokens', function 
     $response->assertStatus(200);
     $response->assertJsonPath('is_suspended', true);
     expect($target->fresh()->tokens()->count())->toBe(0);
+    Notification::assertSentTo($target, AccountSuspendedNotification::class);
 
     Auth::forgetGuards();
     $blockedResponse = $this->getJson('/api/user', ['Authorization' => "Bearer {$targetToken}"]);
@@ -89,6 +95,8 @@ test('a suspended user is locked out of the app with a calm error', function () 
 });
 
 test('an admin can unsuspend a user', function () {
+    Notification::fake();
+
     $admin = User::create([
         'first_name' => 'Admina', 'last_name' => 'Strator',
         'email' => 'admin@example.com', 'password' => 'supersecret',
@@ -106,4 +114,5 @@ test('an admin can unsuspend a user', function () {
 
     $response->assertStatus(200);
     $response->assertJsonPath('is_suspended', false);
+    Notification::assertSentTo($target, AccountUnsuspendedNotification::class);
 });

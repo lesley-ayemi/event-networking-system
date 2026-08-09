@@ -12,6 +12,26 @@
           Delete event
         </button>
       </div>
+
+      <div class="flex items-center gap-4 mb-6">
+        <img
+          v-if="event.cover_image"
+          :src="event.cover_image"
+          alt=""
+          class="w-24 h-16 rounded-lg object-cover bg-gray-100 ring-1 ring-gray-100"
+        />
+        <div v-else class="w-24 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
+          No cover image
+        </div>
+        <div>
+          <label class="inline-flex items-center px-3 py-2 bg-white border border-gray-200 rounded-xl font-semibold text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition cursor-pointer">
+            {{ isUploadingCover ? "Uploading…" : "Upload cover image" }}
+            <input type="file" accept="image/*" class="hidden" :disabled="isUploadingCover" @change="handleCoverImageChange" />
+          </label>
+          <InputError :message="coverImageError" />
+        </div>
+      </div>
+
       <EventForm
         :event="event"
         :is-submitting="isSubmitting"
@@ -28,6 +48,7 @@ import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
 import EventForm from "../components/EventForm.vue";
+import InputError from "../components/InputError.vue";
 import { useEventsStore } from "../stores/eventsStore.js";
 import { useUserStore } from "../stores/userStore.js";
 import { getApiError } from "../services/apiError.js";
@@ -39,6 +60,8 @@ const userStore = useUserStore();
 
 const isSubmitting = ref(false);
 const errorMessage = ref("");
+const isUploadingCover = ref(false);
+const coverImageError = ref("");
 
 const event = computed(() => eventsStore.currentEvent);
 const canEdit = computed(() => !event.value || event.value.created_by === userStore.user?.id);
@@ -53,6 +76,22 @@ async function handleSubmit(payload) {
     errorMessage.value = getApiError(error, "We couldn't save those changes. Please try again.").message;
   } finally {
     isSubmitting.value = false;
+  }
+}
+
+async function handleCoverImageChange(changeEvent) {
+  const file = changeEvent.target.files[0];
+  if (!file) {
+    return;
+  }
+  coverImageError.value = "";
+  isUploadingCover.value = true;
+  try {
+    await eventsStore.uploadCoverImage(route.params.id, file);
+  } catch (error) {
+    coverImageError.value = getApiError(error, "We couldn't upload that image. Please try a smaller file.").message;
+  } finally {
+    isUploadingCover.value = false;
   }
 }
 

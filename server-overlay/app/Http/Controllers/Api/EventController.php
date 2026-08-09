@@ -11,6 +11,8 @@ use App\Http\Requests\Api\UpdateEventRequest;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -112,6 +114,34 @@ class EventController extends Controller
         $event->delete();
 
         return response()->json(null, 204);
+    }
+
+    // Mirrors ProfileController::uploadPhoto's pattern: a separate multipart
+    // endpoint rather than folding the file into the JSON create/update
+    // payload, since the rest of the event form is submitted as plain JSON.
+    public function uploadCoverImage(Request $request, Event $event)
+    {
+        abort_if($event->created_by !== $request->user()->id, 403, 'You can only edit events you created.');
+
+        $request->validate([
+            'cover_image' => ['required', 'image', 'max:4096'],
+        ]);
+
+        if ($event->cover_image) {
+            $previousPath = Str::after($event->cover_image, '/storage/');
+            if ($previousPath && Storage::disk('public')->exists($previousPath)) {
+                Storage::disk('public')->delete($previousPath);
+            }
+        }
+
+        $path = $request->file('cover_image')->store('event-covers', 'public');
+        $event->cover_image = Storage::disk('public')->url($path);
+        $event->save();
+
+        $event->loadCount('registrations');
+        $this->attachUserContext(collect([$event]), $request->user());
+
+        return new EventResource($event);
     }
 
     /**

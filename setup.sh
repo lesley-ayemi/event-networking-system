@@ -121,6 +121,8 @@ cp "$ROOT_DIR/server-overlay/app/Exceptions/ApiException.php" app/Exceptions/Api
 cp "$ROOT_DIR/server-overlay/app/Notifications/ResetPasswordNotification.php" app/Notifications/ResetPasswordNotification.php
 cp "$ROOT_DIR/server-overlay/app/Notifications/EventReminderNotification.php" app/Notifications/EventReminderNotification.php
 cp "$ROOT_DIR/server-overlay/app/Notifications/EventIntroductionNotification.php" app/Notifications/EventIntroductionNotification.php
+cp "$ROOT_DIR/server-overlay/app/Notifications/AccountSuspendedNotification.php" app/Notifications/AccountSuspendedNotification.php
+cp "$ROOT_DIR/server-overlay/app/Notifications/AccountUnsuspendedNotification.php" app/Notifications/AccountUnsuspendedNotification.php
 cp "$ROOT_DIR/server-overlay/app/Providers/AppServiceProvider.php" app/Providers/AppServiceProvider.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php

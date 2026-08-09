@@ -24,6 +24,7 @@ class EventResource extends JsonResource
             'price' => $this->price,
             'accessibility_options' => $this->accessibility_options ?? [],
             'capacity' => $this->capacity,
+            'cover_image' => $this->cover_image,
             'created_by' => $this->created_by,
             'attendees_count' => $this->registrations_count ?? 0,
             'is_registered' => (bool) ($this->is_registered ?? false),

@@ -56,6 +56,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/events/{event}', [EventController::class, 'show']);
     Route::patch('/events/{event}', [EventController::class, 'update']);
     Route::delete('/events/{event}', [EventController::class, 'destroy']);
+    Route::post('/events/{event}/cover-image', [EventController::class, 'uploadCoverImage']);
     Route::post('/events/{event}/register', [EventController::class, 'register']);
     Route::delete('/events/{event}/register', [EventController::class, 'cancelRegistration']);
 

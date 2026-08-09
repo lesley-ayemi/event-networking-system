@@ -27,6 +27,7 @@ class Event extends Model
         'price',
         'accessibility_options',
         'capacity',
+        'cover_image',
         'created_by',
     ];
 

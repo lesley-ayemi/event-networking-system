@@ -5,7 +5,10 @@
     <p v-if="eventsStore.isLoading" class="text-sm text-gray-500 mt-4">Loading…</p>
     <p v-else-if="eventsStore.error" class="text-sm text-red-600 mt-4">{{ eventsStore.error }}</p>
 
-    <div v-else-if="event" class="bg-white shadow-md ring-1 ring-gray-100 rounded-xl px-5 sm:px-6 py-6 mt-4 max-w-2xl">
+    <div v-else-if="event" class="bg-white shadow-md ring-1 ring-gray-100 rounded-xl overflow-hidden mt-4 max-w-2xl">
+      <img v-if="event.cover_image" :src="event.cover_image" alt="" class="w-full h-48 object-cover" />
+
+      <div class="px-5 sm:px-6 py-6">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <h1 class="text-lg font-semibold text-gray-900">{{ event.name }}</h1>
         <div class="flex items-center gap-3 shrink-0">
@@ -180,6 +183,7 @@
       >
         Report this event
       </button>
+      </div>
     </div>
 
     <ReportModal

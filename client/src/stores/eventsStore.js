@@ -119,6 +119,20 @@ export const useEventsStore = defineStore("events", {
       return response.data.data;
     },
 
+    async uploadCoverImage(eventId, file) {
+      const formData = new FormData();
+      formData.append("cover_image", file);
+      const response = await apiClient.post(`/events/${eventId}/cover-image`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      this._applyEventUpdate(response.data.data);
+      const index = this.organizedEvents.findIndex((event) => event.id === response.data.data.id);
+      if (index !== -1) {
+        this.organizedEvents[index] = response.data.data;
+      }
+      return response.data.data;
+    },
+
     async deleteEvent(eventId) {
       await apiClient.delete(`/events/${eventId}`);
       this.organizedEvents = this.organizedEvents.filter((event) => event.id !== Number(eventId));

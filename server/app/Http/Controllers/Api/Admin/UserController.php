@@ -6,6 +6,8 @@ use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Notifications\AccountSuspendedNotification;
+use App\Notifications\AccountUnsuspendedNotification;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -45,6 +47,7 @@ class UserController extends Controller
         $user->tokens()->delete();
 
         AuditLog::record($request->user(), 'user.suspended', $user);
+        $user->notify(new AccountSuspendedNotification());
 
         return response()->json($user);
     }
@@ -60,6 +63,7 @@ class UserController extends Controller
         $user->save();
 
         AuditLog::record($request->user(), 'user.unsuspended', $user);
+        $user->notify(new AccountUnsuspendedNotification());
 
         return response()->json($user);
     }
