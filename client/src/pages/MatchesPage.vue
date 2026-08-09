@@ -49,7 +49,7 @@
                 <SecondaryButton :disabled="isBusy(match.user.id)" @click="sendRequest(match.user.id)">
                   Send friend request
                 </SecondaryButton>
-                <SecondaryButton :disabled="isBusy(match.user.id)" @click="block(match.user.id)">Block</SecondaryButton>
+                <DangerButton :disabled="isBusy(match.user.id)" @click="block(match.user.id)">Block</DangerButton>
               </template>
               <span v-else class="text-xs text-gray-500">{{ statusFor(match.user.id) }}</span>
             </div>
@@ -68,6 +68,7 @@ import DefaultLayout from "../layouts/DefaultLayout.vue";
 import Avatar from "../components/Avatar.vue";
 import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
+import DangerButton from "../components/DangerButton.vue";
 import { useMatchesStore } from "../stores/matchesStore.js";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";

@@ -63,7 +63,7 @@
             <div class="flex flex-wrap items-center gap-3 mt-auto pt-4">
               <SecondaryButton :disabled="isMessaging(friend.id)" @click="message(friend.id)">Message</SecondaryButton>
               <SecondaryButton :disabled="isBusy" @click="remove(friend.id)">Remove</SecondaryButton>
-              <SecondaryButton :disabled="isBusy" @click="block(friend.id)">Block</SecondaryButton>
+              <DangerButton :disabled="isBusy" @click="block(friend.id)">Block</DangerButton>
             </div>
             <p v-if="messageErrorFor(friend.id)" class="text-xs text-red-600 mt-2">{{ messageErrorFor(friend.id) }}</p>
           </div>
@@ -81,6 +81,7 @@ import Avatar from "../components/Avatar.vue";
 import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
+import DangerButton from "../components/DangerButton.vue";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { getApiError } from "../services/apiError.js";

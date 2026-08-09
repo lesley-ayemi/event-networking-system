@@ -12,7 +12,9 @@
     <ul v-if="incompleteItems.length > 0" class="mt-4 space-y-2">
       <li v-for="item in incompleteItems" :key="item.label" class="flex items-center justify-between text-sm">
         <span class="text-gray-600">{{ item.label }}</span>
-        <RouterLink :to="item.to" class="text-indigo-600 hover:text-indigo-700 text-xs font-medium">Complete</RouterLink>
+        <RouterLink :to="item.to" class="text-indigo-600 hover:text-indigo-700 text-xs font-medium whitespace-nowrap">
+          Complete <span aria-hidden="true">&rarr;</span>
+        </RouterLink>
       </li>
     </ul>
     <p v-else class="text-sm text-gray-500 mt-4">Your profile is complete. 🎉</p>
