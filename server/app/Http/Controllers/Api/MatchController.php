@@ -49,6 +49,8 @@ class MatchController extends Controller
                         'job_title' => $candidate->job_title,
                         'industry' => $candidate->industry,
                         'profile_image' => $candidate->profile_image,
+                        'availability_status' => $candidate->availability_status,
+                        'availability_status_updated_at' => $candidate->availability_status_updated_at,
                     ],
                     'score' => CompatibilityCalculator::calculateCompatibility($user, $myRegistration, $candidate, $candidateRegistration),
                     'reasons' => CompatibilityCalculator::matchReasons($user, $myRegistration, $candidate, $candidateRegistration),

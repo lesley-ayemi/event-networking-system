@@ -53,7 +53,11 @@
               <div>
                 <p class="font-semibold text-gray-900 text-sm">{{ friend.first_name }} {{ friend.last_name }}</p>
                 <p class="text-xs text-gray-500">{{ personLine(friend) }}</p>
-                <AvailabilityBadge :status="friend.availability_status" class="mt-1" />
+                <AvailabilityBadge
+                  :status="friend.availability_status"
+                  :updated-at="friend.availability_status_updated_at"
+                  class="mt-1"
+                />
               </div>
             </RouterLink>
             <div class="flex flex-wrap items-center gap-3 mt-auto pt-4">

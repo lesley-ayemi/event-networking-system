@@ -72,6 +72,7 @@ class User extends Authenticatable
             'is_suspended' => 'boolean',
             'suspended_at' => 'datetime',
             'organiser_requested_at' => 'datetime',
+            'availability_status_updated_at' => 'datetime',
         ];
     }
 
@@ -121,6 +122,19 @@ class User extends Authenticatable
                     'no_spontaneous_calls' => false,
                     'ask_before_groups' => false,
                 ];
+            }
+
+            if (is_null($user->availability_status_updated_at)) {
+                $user->availability_status_updated_at = now();
+            }
+        });
+
+        // Tracks when the status itself last changed (not just any profile
+        // edit), so the frontend can show "last updated X ago" and treat a
+        // status that's gone stale differently from a freshly-set one.
+        static::saving(function (User $user) {
+            if ($user->isDirty('availability_status') && ! $user->isDirty('availability_status_updated_at')) {
+                $user->availability_status_updated_at = now();
             }
         });
     }

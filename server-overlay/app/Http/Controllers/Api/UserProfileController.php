@@ -38,6 +38,7 @@ class UserProfileController extends Controller
                 'networking_goals' => $user->networking_goals,
                 'profile_image' => $user->profile_image,
                 'availability_status' => $user->availability_status,
+                'availability_status_updated_at' => $user->availability_status_updated_at,
             ],
         ]);
     }

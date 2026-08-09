@@ -22,7 +22,11 @@
                 <div>
                   <p class="font-semibold text-gray-900 text-sm">{{ match.user.first_name }} {{ match.user.last_name }}</p>
                   <p class="text-xs text-gray-500">{{ personLine(match.user) }}</p>
-                  <AvailabilityBadge :status="match.user.availability_status" class="mt-1" />
+                  <AvailabilityBadge
+                    :status="match.user.availability_status"
+                    :updated-at="match.user.availability_status_updated_at"
+                    class="mt-1"
+                  />
                 </div>
               </RouterLink>
               <span class="shrink-0 inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">

@@ -55,6 +55,49 @@ test('the password is hashed automatically', function () {
     expect(password_verify('supersecret', $user->password))->toBeTrue();
 });
 
+test('availability_status_updated_at is set on creation', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+
+    expect($user->availability_status_updated_at)->not->toBeNull();
+});
+
+test('changing availability_status touches availability_status_updated_at', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+    $originalTimestamp = $user->availability_status_updated_at;
+
+    $this->travel(1)->hours();
+    $user->availability_status = 'unavailable';
+    $user->save();
+
+    expect($user->availability_status_updated_at)->not->toEqual($originalTimestamp);
+});
+
+test('saving unrelated profile fields does not touch availability_status_updated_at', function () {
+    $user = User::create([
+        'first_name' => 'Lesley',
+        'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com',
+        'password' => 'supersecret',
+    ]);
+    $originalTimestamp = $user->availability_status_updated_at;
+
+    $this->travel(1)->hours();
+    $user->bio = 'Updated bio';
+    $user->save();
+
+    expect($user->fresh()->availability_status_updated_at)->toEqual($originalTimestamp);
+});
+
 test('the password and remember token are hidden from array/JSON output', function () {
     $user = User::create([
         'first_name' => 'Lesley',

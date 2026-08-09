@@ -24,7 +24,11 @@
           <p v-if="profile.job_title || profile.industry" class="text-sm text-gray-500">
             {{ [profile.job_title, profile.industry].filter(Boolean).join(" · ") }}
           </p>
-          <AvailabilityBadge :status="profile.availability_status" class="mt-1.5" />
+          <AvailabilityBadge
+            :status="profile.availability_status"
+            :updated-at="profile.availability_status_updated_at"
+            class="mt-1.5"
+          />
         </div>
       </div>
 

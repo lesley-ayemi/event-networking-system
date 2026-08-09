@@ -10,7 +10,11 @@
             <p class="font-semibold text-gray-900 text-sm">
               {{ conversation.other_user.first_name }} {{ conversation.other_user.last_name }}
             </p>
-            <AvailabilityBadge :status="conversation.other_user.availability_status" class="mt-0.5" />
+            <AvailabilityBadge
+              :status="conversation.other_user.availability_status"
+              :updated-at="conversation.other_user.availability_status_updated_at"
+              class="mt-0.5"
+            />
           </div>
         </RouterLink>
         <div class="flex items-center gap-4 shrink-0">
