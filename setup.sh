@@ -110,6 +110,7 @@ cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/Admin/"*.php app/Http/Cont
 cp "$ROOT_DIR/server-overlay/app/Http/Middleware/EnsureUserIsAdmin.php" app/Http/Middleware/EnsureUserIsAdmin.php
 cp "$ROOT_DIR/server-overlay/app/Http/Middleware/EnsureAccountActive.php" app/Http/Middleware/EnsureAccountActive.php
 cp "$ROOT_DIR/server-overlay/app/Console/Commands/PromoteAdmin.php" app/Console/Commands/PromoteAdmin.php
+cp "$ROOT_DIR/server-overlay/app/Console/Commands/SendEventNotifications.php" app/Console/Commands/SendEventNotifications.php
 mkdir -p app/Http/Resources app/Services app/Events app/Exceptions app/Notifications
 cp "$ROOT_DIR/server-overlay/app/Http/Resources/EventResource.php" app/Http/Resources/EventResource.php
 cp "$ROOT_DIR/server-overlay/app/Services/CompatibilityCalculator.php" app/Services/CompatibilityCalculator.php
@@ -117,6 +118,8 @@ cp "$ROOT_DIR/server-overlay/app/Services/MessagingPolicy.php" app/Services/Mess
 cp "$ROOT_DIR/server-overlay/app/Events/MessageSent.php" app/Events/MessageSent.php
 cp "$ROOT_DIR/server-overlay/app/Exceptions/ApiException.php" app/Exceptions/ApiException.php
 cp "$ROOT_DIR/server-overlay/app/Notifications/ResetPasswordNotification.php" app/Notifications/ResetPasswordNotification.php
+cp "$ROOT_DIR/server-overlay/app/Notifications/EventReminderNotification.php" app/Notifications/EventReminderNotification.php
+cp "$ROOT_DIR/server-overlay/app/Notifications/EventIntroductionNotification.php" app/Notifications/EventIntroductionNotification.php
 cp "$ROOT_DIR/server-overlay/app/Providers/AppServiceProvider.php" app/Providers/AppServiceProvider.php
 cp "$ROOT_DIR/server-overlay/bootstrap/app.php" bootstrap/app.php
 cp "$ROOT_DIR/server-overlay/config/cors.php" config/cors.php
@@ -125,6 +128,7 @@ cp "$ROOT_DIR/server-overlay/config/reverb.php" config/reverb.php
 cp "$ROOT_DIR/server-overlay/config/frontend.php" config/frontend.php
 cp "$ROOT_DIR/server-overlay/routes/api.php" routes/api.php
 cp "$ROOT_DIR/server-overlay/routes/channels.php" routes/channels.php
+cp "$ROOT_DIR/server-overlay/routes/console.php" routes/console.php
 cp "$ROOT_DIR/server-overlay/database/migrations/"*.php database/migrations/
 cp "$ROOT_DIR/server-overlay/database/factories/UserFactory.php" database/factories/UserFactory.php
 cp "$ROOT_DIR/server-overlay/database/factories/EventFactory.php" database/factories/EventFactory.php

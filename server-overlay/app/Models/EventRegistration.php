@@ -23,6 +23,8 @@ class EventRegistration extends Model
             'open_to_matching' => 'boolean',
             'message_before_event' => 'boolean',
             'preferred_group_size' => 'integer',
+            'reminder_sent_at' => 'datetime',
+            'introduction_sent_at' => 'datetime',
         ];
     }
 
