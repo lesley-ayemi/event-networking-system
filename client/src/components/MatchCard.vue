@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-4">
+  <div class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-4 flex flex-col">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-3 min-w-0">
         <Avatar :user="match.user" />
@@ -15,7 +15,7 @@
 
     <p v-if="match.reasons[0]" class="text-xs text-gray-500 mt-2">{{ match.reasons[0] }}</p>
 
-    <div class="mt-3">
+    <div class="mt-auto pt-3">
       <SecondaryButton :disabled="isMessaging" @click="message">Message</SecondaryButton>
       <p v-if="errorMessage" class="text-xs text-red-600 mt-2">{{ errorMessage }}</p>
     </div>

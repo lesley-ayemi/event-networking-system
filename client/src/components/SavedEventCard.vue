@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-4 flex items-start justify-between gap-2">
+  <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-4 flex items-start justify-between gap-2">
     <RouterLink :to="`/events/${event.id}`" class="min-w-0 flex-1 hover:opacity-80">
       <p class="font-semibold text-gray-900 text-sm truncate">{{ event.name }}</p>
       <p class="text-xs text-gray-500 mt-1">{{ formattedDate }}</p>

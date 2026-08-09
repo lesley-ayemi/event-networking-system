@@ -8,11 +8,11 @@
       No pending organiser requests.
     </p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
-      <div v-for="user in adminStore.organiserRequests" :key="user.id" class="p-4 flex items-center justify-between gap-3">
-        <div>
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
+      <div v-for="user in adminStore.organiserRequests" :key="user.id" class="p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
           <p class="text-sm font-medium text-gray-900">{{ user.first_name }} {{ user.last_name }}</p>
-          <p class="text-xs text-gray-500">{{ user.email }} · requested {{ formattedDate(user.organiser_requested_at) }}</p>
+          <p class="text-xs text-gray-500 break-words">{{ user.email }} · requested {{ formattedDate(user.organiser_requested_at) }}</p>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <PrimaryButton :disabled="isBusy(user.id)" @click="approve(user.id)">Approve</PrimaryButton>

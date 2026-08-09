@@ -6,7 +6,7 @@
     <p v-else-if="adminStore.auditLogsError" class="text-sm text-red-600">{{ adminStore.auditLogsError }}</p>
     <p v-else-if="adminStore.auditLogs.length === 0" class="text-sm text-gray-500">No admin actions recorded yet.</p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
       <div v-for="log in adminStore.auditLogs" :key="log.id" class="p-4">
         <p class="text-sm text-gray-900">
           <span class="font-medium">{{ log.admin?.first_name }} {{ log.admin?.last_name }}</span>

@@ -5,7 +5,7 @@
 
       <OnboardingProgressBar :steps="steps" :current-step="currentStep" />
 
-      <div class="bg-white shadow-md rounded-lg px-6 py-6">
+      <div class="bg-white shadow-md ring-1 ring-gray-100 rounded-xl px-6 py-6">
         <!-- Step 1: Personal information -->
         <section v-if="currentStep === 1">
           <h2 class="text-base font-semibold text-gray-900 mb-4">Personal information</h2>
@@ -21,7 +21,7 @@
               {{ initials }}
             </div>
             <div>
-              <label class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 cursor-pointer">
+              <label class="inline-flex items-center px-3 py-2 bg-white border border-gray-200 rounded-xl font-semibold text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition cursor-pointer">
                 {{ isUploadingPhoto ? "Uploading…" : "Upload photo" }}
                 <input type="file" accept="image/*" class="hidden" :disabled="isUploadingPhoto" @change="handlePhotoChange" />
               </label>
@@ -147,7 +147,7 @@
 
           <RouterLink
             to="/quiz"
-            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50"
+            class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 rounded-xl font-semibold text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition"
           >
             Take the quiz
           </RouterLink>
@@ -167,7 +167,7 @@
 
           <RouterLink
             to="/dashboard"
-            class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+            class="inline-flex items-center px-6 py-3 bg-indigo-600 rounded-xl font-semibold text-white shadow-sm hover:bg-indigo-700 hover:shadow-md transition"
           >
             Go to your dashboard
           </RouterLink>

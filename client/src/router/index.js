@@ -11,6 +11,9 @@ import CompatibilityQuizPage from "../pages/CompatibilityQuizPage.vue";
 import DashboardPage from "../pages/DashboardPage.vue";
 import EventsPage from "../pages/EventsPage.vue";
 import EventDetailsPage from "../pages/EventDetailsPage.vue";
+import CreateEventPage from "../pages/CreateEventPage.vue";
+import EditEventPage from "../pages/EditEventPage.vue";
+import MyEventsPage from "../pages/MyEventsPage.vue";
 import SavedEventsPage from "../pages/SavedEventsPage.vue";
 import MatchesPage from "../pages/MatchesPage.vue";
 import FriendsPage from "../pages/FriendsPage.vue";
@@ -32,6 +35,9 @@ const routes = [
   { path: "/quiz", component: CompatibilityQuizPage, meta: { requiresAuth: true } },
   { path: "/dashboard", component: DashboardPage, meta: { requiresAuth: true } },
   { path: "/events", component: EventsPage, meta: { requiresAuth: true } },
+  { path: "/events/new", component: CreateEventPage, meta: { requiresAuth: true, requiresOrganiser: true } },
+  { path: "/my-events", component: MyEventsPage, meta: { requiresAuth: true, requiresOrganiser: true } },
+  { path: "/events/:id/edit", component: EditEventPage, meta: { requiresAuth: true, requiresOrganiser: true } },
   { path: "/events/:id", component: EventDetailsPage, meta: { requiresAuth: true } },
   { path: "/saved-events", component: SavedEventsPage, meta: { requiresAuth: true } },
   { path: "/matches", component: MatchesPage, meta: { requiresAuth: true } },
@@ -70,5 +76,6 @@ router.beforeEach((to) => {
   return resolveNavigation(to, {
     isAuthenticated: authStore.isAuthenticated,
     isAdmin: Boolean(userStore.user?.is_admin),
+    isApprovedOrganiser: userStore.user?.organiser_status === "approved",
   });
 });

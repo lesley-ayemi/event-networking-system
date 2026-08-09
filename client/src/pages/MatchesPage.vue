@@ -15,7 +15,7 @@
         </h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div v-for="match in group.matches" :key="match.user.id" class="bg-white shadow-sm rounded-lg p-5">
+          <div v-for="match in group.matches" :key="match.user.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3">
                 <Avatar :user="match.user" />
@@ -37,7 +37,7 @@
               </ul>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 mt-4">
+            <div class="flex flex-wrap items-center gap-3 mt-auto pt-4">
               <SecondaryButton :disabled="isMessaging(match.user.id)" @click="message(match.user.id)">
                 Message
               </SecondaryButton>

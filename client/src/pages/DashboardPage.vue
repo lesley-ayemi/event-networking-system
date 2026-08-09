@@ -1,10 +1,10 @@
 <template>
   <DefaultLayout>
-    <div class="flex items-center justify-between gap-3 mb-6">
-      <h1 class="text-lg font-medium text-gray-900">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-2xl px-5 sm:px-6 py-6 shadow-sm">
+      <h1 class="text-xl font-bold text-white">
         Welcome back{{ userStore.user?.first_name ? `, ${userStore.user.first_name}` : "" }}
       </h1>
-      <InteractionStatus v-if="userStore.user" :status="userStore.user.availability_status" />
+      <InteractionStatus v-if="userStore.user" :status="userStore.user.availability_status" dark />
     </div>
 
     <div class="space-y-8">
@@ -84,7 +84,7 @@
           <h2 class="text-base font-semibold text-gray-900">Recent messages</h2>
           <RouterLink to="/messages" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</RouterLink>
         </div>
-        <div class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
+        <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
           <ConversationPreview v-for="conversation in recentConversations" :key="conversation.id" :conversation="conversation" />
         </div>
       </section>

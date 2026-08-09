@@ -149,6 +149,22 @@ test('events can be filtered by accessibility options', function () {
     expect($response->json('data'))->toHaveCount(1);
 });
 
+test('events can be filtered to only those created by the current user', function () {
+    $user = User::create([
+        'first_name' => 'Lesley', 'last_name' => 'Ayemi',
+        'email' => 'lesley@example.com', 'password' => 'supersecret',
+    ]);
+    $token = $user->createToken('api-token')->plainTextToken;
+    Event::factory()->create(['created_by' => $user->id]);
+    Event::factory()->create();
+
+    $response = $this->getJson('/api/events?mine=1', ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(200);
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.created_by'))->toBe($user->id);
+});
+
 test('each event reports whether the current user is registered', function () {
     $user = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',

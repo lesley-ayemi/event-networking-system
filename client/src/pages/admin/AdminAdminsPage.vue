@@ -5,11 +5,11 @@
     <p v-if="adminStore.isLoadingAdmins" class="text-sm text-gray-500">Loading…</p>
     <p v-else-if="adminStore.adminsError" class="text-sm text-red-600">{{ adminStore.adminsError }}</p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100 mb-8">
-      <div v-for="admin in adminStore.admins" :key="admin.id" class="p-4 flex items-center justify-between gap-3">
-        <div>
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100 mb-8">
+      <div v-for="admin in adminStore.admins" :key="admin.id" class="p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
           <p class="text-sm font-medium text-gray-900">{{ admin.first_name }} {{ admin.last_name }}</p>
-          <p class="text-xs text-gray-500">{{ admin.email }}</p>
+          <p class="text-xs text-gray-500 break-words">{{ admin.email }}</p>
         </div>
         <SecondaryButton
           v-if="admin.id !== userStore.user?.id"
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div class="bg-white shadow-sm rounded-lg p-5 max-w-md">
+    <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 max-w-md">
       <h2 class="text-base font-semibold text-gray-900 mb-4">Add an admin</h2>
       <form @submit.prevent="submitCreate" class="space-y-4">
         <div>

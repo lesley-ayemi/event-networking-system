@@ -57,6 +57,11 @@ class EventController extends Controller
             }
         });
 
+        // Powers the organiser's "My events" management view.
+        $query->when($request->boolean('mine'), function ($query) use ($request) {
+            $query->where('created_by', $request->user()->id);
+        });
+
         $events = $query->orderBy('starts_at')->paginate(12)->withQueryString();
 
         $this->attachUserContext($events->getCollection(), $request->user());

@@ -8,7 +8,7 @@
       No conversations yet. Start one from a match or friend's profile.
     </p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
       <ConversationPreview
         v-for="conversation in conversationsStore.conversations"
         :key="conversation.id"

@@ -1,5 +1,5 @@
 <template>
-  <RouterLink :to="`/events/${event.id}`" class="block bg-white shadow-sm rounded-lg p-4 hover:bg-gray-50">
+  <RouterLink :to="`/events/${event.id}`" class="block bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-4 hover:bg-gray-50">
     <p class="font-semibold text-gray-900 text-sm">{{ event.name }}</p>
     <p class="text-xs text-gray-500 mt-1">{{ formattedDate }}</p>
     <p class="text-xs text-gray-500">{{ event.is_virtual ? "Virtual" : event.location || "Location TBA" }}</p>

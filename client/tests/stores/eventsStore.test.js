@@ -3,11 +3,13 @@ import { setActivePinia, createPinia } from "pinia";
 
 const get = vi.fn();
 const post = vi.fn();
+const patch = vi.fn();
 const del = vi.fn();
 vi.mock("../../src/services/apiClient.js", () => ({
   apiClient: {
     get: (...args) => get(...args),
     post: (...args) => post(...args),
+    patch: (...args) => patch(...args),
     delete: (...args) => del(...args),
   },
 }));
@@ -19,6 +21,7 @@ describe("eventsStore", () => {
     setActivePinia(createPinia());
     get.mockReset();
     post.mockReset();
+    patch.mockReset();
     del.mockReset();
   });
 
@@ -146,5 +149,57 @@ describe("eventsStore", () => {
     await store.fetchRecommendedEvents();
 
     expect(get).toHaveBeenCalledWith("/events", { params: {} });
+  });
+
+  it("fetchOrganizedEvents() requests events created by the viewer", async () => {
+    get.mockResolvedValue({ data: { data: [{ id: 9, name: "My Mixer" }] } });
+
+    const store = useEventsStore();
+    await store.fetchOrganizedEvents();
+
+    expect(get).toHaveBeenCalledWith("/events", { params: { mine: 1 } });
+    expect(store.organizedEvents).toEqual([{ id: 9, name: "My Mixer" }]);
+  });
+
+  it("createEvent() posts the payload and prepends the new event", async () => {
+    const created = { id: 10, name: "New Mixer" };
+    post.mockResolvedValue({ data: { data: created } });
+
+    const store = useEventsStore();
+    store.organizedEvents = [{ id: 1, name: "Old Mixer" }];
+    const result = await store.createEvent({ name: "New Mixer" });
+
+    expect(post).toHaveBeenCalledWith("/events", { name: "New Mixer" });
+    expect(store.organizedEvents).toEqual([created, { id: 1, name: "Old Mixer" }]);
+    expect(result).toEqual(created);
+  });
+
+  it("updateEvent() patches the event and updates events/currentEvent/organizedEvents", async () => {
+    const updated = { id: 1, name: "Updated Mixer" };
+    patch.mockResolvedValue({ data: { data: updated } });
+
+    const store = useEventsStore();
+    store.events = [{ id: 1, name: "Old Mixer" }];
+    store.currentEvent = { id: 1, name: "Old Mixer" };
+    store.organizedEvents = [{ id: 1, name: "Old Mixer" }];
+
+    await store.updateEvent("1", { name: "Updated Mixer" });
+
+    expect(patch).toHaveBeenCalledWith("/events/1", { name: "Updated Mixer" });
+    expect(store.events[0]).toEqual(updated);
+    expect(store.currentEvent).toEqual(updated);
+    expect(store.organizedEvents[0]).toEqual(updated);
+  });
+
+  it("deleteEvent() removes the event from organizedEvents", async () => {
+    del.mockResolvedValue({});
+
+    const store = useEventsStore();
+    store.organizedEvents = [{ id: 1 }, { id: 2 }];
+
+    await store.deleteEvent("1");
+
+    expect(del).toHaveBeenCalledWith("/events/1");
+    expect(store.organizedEvents).toEqual([{ id: 2 }]);
   });
 });

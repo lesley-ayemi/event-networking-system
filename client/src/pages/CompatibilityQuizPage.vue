@@ -6,20 +6,20 @@
         These {{ questions.length }} quick questions help us suggest people you're likely to click with.
       </p>
 
-      <div v-if="submitted" class="bg-white shadow-md rounded-lg px-6 py-6">
+      <div v-if="submitted" class="bg-white shadow-md ring-1 ring-gray-100 rounded-xl px-6 py-6">
         <h2 class="text-base font-semibold text-gray-900 mb-1">You're all set</h2>
         <p class="text-sm text-gray-500 mb-4">
           Thanks for answering — we'll use this to suggest people you're likely to click with.
         </p>
         <RouterLink
           to="/dashboard"
-          class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+          class="inline-flex items-center px-4 py-2.5 bg-indigo-600 rounded-xl font-semibold text-sm text-white shadow-sm hover:bg-indigo-700 transition"
         >
           Go to your dashboard
         </RouterLink>
       </div>
 
-      <form v-else @submit.prevent="handleSubmit" class="bg-white shadow-md rounded-lg px-6 py-6 space-y-6">
+      <form v-else @submit.prevent="handleSubmit" class="bg-white shadow-md ring-1 ring-gray-100 rounded-xl px-6 py-6 space-y-6">
         <QuizQuestion
           v-for="(question, index) in questions"
           :key="question.key"

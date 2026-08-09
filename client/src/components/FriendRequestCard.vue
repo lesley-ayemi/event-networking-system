@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-4 flex flex-wrap items-center justify-between gap-3">
+  <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0 flex-1">
       <Avatar :user="request.sender" />
       <p class="font-semibold text-gray-900 text-sm truncate">

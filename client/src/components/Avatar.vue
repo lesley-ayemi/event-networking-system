@@ -1,6 +1,14 @@
 <template>
-  <img v-if="user.profile_image" :src="user.profile_image" alt="" class="rounded-full object-cover bg-gray-100 w-10 h-10" />
-  <div v-else class="rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-semibold shrink-0 w-10 h-10">
+  <img
+    v-if="user.profile_image"
+    :src="user.profile_image"
+    alt=""
+    class="rounded-full object-cover bg-gray-100 w-10 h-10 ring-2 ring-white shadow-sm"
+  />
+  <div
+    v-else
+    class="rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-semibold shrink-0 w-10 h-10 ring-2 ring-white shadow-sm"
+  >
     {{ initials }}
   </div>
 </template>

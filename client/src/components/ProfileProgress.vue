@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-5">
+  <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5">
     <div class="flex items-center justify-between gap-3">
       <h2 class="text-base font-semibold text-gray-900">Profile completion</h2>
       <span class="text-sm font-medium text-gray-500">{{ percent }}%</span>

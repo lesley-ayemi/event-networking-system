@@ -2,7 +2,7 @@
   <DefaultLayout>
     <h1 class="text-lg font-medium text-gray-900 mb-6">Events</h1>
 
-    <form @submit.prevent="applyFilters" class="bg-white shadow-sm rounded-lg px-6 py-5 mb-6">
+    <form @submit.prevent="applyFilters" class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl px-6 py-5 mb-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <InputLabel for-id="filter_date" value="Date" />
@@ -18,27 +18,19 @@
         </div>
         <div>
           <InputLabel for-id="filter_format" value="Virtual or physical" />
-          <select
-            id="filter_format"
-            v-model="filters.format"
-            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full text-sm"
-          >
+          <Select id="filter_format" v-model="filters.format">
             <option value="">Any</option>
             <option value="virtual">Virtual</option>
             <option value="physical">Physical</option>
-          </select>
+          </Select>
         </div>
         <div>
           <InputLabel for-id="filter_price" value="Free or paid" />
-          <select
-            id="filter_price"
-            v-model="filters.price"
-            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full text-sm"
-          >
+          <Select id="filter_price" v-model="filters.price">
             <option value="">Any</option>
             <option value="free">Free</option>
             <option value="paid">Paid</option>
-          </select>
+          </Select>
         </div>
         <div class="flex items-end gap-4">
           <label class="flex items-center">
@@ -77,7 +69,7 @@
       <EventCard v-for="event in eventsStore.events" :key="event.id" :event="event" />
     </div>
 
-    <div v-if="eventsStore.pagination && eventsStore.pagination.last_page > 1" class="flex items-center justify-between mt-6">
+    <div v-if="eventsStore.pagination && eventsStore.pagination.last_page > 1" class="flex flex-wrap items-center justify-between gap-3 mt-6">
       <SecondaryButton :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</SecondaryButton>
       <span class="text-sm text-gray-500">
         Page {{ eventsStore.pagination.current_page }} of {{ eventsStore.pagination.last_page }}
@@ -95,6 +87,7 @@ import DefaultLayout from "../layouts/DefaultLayout.vue";
 import EventCard from "../components/EventCard.vue";
 import InputLabel from "../components/InputLabel.vue";
 import TextInput from "../components/TextInput.vue";
+import Select from "../components/Select.vue";
 import Checkbox from "../components/Checkbox.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";

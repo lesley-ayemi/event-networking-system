@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 bg-gray-900/40 flex items-center justify-center p-4 z-50" @click.self="close">
-    <div class="bg-white rounded-lg shadow-md w-full max-w-sm p-5">
+  <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50" @click.self="close">
+    <div class="bg-white rounded-2xl ring-1 ring-gray-100 shadow-lg w-full max-w-sm p-6">
       <h2 class="text-base font-semibold text-gray-900 mb-1">{{ title }}</h2>
       <p class="text-sm text-gray-500 mb-4">
         Reports are reviewed by our team. This won't notify the other person.
@@ -9,20 +9,16 @@
       <template v-if="!submitted">
         <div>
           <InputLabel for-id="report-reason" value="Reason" />
-          <select
-            id="report-reason"
-            v-model="reason"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
+          <Select id="report-reason" v-model="reason">
             <option v-for="option in REPORT_REASONS" :key="option.value" :value="option.value">
               {{ option.label }}
             </option>
-          </select>
+          </Select>
         </div>
 
         <div class="mt-3">
           <InputLabel for-id="report-details" value="Details (optional)" />
-          <Textarea id="report-details" v-model="details" rows="3" class="mt-1" />
+          <Textarea id="report-details" v-model="details" rows="3" />
         </div>
 
         <InputError :message="errorMessage" />
@@ -48,6 +44,7 @@
 <script setup>
 import { ref } from "vue";
 import InputLabel from "./InputLabel.vue";
+import Select from "./Select.vue";
 import Textarea from "./Textarea.vue";
 import InputError from "./InputError.vue";
 import PrimaryButton from "./PrimaryButton.vue";

@@ -10,7 +10,7 @@
       <section v-if="friendsStore.incomingRequests.length > 0">
         <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Friend requests</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div v-for="request in friendsStore.incomingRequests" :key="request.id" class="bg-white shadow-sm rounded-lg p-5">
+          <div v-for="request in friendsStore.incomingRequests" :key="request.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <div class="flex items-center gap-3">
               <Avatar :user="request.sender" />
               <div>
@@ -18,7 +18,7 @@
                 <p class="text-xs text-gray-500">{{ personLine(request.sender) }}</p>
               </div>
             </div>
-            <div class="flex items-center gap-3 mt-4">
+            <div class="flex items-center gap-3 mt-auto pt-4">
               <PrimaryButton :disabled="isBusy" @click="accept(request.id)">Accept</PrimaryButton>
               <SecondaryButton :disabled="isBusy" @click="decline(request.id)">Decline</SecondaryButton>
             </div>
@@ -29,7 +29,7 @@
       <section v-if="friendsStore.outgoingRequests.length > 0">
         <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Sent requests</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div v-for="request in friendsStore.outgoingRequests" :key="request.id" class="bg-white shadow-sm rounded-lg p-5">
+          <div v-for="request in friendsStore.outgoingRequests" :key="request.id" class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5">
             <div class="flex items-center gap-3">
               <Avatar :user="request.recipient" />
               <div>
@@ -47,7 +47,7 @@
           You don't have any friends yet. Accept a request above, or send one from your matches.
         </p>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div v-for="friend in friendsStore.friends" :key="friend.id" class="bg-white shadow-sm rounded-lg p-5">
+          <div v-for="friend in friendsStore.friends" :key="friend.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <div class="flex items-center gap-3">
               <Avatar :user="friend" />
               <div>
@@ -56,7 +56,7 @@
                 <AvailabilityBadge :status="friend.availability_status" class="mt-1" />
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-3 mt-4">
+            <div class="flex flex-wrap items-center gap-3 mt-auto pt-4">
               <SecondaryButton :disabled="isMessaging(friend.id)" @click="message(friend.id)">Message</SecondaryButton>
               <SecondaryButton :disabled="isBusy" @click="remove(friend.id)">Remove</SecondaryButton>
               <SecondaryButton :disabled="isBusy" @click="block(friend.id)">Block</SecondaryButton>

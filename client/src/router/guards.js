@@ -13,5 +13,9 @@ export function resolveNavigation(to, authState) {
     return { path: "/dashboard" };
   }
 
+  if (to.meta?.requiresOrganiser === true && !authState.isApprovedOrganiser) {
+    return { path: "/profile" };
+  }
+
   return true;
 }

@@ -1,5 +1,5 @@
 <template>
-  <label :for="forId" class="block font-medium text-sm text-gray-700">
+  <label :for="forId" class="block font-medium text-sm text-gray-700 mb-1.5">
     <slot>{{ value }}</slot>
   </label>
 </template>

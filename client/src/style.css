@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Warm accent for CTAs and highlight moments, paired with the app's
+     existing indigo (trust/professionalism) for a palette that reads as
+     professional but approachable — fitting event attendees looking for
+     low-pressure networking rather than a hard-sell SaaS tool. */
+  --color-accent-50: #fff7ed;
+  --color-accent-100: #ffedd5;
+  --color-accent-200: #fed7aa;
+  --color-accent-300: #fdba74;
+  --color-accent-400: #fb923c;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+  --color-accent-700: #c2410c;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Vue Router adds this class to the link matching the current route exactly;
+   styling it here applies consistently across every nav (Default + Admin)
+   without touching each RouterLink individually. */
+.router-link-exact-active {
+  color: var(--color-indigo-600);
+  font-weight: 600;
+}

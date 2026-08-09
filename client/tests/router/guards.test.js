@@ -31,4 +31,16 @@ describe("resolveNavigation", () => {
     const result = resolveNavigation(to, { isAuthenticated: true, isAdmin: false });
     expect(result).toEqual({ path: "/dashboard" });
   });
+
+  it("allows navigation to an organiser route when approved", () => {
+    const to = { meta: { requiresAuth: true, requiresOrganiser: true }, path: "/events/new" };
+    const result = resolveNavigation(to, { isAuthenticated: true, isApprovedOrganiser: true });
+    expect(result).toBe(true);
+  });
+
+  it("redirects to /profile when navigating to an organiser route as a non-organiser", () => {
+    const to = { meta: { requiresAuth: true, requiresOrganiser: true }, path: "/events/new" };
+    const result = resolveNavigation(to, { isAuthenticated: true, isApprovedOrganiser: false });
+    expect(result).toEqual({ path: "/profile" });
+  });
 });

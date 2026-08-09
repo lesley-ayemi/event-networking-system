@@ -6,11 +6,11 @@
     <p v-else-if="eventsStore.error" class="text-sm text-red-600">{{ eventsStore.error }}</p>
     <p v-else-if="eventsStore.events.length === 0" class="text-sm text-gray-500">No events found.</p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
-      <div v-for="event in eventsStore.events" :key="event.id" class="p-4 flex items-center justify-between gap-3">
-        <div>
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
+      <div v-for="event in eventsStore.events" :key="event.id" class="p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
           <p class="text-sm font-medium text-gray-900">{{ event.name }}</p>
-          <p class="text-xs text-gray-500">
+          <p class="text-xs text-gray-500 break-words">
             {{ formattedDate(event.starts_at) }} · {{ event.is_virtual ? "Virtual" : event.location || "Location TBA" }}
           </p>
         </div>

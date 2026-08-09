@@ -15,6 +15,9 @@ export const useEventsStore = defineStore("events", {
     recommendedEvents: [],
     isLoadingRecommended: false,
     recommendedError: "",
+    organizedEvents: [],
+    isLoadingOrganizedEvents: false,
+    organizedEventsError: "",
   }),
 
   actions: {
@@ -85,6 +88,40 @@ export const useEventsStore = defineStore("events", {
       } finally {
         this.isLoadingRecommended = false;
       }
+    },
+
+    async fetchOrganizedEvents() {
+      this.isLoadingOrganizedEvents = true;
+      this.organizedEventsError = "";
+      try {
+        const response = await apiClient.get("/events", { params: { mine: 1 } });
+        this.organizedEvents = response.data.data;
+      } catch (error) {
+        this.organizedEventsError = getApiError(error, "We couldn't load your events. Please try again.").message;
+      } finally {
+        this.isLoadingOrganizedEvents = false;
+      }
+    },
+
+    async createEvent(payload) {
+      const response = await apiClient.post("/events", payload);
+      this.organizedEvents.unshift(response.data.data);
+      return response.data.data;
+    },
+
+    async updateEvent(eventId, payload) {
+      const response = await apiClient.patch(`/events/${eventId}`, payload);
+      this._applyEventUpdate(response.data.data);
+      const index = this.organizedEvents.findIndex((event) => event.id === response.data.data.id);
+      if (index !== -1) {
+        this.organizedEvents[index] = response.data.data;
+      }
+      return response.data.data;
+    },
+
+    async deleteEvent(eventId) {
+      await apiClient.delete(`/events/${eventId}`);
+      this.organizedEvents = this.organizedEvents.filter((event) => event.id !== Number(eventId));
     },
 
     // register/cancel/bookmark actions all return the full updated event, so

@@ -2,7 +2,7 @@
   <DefaultLayout>
     <h1 class="text-lg font-medium text-gray-900 mb-6">Profile</h1>
 
-    <div class="bg-white shadow-sm rounded-lg p-6 max-w-xl">
+    <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-6 max-w-xl">
       <h2 class="text-base font-semibold text-gray-900 mb-1">Availability status</h2>
       <p class="text-sm text-gray-500 mb-4">Let people know how open you are to chatting right now.</p>
 
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class="bg-white shadow-sm rounded-lg p-6 max-w-xl mt-6">
+    <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-6 max-w-xl mt-6">
       <h2 class="text-base font-semibold text-gray-900 mb-1">Event organiser</h2>
       <p class="text-sm text-gray-500 mb-4">Approved organisers can create and publish events.</p>
 

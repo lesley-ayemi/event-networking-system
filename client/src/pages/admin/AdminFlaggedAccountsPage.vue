@@ -9,11 +9,11 @@
       No accounts currently meet the flagging threshold.
     </p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
-      <div v-for="user in adminStore.flaggedAccounts" :key="user.id" class="p-4 flex items-center justify-between gap-3">
-        <div>
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
+      <div v-for="user in adminStore.flaggedAccounts" :key="user.id" class="p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
           <p class="text-sm font-medium text-gray-900">{{ user.first_name }} {{ user.last_name }}</p>
-          <p class="text-xs text-gray-500">{{ user.email }} · {{ user.reports_count }} reports</p>
+          <p class="text-xs text-gray-500 break-words">{{ user.email }} · {{ user.reports_count }} reports</p>
         </div>
         <SecondaryButton :disabled="isBusy(user.id)" @click="suspend(user.id)">Suspend</SecondaryButton>
       </div>

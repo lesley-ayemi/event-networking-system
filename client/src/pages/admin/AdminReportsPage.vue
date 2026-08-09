@@ -2,27 +2,27 @@
   <AdminLayout>
     <h1 class="text-lg font-medium text-gray-900 mb-6">Reports</h1>
 
-    <div class="flex items-center gap-3 mb-4">
-      <select v-model="typeFilter" class="text-sm rounded-md border-gray-300" @change="load">
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      <Select v-model="typeFilter" @change="load">
         <option value="">All types</option>
         <option value="user">Accounts</option>
         <option value="message">Messages</option>
         <option value="event">Events</option>
-      </select>
-      <select v-model="statusFilter" class="text-sm rounded-md border-gray-300" @change="load">
+      </Select>
+      <Select v-model="statusFilter" @change="load">
         <option value="">All statuses</option>
         <option v-for="status in STATUSES" :key="status" :value="status">{{ status }}</option>
-      </select>
+      </Select>
     </div>
 
     <p v-if="adminStore.isLoadingReports" class="text-sm text-gray-500">Loading…</p>
     <p v-else-if="adminStore.reportsError" class="text-sm text-red-600">{{ adminStore.reportsError }}</p>
     <p v-else-if="adminStore.reports.length === 0" class="text-sm text-gray-500">No reports match those filters.</p>
 
-    <div v-else class="bg-white shadow-sm rounded-lg divide-y divide-gray-100">
+    <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
       <div v-for="report in adminStore.reports" :key="report.id" class="p-4">
-        <div class="flex items-start justify-between gap-3">
-          <div>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
             <p class="text-sm font-medium text-gray-900">
               {{ reasonLabel(report.reason) }}
               <span class="text-xs text-gray-400 font-normal">· {{ report.reportable_type }} #{{ report.reportable_id }}</span>
@@ -33,13 +33,13 @@
             </p>
             <p v-if="report.details" class="text-sm text-gray-600 mt-2">{{ report.details }}</p>
           </div>
-          <select
-            :value="report.status"
-            class="text-xs rounded-md border-gray-300 shrink-0"
-            @change="updateStatus(report.id, $event.target.value)"
+          <Select
+            :model-value="report.status"
+            class="shrink-0"
+            @update:model-value="(value) => updateStatus(report.id, value)"
           >
             <option v-for="status in STATUSES" :key="status" :value="status">{{ status }}</option>
-          </select>
+          </Select>
         </div>
       </div>
     </div>
@@ -50,6 +50,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import AdminLayout from "../../layouts/AdminLayout.vue";
+import Select from "../../components/Select.vue";
 import { useAdminStore } from "../../stores/adminStore.js";
 import { getApiError } from "../../services/apiError.js";
 import { REPORT_REASONS } from "../../constants/reportReasons.js";

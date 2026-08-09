@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-5 flex flex-col">
+  <div class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
     <div class="flex items-start justify-between gap-2">
-      <h3 class="font-semibold text-gray-900">{{ event.name }}</h3>
+      <h3 class="font-semibold text-gray-900 line-clamp-2">{{ event.name }}</h3>
       <BookmarkButton :event-id="event.id" :is-bookmarked="event.is_bookmarked" />
     </div>
 
@@ -26,12 +26,14 @@
 
     <p class="text-sm text-gray-500 mt-3">{{ event.attendees_count }} attending</p>
 
-    <RouterLink
-      :to="`/events/${event.id}`"
-      class="mt-4 inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50"
-    >
-      View details
-    </RouterLink>
+    <div class="mt-auto pt-4">
+      <RouterLink
+        :to="`/events/${event.id}`"
+        class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-200 rounded-xl font-semibold text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition"
+      >
+        View details
+      </RouterLink>
+    </div>
   </div>
 </template>
 
