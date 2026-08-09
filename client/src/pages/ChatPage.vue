@@ -39,7 +39,7 @@
 
       <div ref="scrollRegion" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
         <div v-if="conversationsStore.messages.length === 0" class="text-center">
-          <p class="text-sm text-gray-400 mb-3">Say hello 👋 — or try an opener:</p>
+          <p class="text-sm text-gray-500 mb-3">Say hello 👋 — or try an opener:</p>
           <div class="flex flex-wrap justify-center gap-2">
             <button
               v-for="starter in CONVERSATION_STARTERS"
@@ -65,7 +65,7 @@
             >
               {{ message.body }}
             </div>
-            <p class="text-xs text-gray-400 mt-0.5" :class="isMine(message) ? 'text-right' : 'text-left'">
+            <p class="text-xs text-gray-500 mt-0.5" :class="isMine(message) ? 'text-right' : 'text-left'">
               {{ formattedTime(message.created_at) }}
               <span v-if="isMine(message) && isRead(message)"> · Read</span>
               <button

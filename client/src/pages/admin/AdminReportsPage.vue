@@ -25,7 +25,7 @@
           <div class="min-w-0">
             <p class="text-sm font-medium text-gray-900">
               {{ reasonLabel(report.reason) }}
-              <span class="text-xs text-gray-400 font-normal">· {{ report.reportable_type }} #{{ report.reportable_id }}</span>
+              <span class="text-xs text-gray-500 font-normal">· {{ report.reportable_type }} #{{ report.reportable_id }}</span>
             </p>
             <p class="text-xs text-gray-500 mt-0.5">
               Reported by {{ report.reporter?.first_name }} {{ report.reporter?.last_name }}

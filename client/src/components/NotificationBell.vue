@@ -3,10 +3,12 @@
     <button
       type="button"
       class="relative text-gray-500 hover:text-gray-900"
+      :aria-label="notificationStore.totalCount > 0 ? `Notifications, ${notificationStore.totalCount} unread` : 'Notifications'"
+      aria-haspopup="true"
       :aria-expanded="isOpen"
       @click="isOpen = !isOpen"
     >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -15,6 +17,7 @@
       </svg>
       <span
         v-if="notificationStore.totalCount > 0"
+        aria-hidden="true"
         class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-indigo-600 text-white text-[10px] font-medium"
       >
         {{ notificationStore.totalCount }}

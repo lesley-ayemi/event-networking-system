@@ -1,7 +1,18 @@
 <template>
-  <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50" @click.self="close">
-    <div class="bg-white rounded-2xl ring-1 ring-gray-100 shadow-lg w-full max-w-sm p-6">
-      <h2 class="text-base font-semibold text-gray-900 mb-1">{{ title }}</h2>
+  <div
+    class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+    @click.self="close"
+    @keydown.esc="close"
+  >
+    <div
+      ref="panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-modal-title"
+      tabindex="-1"
+      class="bg-white rounded-2xl ring-1 ring-gray-100 shadow-lg w-full max-w-sm p-6 focus:outline-none"
+    >
+      <h2 id="report-modal-title" class="text-base font-semibold text-gray-900 mb-1">{{ title }}</h2>
       <p class="text-sm text-gray-500 mb-4">
         Reports are reviewed by our team. This won't notify the other person.
       </p>
@@ -42,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import InputLabel from "./InputLabel.vue";
 import Select from "./Select.vue";
 import Textarea from "./Textarea.vue";
@@ -62,6 +73,12 @@ const props = defineProps({
 const emit = defineEmits(["close", "submitted"]);
 
 const reportStore = useReportStore();
+const panel = ref(null);
+
+onMounted(async () => {
+  await nextTick();
+  panel.value?.focus();
+});
 
 const reason = ref(REPORT_REASONS[0].value);
 const details = ref("");

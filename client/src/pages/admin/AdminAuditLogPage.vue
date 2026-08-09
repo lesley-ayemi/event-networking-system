@@ -15,7 +15,7 @@
             ({{ log.subject_type }} #{{ log.subject_id }})
           </span>
         </p>
-        <p class="text-xs text-gray-400 mt-0.5">{{ formattedDate(log.created_at) }}</p>
+        <p class="text-xs text-gray-500 mt-0.5">{{ formattedDate(log.created_at) }}</p>
       </div>
     </div>
 

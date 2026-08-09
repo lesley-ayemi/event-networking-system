@@ -9,7 +9,7 @@
         <p class="font-semibold text-gray-900 text-sm truncate">
           {{ conversation.other_user.first_name }} {{ conversation.other_user.last_name }}
         </p>
-        <span v-if="conversation.last_message" class="text-xs text-gray-400 shrink-0">
+        <span v-if="conversation.last_message" class="text-xs text-gray-500 shrink-0">
           {{ formattedTime(conversation.last_message.created_at) }}
         </span>
       </div>

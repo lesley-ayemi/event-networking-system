@@ -18,7 +18,7 @@
         >
           Remove access
         </SecondaryButton>
-        <span v-else class="text-xs text-gray-400">You</span>
+        <span v-else class="text-xs text-gray-500">You</span>
       </div>
     </div>
 

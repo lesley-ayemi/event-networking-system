@@ -106,7 +106,7 @@
       </RouterLink>
     </section>
 
-    <footer class="border-t border-gray-100 py-8 text-center text-sm text-gray-400">
+    <footer class="border-t border-gray-100 py-8 text-center text-sm text-gray-500">
       Event Networking
     </footer>
   </div>

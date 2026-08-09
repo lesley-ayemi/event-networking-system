@@ -175,7 +175,7 @@
 
       <button
         type="button"
-        class="text-xs text-gray-400 hover:text-gray-600 underline mt-6"
+        class="text-xs text-gray-500 hover:text-gray-600 underline mt-6"
         @click="showReportModal = true"
       >
         Report this event
