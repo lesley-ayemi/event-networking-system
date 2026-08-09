@@ -14,7 +14,7 @@
           {{ group.event.name }}
         </h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="match in group.matches" :key="match.user.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <div class="flex items-start justify-between gap-3">
               <RouterLink :to="`/users/${match.user.id}`" class="flex items-center gap-3 hover:opacity-80">

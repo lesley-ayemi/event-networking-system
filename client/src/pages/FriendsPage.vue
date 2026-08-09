@@ -9,7 +9,7 @@
     <div v-else class="space-y-8">
       <section v-if="friendsStore.incomingRequests.length > 0">
         <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Friend requests</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="request in friendsStore.incomingRequests" :key="request.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <RouterLink :to="`/users/${request.sender.id}`" class="flex items-center gap-3 hover:opacity-80">
               <Avatar :user="request.sender" />
@@ -28,7 +28,7 @@
 
       <section v-if="friendsStore.outgoingRequests.length > 0">
         <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Sent requests</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="request in friendsStore.outgoingRequests" :key="request.id" class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5">
             <RouterLink :to="`/users/${request.recipient.id}`" class="flex items-center gap-3 hover:opacity-80">
               <Avatar :user="request.recipient" />
@@ -46,7 +46,7 @@
         <p v-if="friendsStore.friends.length === 0" class="text-sm text-gray-500">
           You don't have any friends yet. Accept a request above, or send one from your matches.
         </p>
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="friend in friendsStore.friends" :key="friend.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <RouterLink :to="`/users/${friend.id}`" class="flex items-center gap-3 hover:opacity-80">
               <Avatar :user="friend" />

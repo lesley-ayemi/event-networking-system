@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <nav class="bg-white shadow-sm sticky top-0 z-20">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center gap-6 min-w-0">
             <RouterLink to="/dashboard" class="text-base font-bold text-gray-900 tracking-tight shrink-0">
@@ -73,7 +73,7 @@
         </div>
       </div>
     </nav>
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <slot />
     </main>
   </div>

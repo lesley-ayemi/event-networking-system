@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <nav class="bg-gray-900 shadow-sm sticky top-0 z-20">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="flex items-center justify-between h-16">
           <span class="text-sm font-bold text-white tracking-tight whitespace-nowrap shrink-0">
             Event<span class="text-indigo-400">Networking</span> <span class="text-gray-500 font-medium">/ Admin</span>
@@ -47,7 +47,7 @@
         </div>
       </div>
     </nav>
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <slot />
     </main>
   </div>
