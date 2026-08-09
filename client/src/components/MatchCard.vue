@@ -1,13 +1,13 @@
 <template>
   <div class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-4 flex flex-col">
     <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-3 min-w-0">
+      <RouterLink :to="`/users/${match.user.id}`" class="flex items-center gap-3 min-w-0 hover:opacity-80">
         <Avatar :user="match.user" />
         <div class="min-w-0">
           <p class="font-semibold text-gray-900 text-sm truncate">{{ match.user.first_name }} {{ match.user.last_name }}</p>
           <AvailabilityBadge :status="match.user.availability_status" class="mt-0.5" />
         </div>
-      </div>
+      </RouterLink>
       <span class="shrink-0 inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">
         {{ match.score }}%
       </span>
@@ -24,7 +24,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import Avatar from "./Avatar.vue";
 import AvailabilityBadge from "./AvailabilityBadge.vue";
 import SecondaryButton from "./SecondaryButton.vue";

@@ -22,6 +22,7 @@ import FriendsPage from "../pages/FriendsPage.vue";
 import MessagesPage from "../pages/MessagesPage.vue";
 import ChatPage from "../pages/ChatPage.vue";
 import ProfilePage from "../pages/ProfilePage.vue";
+import UserProfilePage from "../pages/UserProfilePage.vue";
 import AdminReportsPage from "../pages/admin/AdminReportsPage.vue";
 import AdminFlaggedAccountsPage from "../pages/admin/AdminFlaggedAccountsPage.vue";
 import AdminOrganiserRequestsPage from "../pages/admin/AdminOrganiserRequestsPage.vue";
@@ -53,6 +54,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   { path: "/profile", component: ProfilePage, meta: { requiresAuth: true } },
+  { path: "/users/:id", component: UserProfilePage, meta: { requiresAuth: true } },
   { path: "/admin/reports", component: AdminReportsPage, meta: { requiresAuth: true, requiresAdmin: true } },
   {
     path: "/admin/flagged-accounts",

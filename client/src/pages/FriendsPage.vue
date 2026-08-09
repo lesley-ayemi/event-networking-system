@@ -11,13 +11,13 @@
         <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Friend requests</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div v-for="request in friendsStore.incomingRequests" :key="request.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
-            <div class="flex items-center gap-3">
+            <RouterLink :to="`/users/${request.sender.id}`" class="flex items-center gap-3 hover:opacity-80">
               <Avatar :user="request.sender" />
               <div>
                 <p class="font-semibold text-gray-900 text-sm">{{ request.sender.first_name }} {{ request.sender.last_name }}</p>
                 <p class="text-xs text-gray-500">{{ personLine(request.sender) }}</p>
               </div>
-            </div>
+            </RouterLink>
             <div class="flex items-center gap-3 mt-auto pt-4">
               <PrimaryButton :disabled="isBusy" @click="accept(request.id)">Accept</PrimaryButton>
               <SecondaryButton :disabled="isBusy" @click="decline(request.id)">Decline</SecondaryButton>
@@ -30,13 +30,13 @@
         <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Sent requests</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div v-for="request in friendsStore.outgoingRequests" :key="request.id" class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5">
-            <div class="flex items-center gap-3">
+            <RouterLink :to="`/users/${request.recipient.id}`" class="flex items-center gap-3 hover:opacity-80">
               <Avatar :user="request.recipient" />
               <div>
                 <p class="font-semibold text-gray-900 text-sm">{{ request.recipient.first_name }} {{ request.recipient.last_name }}</p>
                 <p class="text-xs text-gray-500">Request pending</p>
               </div>
-            </div>
+            </RouterLink>
           </div>
         </div>
       </section>
@@ -48,14 +48,14 @@
         </p>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div v-for="friend in friendsStore.friends" :key="friend.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
-            <div class="flex items-center gap-3">
+            <RouterLink :to="`/users/${friend.id}`" class="flex items-center gap-3 hover:opacity-80">
               <Avatar :user="friend" />
               <div>
                 <p class="font-semibold text-gray-900 text-sm">{{ friend.first_name }} {{ friend.last_name }}</p>
                 <p class="text-xs text-gray-500">{{ personLine(friend) }}</p>
                 <AvailabilityBadge :status="friend.availability_status" class="mt-1" />
               </div>
-            </div>
+            </RouterLink>
             <div class="flex flex-wrap items-center gap-3 mt-auto pt-4">
               <SecondaryButton :disabled="isMessaging(friend.id)" @click="message(friend.id)">Message</SecondaryButton>
               <SecondaryButton :disabled="isBusy" @click="remove(friend.id)">Remove</SecondaryButton>
@@ -71,7 +71,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
 import Avatar from "../components/Avatar.vue";
 import AvailabilityBadge from "../components/AvailabilityBadge.vue";

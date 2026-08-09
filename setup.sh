@@ -93,6 +93,7 @@ cp "$ROOT_DIR/server-overlay/app/Http/Requests/Api/ResetPasswordRequest.php" app
 mkdir -p app/Http/Controllers/Api/Concerns app/Http/Controllers/Api/Admin app/Http/Middleware app/Console/Commands
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/AuthController.php" app/Http/Controllers/Api/AuthController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/ProfileController.php" app/Http/Controllers/Api/ProfileController.php
+cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/UserProfileController.php" app/Http/Controllers/Api/UserProfileController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/EventController.php" app/Http/Controllers/Api/EventController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/BookmarkController.php" app/Http/Controllers/Api/BookmarkController.php
 cp "$ROOT_DIR/server-overlay/app/Http/Controllers/Api/QuizController.php" app/Http/Controllers/Api/QuizController.php
@@ -146,6 +147,7 @@ cp "$ROOT_DIR/server-overlay/tests/Feature/Auth/PasswordResetTest.php" tests/Fea
 cp "$ROOT_DIR/server-overlay/tests/Feature/ErrorHandling/"*.php tests/Feature/ErrorHandling/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UpdateProfileTest.php" tests/Feature/Profile/UpdateProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/UploadProfilePhotoTest.php" tests/Feature/Profile/UploadProfilePhotoTest.php
+cp "$ROOT_DIR/server-overlay/tests/Feature/Profile/ViewUserProfileTest.php" tests/Feature/Profile/ViewUserProfileTest.php
 cp "$ROOT_DIR/server-overlay/tests/Feature/Events/"*.php tests/Feature/Events/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Bookmarks/"*.php tests/Feature/Bookmarks/
 cp "$ROOT_DIR/server-overlay/tests/Feature/Quiz/"*.php tests/Feature/Quiz/

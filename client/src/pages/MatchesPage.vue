@@ -17,14 +17,14 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div v-for="match in group.matches" :key="match.user.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
             <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
+              <RouterLink :to="`/users/${match.user.id}`" class="flex items-center gap-3 hover:opacity-80">
                 <Avatar :user="match.user" />
                 <div>
                   <p class="font-semibold text-gray-900 text-sm">{{ match.user.first_name }} {{ match.user.last_name }}</p>
                   <p class="text-xs text-gray-500">{{ personLine(match.user) }}</p>
                   <AvailabilityBadge :status="match.user.availability_status" class="mt-1" />
                 </div>
-              </div>
+              </RouterLink>
               <span class="shrink-0 inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">
                 {{ match.score }}% compatible
               </span>
@@ -59,7 +59,7 @@
 
 <script setup>
 import { computed, onMounted, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import DefaultLayout from "../layouts/DefaultLayout.vue";
 import Avatar from "../components/Avatar.vue";
 import AvailabilityBadge from "../components/AvailabilityBadge.vue";

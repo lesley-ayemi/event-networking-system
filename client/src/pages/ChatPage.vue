@@ -4,7 +4,7 @@
 
     <div v-if="conversation" class="bg-white shadow-md ring-1 ring-gray-100 rounded-xl mt-4 max-w-2xl flex flex-col h-[70vh]">
       <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-100">
-        <div class="flex items-center gap-3">
+        <RouterLink :to="`/users/${conversation.other_user.id}`" class="flex items-center gap-3 hover:opacity-80">
           <Avatar :user="conversation.other_user" />
           <div>
             <p class="font-semibold text-gray-900 text-sm">
@@ -12,7 +12,7 @@
             </p>
             <AvailabilityBadge :status="conversation.other_user.availability_status" class="mt-0.5" />
           </div>
-        </div>
+        </RouterLink>
         <div class="flex items-center gap-4 shrink-0">
           <button type="button" class="text-xs text-gray-500 hover:text-gray-900" @click="showUserReportModal = true">
             Report

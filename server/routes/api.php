@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::patch('/quiz', [QuizController::class, 'update']);
 
     Route::get('/users/me/events', [EventController::class, 'myEvents']);
+    Route::get('/users/{user}', [UserProfileController::class, 'show']);
 
     Route::get('/events', [EventController::class, 'index']);
     Route::post('/events', [EventController::class, 'store']);
