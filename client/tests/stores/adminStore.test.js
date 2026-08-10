@@ -183,42 +183,41 @@ describe("adminStore", () => {
     expect(get).toHaveBeenCalledWith("/admin/audit-logs", { params: { page: 2 } });
   });
 
-  it("fetchAdmins() loads admin accounts", async () => {
-    get.mockResolvedValue({
-      data: { data: [{ id: 1, is_admin: true }], meta: { current_page: 1, last_page: 1, per_page: 20, total: 1 } },
-    });
-
-    const store = useAdminStore();
-    await store.fetchAdmins();
-
-    expect(get).toHaveBeenCalledWith("/admin/admins", { params: {} });
-    expect(store.admins).toEqual([{ id: 1, is_admin: true }]);
-    expect(store.adminsPagination).toEqual({ current_page: 1, last_page: 1, per_page: 20, total: 1 });
-  });
-
-  it("createAdmin() adds the new admin to the list", async () => {
-    const created = { id: 10, email: "new-admin@example.com", is_admin: true };
+  it("createUser() posts the new user and returns it", async () => {
+    const created = { id: 10, email: "new-user@example.com", is_admin: false };
     post.mockResolvedValue({ data: created });
 
     const store = useAdminStore();
-    const result = await store.createAdmin({ first_name: "New", last_name: "Admin", email: "new-admin@example.com" });
+    const result = await store.createUser({ first_name: "New", last_name: "User", email: "new-user@example.com" });
 
-    expect(post).toHaveBeenCalledWith("/admin/admins", {
-      first_name: "New", last_name: "Admin", email: "new-admin@example.com",
+    expect(post).toHaveBeenCalledWith("/admin/users", {
+      first_name: "New", last_name: "User", email: "new-user@example.com",
     });
-    expect(store.admins).toEqual([created]);
     expect(result).toEqual(created);
   });
 
-  it("demoteAdmin() removes the admin from the list", async () => {
-    del.mockResolvedValue({});
+  it("promoteAdmin() updates the matching user in the list", async () => {
+    const updated = { id: 1, is_admin: true };
+    post.mockResolvedValue({ data: updated });
 
     const store = useAdminStore();
-    store.admins = [{ id: 1 }, { id: 2 }];
+    store.users = [{ id: 1, is_admin: false }, { id: 2, is_admin: false }];
+    await store.promoteAdmin(1);
+
+    expect(post).toHaveBeenCalledWith("/admin/admins/1/promote");
+    expect(store.users).toEqual([updated, { id: 2, is_admin: false }]);
+  });
+
+  it("demoteAdmin() updates the matching user in the list", async () => {
+    const updated = { id: 1, is_admin: false };
+    del.mockResolvedValue({ data: updated });
+
+    const store = useAdminStore();
+    store.users = [{ id: 1, is_admin: true }, { id: 2, is_admin: false }];
     await store.demoteAdmin(1);
 
     expect(del).toHaveBeenCalledWith("/admin/admins/1");
-    expect(store.admins).toEqual([{ id: 2 }]);
+    expect(store.users).toEqual([updated, { id: 2, is_admin: false }]);
   });
 
   it("fetchUsers() loads users with the given filters and stores pagination meta", async () => {

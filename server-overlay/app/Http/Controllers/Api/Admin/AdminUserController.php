@@ -7,66 +7,22 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
-// CRUD over admin accounts. "Admin" isn't a separate model/table — it's the
-// is_admin flag on User — so destroy() here means revoking admin access
-// (demotion), not deleting the underlying user account.
+// Toggles admin status on an existing user. "Admin" isn't a separate
+// model/table — it's the is_admin flag on User — so this only flips that
+// flag; browsing/searching/creating users lives in UserManagementController.
 class AdminUserController extends Controller
 {
-    public function index()
+    public function promote(Request $request, User $user)
     {
-        $admins = User::where('is_admin', true)
-            ->orderBy('first_name')
-            ->paginate(20)
-            ->withQueryString();
+        if ($user->is_admin) {
+            throw new ApiException('This user already has admin access.', 'ALREADY_ADMIN', 409);
+        }
 
-        return response()->json([
-            'data' => $admins->items(),
-            'meta' => [
-                'current_page' => $admins->currentPage(),
-                'last_page' => $admins->lastPage(),
-                'per_page' => $admins->perPage(),
-                'total' => $admins->total(),
-            ],
-        ]);
-    }
+        $user->is_admin = true;
+        $user->save();
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $admin = User::create([
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-            'is_admin' => true,
-        ]);
-
-        AuditLog::record($request->user(), 'admin.created', $admin);
-
-        return response()->json($admin, 201);
-    }
-
-    public function update(Request $request, User $user)
-    {
-        $this->assertIsAdmin($user);
-
-        $validated = $request->validate([
-            'first_name' => ['sometimes', 'string', 'max:255'],
-            'last_name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'string', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-        ]);
-
-        $user->update($validated);
-
-        AuditLog::record($request->user(), 'admin.updated', $user);
+        AuditLog::record($request->user(), 'admin.promoted', $user);
 
         return response()->json($user);
     }

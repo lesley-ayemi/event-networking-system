@@ -58,6 +58,73 @@ test('admin can filter users by suspended status', function () {
     expect($names)->toEqual(collect(['Sam']));
 });
 
+test('admin can create a new user', function () {
+    $admin = User::create([
+        'first_name' => 'Admina', 'last_name' => 'Strator',
+        'email' => 'admin@example.com', 'password' => 'supersecret', 'is_admin' => true,
+    ]);
+    $token = $admin->createToken('api-token')->plainTextToken;
+
+    $response = $this->postJson('/api/admin/users', [
+        'first_name' => 'New', 'last_name' => 'User',
+        'email' => 'new-user@example.com',
+        'password' => 'supersecret', 'password_confirmation' => 'supersecret',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(201);
+    $response->assertJsonPath('email', 'new-user@example.com');
+    $response->assertJsonPath('is_admin', false);
+    expect(AuditLog::where('action', 'user.created')->where('subject_id', $response->json('id'))->exists())->toBeTrue();
+});
+
+test('admin can create a new user with admin access already granted', function () {
+    $admin = User::create([
+        'first_name' => 'Admina', 'last_name' => 'Strator',
+        'email' => 'admin@example.com', 'password' => 'supersecret', 'is_admin' => true,
+    ]);
+    $token = $admin->createToken('api-token')->plainTextToken;
+
+    $response = $this->postJson('/api/admin/users', [
+        'first_name' => 'New', 'last_name' => 'Admin',
+        'email' => 'new-admin@example.com',
+        'password' => 'supersecret', 'password_confirmation' => 'supersecret',
+        'is_admin' => true,
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(201);
+    $response->assertJsonPath('is_admin', true);
+});
+
+test('admin cannot create a user with a duplicate email', function () {
+    $admin = User::create([
+        'first_name' => 'Admina', 'last_name' => 'Strator',
+        'email' => 'admin@example.com', 'password' => 'supersecret', 'is_admin' => true,
+    ]);
+    $token = $admin->createToken('api-token')->plainTextToken;
+    User::create(['first_name' => 'Ben', 'last_name' => 'Match', 'email' => 'ben@example.com', 'password' => 'supersecret']);
+
+    $response = $this->postJson('/api/admin/users', [
+        'first_name' => 'Dup', 'last_name' => 'Licate',
+        'email' => 'ben@example.com',
+        'password' => 'supersecret', 'password_confirmation' => 'supersecret',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(422);
+});
+
+test('a non-admin cannot create a user', function () {
+    $user = User::create(['first_name' => 'Ben', 'last_name' => 'Match', 'email' => 'ben@example.com', 'password' => 'supersecret']);
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    $response = $this->postJson('/api/admin/users', [
+        'first_name' => 'New', 'last_name' => 'User',
+        'email' => 'new-user@example.com',
+        'password' => 'supersecret', 'password_confirmation' => 'supersecret',
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(403);
+});
+
 test('admin can view a single user', function () {
     $admin = User::create([
         'first_name' => 'Admina', 'last_name' => 'Strator',

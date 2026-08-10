@@ -1,6 +1,9 @@
 <template>
   <AdminLayout>
-    <h1 class="text-lg font-medium text-gray-900 mb-6">Users</h1>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h1 class="text-lg font-medium text-gray-900">Users</h1>
+      <PrimaryButton type="button" @click="isCreateModalOpen = true">+ Create user</PrimaryButton>
+    </div>
 
     <div class="flex flex-wrap items-center gap-3 mb-4">
       <TextInput v-model="search" type="search" placeholder="Search by name or email" class="w-full sm:w-64" @keyup.enter="applyFilters" />
@@ -45,6 +48,9 @@
             <SecondaryButton :disabled="isBusy(user.id)" @click="toggleSuspend(user)">
               {{ user.is_suspended ? "Unsuspend" : "Suspend" }}
             </SecondaryButton>
+            <SecondaryButton v-if="user.id !== userStore.user?.id" :disabled="isBusy(user.id)" @click="toggleAdmin(user)">
+              {{ user.is_admin ? "Revoke admin access" : "Grant admin access" }}
+            </SecondaryButton>
             <DangerButton v-if="user.id !== userStore.user?.id" :disabled="isBusy(user.id)" @click="remove(user)">
               Delete
             </DangerButton>
@@ -67,6 +73,12 @@
         Next
       </SecondaryButton>
     </div>
+
+    <CreateUserModal
+      v-if="isCreateModalOpen"
+      @close="isCreateModalOpen = false"
+      @created="handleUserCreated"
+    />
   </AdminLayout>
 </template>
 
@@ -76,8 +88,10 @@ import { RouterLink } from "vue-router";
 import AdminLayout from "../../layouts/AdminLayout.vue";
 import TextInput from "../../components/TextInput.vue";
 import Select from "../../components/Select.vue";
+import PrimaryButton from "../../components/PrimaryButton.vue";
 import SecondaryButton from "../../components/SecondaryButton.vue";
 import DangerButton from "../../components/DangerButton.vue";
+import CreateUserModal from "../../components/admin/CreateUserModal.vue";
 import { useAdminStore } from "../../stores/adminStore.js";
 import { useUserStore } from "../../stores/userStore.js";
 import { getApiError } from "../../services/apiError.js";
@@ -90,6 +104,7 @@ const roleFilter = ref("");
 const currentPage = ref(1);
 const busyUserIds = reactive(new Set());
 const actionError = ref("");
+const isCreateModalOpen = ref(false);
 
 function isBusy(userId) {
   return busyUserIds.has(userId);
@@ -109,6 +124,28 @@ async function toggleSuspend(user) {
   } finally {
     busyUserIds.delete(user.id);
   }
+}
+
+async function toggleAdmin(user) {
+  busyUserIds.add(user.id);
+  actionError.value = "";
+  try {
+    if (user.is_admin) {
+      await adminStore.demoteAdmin(user.id);
+    } else {
+      await adminStore.promoteAdmin(user.id);
+    }
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't update that account's admin access. Please try again.").message;
+  } finally {
+    busyUserIds.delete(user.id);
+  }
+}
+
+function handleUserCreated() {
+  isCreateModalOpen.value = false;
+  currentPage.value = 1;
+  load();
 }
 
 async function remove(user) {

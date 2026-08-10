@@ -5,57 +5,42 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('a non-admin cannot manage admin accounts', function () {
+test('a non-admin cannot manage admin access', function () {
     $user = User::create([
         'first_name' => 'Lesley', 'last_name' => 'Ayemi',
         'email' => 'lesley@example.com', 'password' => 'supersecret',
     ]);
     $token = $user->createToken('api-token')->plainTextToken;
-
-    $response = $this->getJson('/api/admin/admins', ['Authorization' => "Bearer {$token}"]);
-
-    $response->assertStatus(403);
-});
-
-test('an admin can list admin accounts', function () {
-    $admin = User::create([
-        'first_name' => 'Admina', 'last_name' => 'Strator',
-        'email' => 'admin@example.com', 'password' => 'supersecret',
-        'is_admin' => true,
-    ]);
-    $token = $admin->createToken('api-token')->plainTextToken;
-    User::create([
+    $target = User::create([
         'first_name' => 'Regular', 'last_name' => 'Person',
         'email' => 'regular@example.com', 'password' => 'supersecret',
     ]);
 
-    $response = $this->getJson('/api/admin/admins', ['Authorization' => "Bearer {$token}"]);
+    $response = $this->postJson("/api/admin/admins/{$target->id}/promote", [], ['Authorization' => "Bearer {$token}"]);
 
-    $response->assertStatus(200);
-    expect($response->json('data'))->toHaveCount(1);
-    $response->assertJsonPath('data.0.email', 'admin@example.com');
+    $response->assertStatus(403);
 });
 
-test('an admin can create a new admin account', function () {
+test('an admin can grant admin access to a user', function () {
     $admin = User::create([
         'first_name' => 'Admina', 'last_name' => 'Strator',
         'email' => 'admin@example.com', 'password' => 'supersecret',
         'is_admin' => true,
     ]);
     $token = $admin->createToken('api-token')->plainTextToken;
+    $target = User::create([
+        'first_name' => 'Regular', 'last_name' => 'Person',
+        'email' => 'regular@example.com', 'password' => 'supersecret',
+    ]);
 
-    $response = $this->postJson('/api/admin/admins', [
-        'first_name' => 'New', 'last_name' => 'Admin',
-        'email' => 'new-admin@example.com',
-        'password' => 'supersecret', 'password_confirmation' => 'supersecret',
-    ], ['Authorization' => "Bearer {$token}"]);
+    $response = $this->postJson("/api/admin/admins/{$target->id}/promote", [], ['Authorization' => "Bearer {$token}"]);
 
-    $response->assertStatus(201);
+    $response->assertStatus(200);
     $response->assertJsonPath('is_admin', true);
-    expect(User::where('email', 'new-admin@example.com')->first()->is_admin)->toBeTrue();
+    expect($target->fresh()->is_admin)->toBeTrue();
 });
 
-test('an admin can update another admin\'s basic info', function () {
+test('an admin cannot grant admin access to a user who already has it', function () {
     $admin = User::create([
         'first_name' => 'Admina', 'last_name' => 'Strator',
         'email' => 'admin@example.com', 'password' => 'supersecret',
@@ -68,12 +53,10 @@ test('an admin can update another admin\'s basic info', function () {
         'is_admin' => true,
     ]);
 
-    $response = $this->patchJson("/api/admin/admins/{$otherAdmin->id}", [
-        'first_name' => 'Updated',
-    ], ['Authorization' => "Bearer {$token}"]);
+    $response = $this->postJson("/api/admin/admins/{$otherAdmin->id}/promote", [], ['Authorization' => "Bearer {$token}"]);
 
-    $response->assertStatus(200);
-    $response->assertJsonPath('first_name', 'Updated');
+    $response->assertStatus(409);
+    $response->assertJsonPath('errorCode', 'ALREADY_ADMIN');
 });
 
 test('an admin can demote another admin', function () {

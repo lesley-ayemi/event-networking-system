@@ -24,11 +24,6 @@ export const useAdminStore = defineStore("admin", {
     isLoadingAuditLogs: false,
     auditLogsError: "",
 
-    admins: [],
-    adminsPagination: null,
-    isLoadingAdmins: false,
-    adminsError: "",
-
     users: [],
     usersPagination: null,
     isLoadingUsers: false,
@@ -109,6 +104,11 @@ export const useAdminStore = defineStore("admin", {
       } finally {
         this.isLoadingUsers = false;
       }
+    },
+
+    async createUser(payload) {
+      const response = await apiClient.post("/admin/users", payload);
+      return response.data;
     },
 
     async fetchUser(userId) {
@@ -244,29 +244,14 @@ export const useAdminStore = defineStore("admin", {
       }
     },
 
-    async fetchAdmins(params = {}) {
-      this.isLoadingAdmins = true;
-      this.adminsError = "";
-      try {
-        const response = await apiClient.get("/admin/admins", { params });
-        this.admins = response.data.data;
-        this.adminsPagination = response.data.meta;
-      } catch (error) {
-        this.adminsError = getApiError(error, "We couldn't load admins right now. Please try again.").message;
-      } finally {
-        this.isLoadingAdmins = false;
-      }
-    },
-
-    async createAdmin(payload) {
-      const response = await apiClient.post("/admin/admins", payload);
-      this.admins.push(response.data);
-      return response.data;
+    async promoteAdmin(userId) {
+      const response = await apiClient.post(`/admin/admins/${userId}/promote`);
+      this._applyUserUpdate(response.data);
     },
 
     async demoteAdmin(userId) {
-      await apiClient.delete(`/admin/admins/${userId}`);
-      this.admins = this.admins.filter((admin) => admin.id !== userId);
+      const response = await apiClient.delete(`/admin/admins/${userId}`);
+      this._applyUserUpdate(response.data);
     },
   },
 });

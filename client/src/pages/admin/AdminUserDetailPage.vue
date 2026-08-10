@@ -74,6 +74,10 @@
             {{ isBusy ? "Working…" : "Unsuspend" }}
           </SecondaryButton>
 
+          <SecondaryButton v-if="!user.deleted_at && user.id !== userStore.user?.id" :disabled="isBusy" @click="toggleAdmin">
+            {{ isBusy ? "Working…" : user.is_admin ? "Revoke admin access" : "Grant admin access" }}
+          </SecondaryButton>
+
           <DangerButton v-if="!user.deleted_at && user.id !== userStore.user?.id" :disabled="isBusy" @click="remove">
             {{ isBusy ? "Working…" : "Delete account" }}
           </DangerButton>
@@ -170,6 +174,22 @@ async function unsuspend() {
     await adminStore.unsuspendUser(route.params.id);
   } catch (error) {
     actionError.value = getApiError(error, "We couldn't unsuspend this account. Please try again.").message;
+  } finally {
+    isBusy.value = false;
+  }
+}
+
+async function toggleAdmin() {
+  isBusy.value = true;
+  actionError.value = "";
+  try {
+    if (user.value.is_admin) {
+      await adminStore.demoteAdmin(route.params.id);
+    } else {
+      await adminStore.promoteAdmin(route.params.id);
+    }
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't update this account's admin access. Please try again.").message;
   } finally {
     isBusy.value = false;
   }

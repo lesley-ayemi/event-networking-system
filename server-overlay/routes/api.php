@@ -99,6 +99,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/users/{user}/unsuspend', [AdminUserModerationController::class, 'unsuspend']);
 
         Route::get('/users', [UserManagementController::class, 'index']);
+        Route::post('/users', [UserManagementController::class, 'store']);
         Route::get('/users/{id}', [UserManagementController::class, 'show']);
         Route::patch('/users/{id}', [UserManagementController::class, 'update']);
         Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
@@ -114,9 +115,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
 
-        Route::get('/admins', [AdminUserController::class, 'index']);
-        Route::post('/admins', [AdminUserController::class, 'store']);
-        Route::patch('/admins/{user}', [AdminUserController::class, 'update']);
+        Route::post('/admins/{user}/promote', [AdminUserController::class, 'promote']);
         Route::delete('/admins/{user}', [AdminUserController::class, 'destroy']);
     });
 });

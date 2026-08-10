@@ -32,7 +32,6 @@ import AdminOrganiserRequestsPage from "../pages/admin/AdminOrganiserRequestsPag
 import AdminEventsPage from "../pages/admin/AdminEventsPage.vue";
 import AdminEditEventPage from "../pages/admin/AdminEditEventPage.vue";
 import AdminAuditLogPage from "../pages/admin/AdminAuditLogPage.vue";
-import AdminAdminsPage from "../pages/admin/AdminAdminsPage.vue";
 
 const routes = [
   { path: "/", component: LandingPage, meta: { requiresAuth: false } },
@@ -76,7 +75,6 @@ const routes = [
   { path: "/admin/events", component: AdminEventsPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/admin/events/:id/edit", component: AdminEditEventPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/admin/audit-log", component: AdminAuditLogPage, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: "/admin/admins", component: AdminAdminsPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 export const router = createRouter({
