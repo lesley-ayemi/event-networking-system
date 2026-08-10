@@ -110,10 +110,10 @@ onMounted(async () => {
       pendingReports.value = adminStore.reportsPagination?.total ?? 0;
     }),
     adminStore.fetchFlaggedAccounts().then(() => {
-      flaggedCount.value = adminStore.flaggedAccounts.length;
+      flaggedCount.value = adminStore.flaggedPagination?.total ?? 0;
     }),
     adminStore.fetchOrganiserRequests().then(() => {
-      pendingOrganiserRequests.value = adminStore.organiserRequests.length;
+      pendingOrganiserRequests.value = adminStore.organiserRequestsPagination?.total ?? 0;
     }),
     adminStore.fetchAuditLogs({ page: 1 }),
   ]);

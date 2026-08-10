@@ -28,9 +28,18 @@ class UserController extends Controller
             ->withCount(['receivedReports as reports_count'])
             ->has('receivedReports', '>=', $threshold)
             ->orderByDesc('reports_count')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
-        return response()->json(['data' => $users]);
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ],
+        ]);
     }
 
     public function suspend(Request $request, User $user)

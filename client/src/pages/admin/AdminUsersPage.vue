@@ -22,16 +22,12 @@
     <p v-else-if="adminStore.users.length === 0" class="text-sm text-gray-500">No users match those filters.</p>
 
     <div v-else class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl divide-y divide-gray-100">
-      <RouterLink
-        v-for="user in adminStore.users"
-        :key="user.id"
-        :to="`/admin/users/${user.id}`"
-        class="p-4 flex flex-wrap items-center justify-between gap-3 hover:bg-gray-50"
-      >
-        <div class="min-w-0">
+      <div v-for="user in adminStore.users" :key="user.id" class="p-4 flex flex-wrap items-center justify-between gap-3">
+        <RouterLink :to="`/admin/users/${user.id}`" class="min-w-0 hover:underline">
           <p class="text-sm font-medium text-gray-900">{{ user.first_name }} {{ user.last_name }}</p>
           <p class="text-xs text-gray-500 break-words">{{ user.email }}</p>
-        </div>
+        </RouterLink>
+
         <div class="flex flex-wrap items-center gap-1.5 shrink-0">
           <span v-if="user.deleted_at" class="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Deleted</span>
           <span v-if="user.is_suspended" class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-700">Suspended</span>
@@ -40,8 +36,24 @@
             Organiser
           </span>
         </div>
-      </RouterLink>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <RouterLink :to="`/admin/users/${user.id}`" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+            Edit
+          </RouterLink>
+          <template v-if="!user.deleted_at">
+            <SecondaryButton :disabled="isBusy(user.id)" @click="toggleSuspend(user)">
+              {{ user.is_suspended ? "Unsuspend" : "Suspend" }}
+            </SecondaryButton>
+            <DangerButton v-if="user.id !== userStore.user?.id" :disabled="isBusy(user.id)" @click="remove(user)">
+              Delete
+            </DangerButton>
+          </template>
+        </div>
+      </div>
     </div>
+
+    <p v-if="actionError" class="text-sm text-red-600 mt-4">{{ actionError }}</p>
 
     <div
       v-if="adminStore.usersPagination && adminStore.usersPagination.last_page > 1"
@@ -59,19 +71,60 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { RouterLink } from "vue-router";
 import AdminLayout from "../../layouts/AdminLayout.vue";
 import TextInput from "../../components/TextInput.vue";
 import Select from "../../components/Select.vue";
 import SecondaryButton from "../../components/SecondaryButton.vue";
+import DangerButton from "../../components/DangerButton.vue";
 import { useAdminStore } from "../../stores/adminStore.js";
+import { useUserStore } from "../../stores/userStore.js";
+import { getApiError } from "../../services/apiError.js";
 
 const adminStore = useAdminStore();
+const userStore = useUserStore();
 const search = ref("");
 const statusFilter = ref("");
 const roleFilter = ref("");
 const currentPage = ref(1);
+const busyUserIds = reactive(new Set());
+const actionError = ref("");
+
+function isBusy(userId) {
+  return busyUserIds.has(userId);
+}
+
+async function toggleSuspend(user) {
+  busyUserIds.add(user.id);
+  actionError.value = "";
+  try {
+    if (user.is_suspended) {
+      await adminStore.unsuspendUser(user.id);
+    } else {
+      await adminStore.suspendUser(user.id);
+    }
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't update that account. Please try again.").message;
+  } finally {
+    busyUserIds.delete(user.id);
+  }
+}
+
+async function remove(user) {
+  if (!window.confirm(`Delete ${user.first_name} ${user.last_name}'s account?`)) {
+    return;
+  }
+  busyUserIds.add(user.id);
+  actionError.value = "";
+  try {
+    await adminStore.deleteUser(user.id);
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't delete that account. Please try again.").message;
+  } finally {
+    busyUserIds.delete(user.id);
+  }
+}
 
 function load() {
   adminStore.fetchUsers({

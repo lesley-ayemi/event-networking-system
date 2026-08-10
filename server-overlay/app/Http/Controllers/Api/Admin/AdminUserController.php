@@ -16,9 +16,20 @@ class AdminUserController extends Controller
 {
     public function index()
     {
-        $admins = User::where('is_admin', true)->orderBy('first_name')->get();
+        $admins = User::where('is_admin', true)
+            ->orderBy('first_name')
+            ->paginate(20)
+            ->withQueryString();
 
-        return response()->json(['data' => $admins]);
+        return response()->json([
+            'data' => $admins->items(),
+            'meta' => [
+                'current_page' => $admins->currentPage(),
+                'last_page' => $admins->lastPage(),
+                'per_page' => $admins->perPage(),
+                'total' => $admins->total(),
+            ],
+        ]);
     }
 
     public function store(Request $request)

@@ -20,6 +20,23 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="adminStore.organiserRequestsPagination && adminStore.organiserRequestsPagination.last_page > 1"
+      class="flex flex-wrap items-center justify-between gap-3 mt-6"
+    >
+      <SecondaryButton :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</SecondaryButton>
+      <span class="text-sm text-gray-500">
+        Page {{ adminStore.organiserRequestsPagination.current_page }} of {{ adminStore.organiserRequestsPagination.last_page }}
+      </span>
+      <SecondaryButton
+        :disabled="currentPage === adminStore.organiserRequestsPagination.last_page"
+        @click="goToPage(currentPage + 1)"
+      >
+        Next
+      </SecondaryButton>
+    </div>
+
     <p v-if="actionError" class="text-sm text-red-600 mt-4">{{ actionError }}</p>
   </AdminLayout>
 </template>
@@ -35,6 +52,7 @@ import { getApiError } from "../../services/apiError.js";
 const adminStore = useAdminStore();
 const busyUserIds = reactive(new Set());
 const actionError = ref("");
+const currentPage = ref(1);
 
 function isBusy(userId) {
   return busyUserIds.has(userId);
@@ -68,7 +86,14 @@ async function reject(userId) {
   }
 }
 
-onMounted(() => {
-  adminStore.fetchOrganiserRequests();
-});
+function load() {
+  adminStore.fetchOrganiserRequests({ page: currentPage.value });
+}
+
+function goToPage(page) {
+  currentPage.value = page;
+  load();
+}
+
+onMounted(load);
 </script>

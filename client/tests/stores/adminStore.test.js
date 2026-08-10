@@ -54,13 +54,16 @@ describe("adminStore", () => {
   });
 
   it("fetchFlaggedAccounts() loads flagged users", async () => {
-    get.mockResolvedValue({ data: { data: [{ id: 2, reports_count: 5 }] } });
+    get.mockResolvedValue({
+      data: { data: [{ id: 2, reports_count: 5 }], meta: { current_page: 1, last_page: 1, per_page: 20, total: 1 } },
+    });
 
     const store = useAdminStore();
     await store.fetchFlaggedAccounts();
 
-    expect(get).toHaveBeenCalledWith("/admin/flagged-accounts");
+    expect(get).toHaveBeenCalledWith("/admin/flagged-accounts", { params: {} });
     expect(store.flaggedAccounts).toEqual([{ id: 2, reports_count: 5 }]);
+    expect(store.flaggedPagination).toEqual({ current_page: 1, last_page: 1, per_page: 20, total: 1 });
   });
 
   it("suspendUser() removes the user from the flagged list", async () => {
@@ -181,13 +184,16 @@ describe("adminStore", () => {
   });
 
   it("fetchAdmins() loads admin accounts", async () => {
-    get.mockResolvedValue({ data: { data: [{ id: 1, is_admin: true }] } });
+    get.mockResolvedValue({
+      data: { data: [{ id: 1, is_admin: true }], meta: { current_page: 1, last_page: 1, per_page: 20, total: 1 } },
+    });
 
     const store = useAdminStore();
     await store.fetchAdmins();
 
-    expect(get).toHaveBeenCalledWith("/admin/admins");
+    expect(get).toHaveBeenCalledWith("/admin/admins", { params: {} });
     expect(store.admins).toEqual([{ id: 1, is_admin: true }]);
+    expect(store.adminsPagination).toEqual({ current_page: 1, last_page: 1, per_page: 20, total: 1 });
   });
 
   it("createAdmin() adds the new admin to the list", async () => {

@@ -12,9 +12,20 @@ class OrganiserRequestController extends Controller
 {
     public function index()
     {
-        $users = User::where('organiser_status', 'pending')->orderBy('organiser_requested_at')->get();
+        $users = User::where('organiser_status', 'pending')
+            ->orderBy('organiser_requested_at')
+            ->paginate(20)
+            ->withQueryString();
 
-        return response()->json(['data' => $users]);
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ],
+        ]);
     }
 
     public function approve(Request $request, User $user)

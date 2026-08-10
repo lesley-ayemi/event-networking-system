@@ -5,7 +5,7 @@
     <p v-if="adminStore.isLoadingCurrentUser" class="text-sm text-gray-500 mt-4">Loading…</p>
     <p v-else-if="adminStore.currentUserError" class="text-sm text-red-600 mt-4">{{ adminStore.currentUserError }}</p>
 
-    <div v-else-if="user" class="mt-4 space-y-6 max-w-xl">
+    <div v-else-if="user" class="mt-4 space-y-6 max-w-xl mx-auto">
       <div class="flex flex-wrap items-center gap-2">
         <h1 class="text-lg font-medium text-gray-900 mr-2">{{ user.first_name }} {{ user.last_name }}</h1>
         <span v-if="user.deleted_at" class="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Deleted</span>

@@ -10,10 +10,12 @@ export const useAdminStore = defineStore("admin", {
     reportsError: "",
 
     flaggedAccounts: [],
+    flaggedPagination: null,
     isLoadingFlagged: false,
     flaggedError: "",
 
     organiserRequests: [],
+    organiserRequestsPagination: null,
     isLoadingOrganiserRequests: false,
     organiserRequestsError: "",
 
@@ -23,6 +25,7 @@ export const useAdminStore = defineStore("admin", {
     auditLogsError: "",
 
     admins: [],
+    adminsPagination: null,
     isLoadingAdmins: false,
     adminsError: "",
 
@@ -69,12 +72,13 @@ export const useAdminStore = defineStore("admin", {
       return response.data;
     },
 
-    async fetchFlaggedAccounts() {
+    async fetchFlaggedAccounts(params = {}) {
       this.isLoadingFlagged = true;
       this.flaggedError = "";
       try {
-        const response = await apiClient.get("/admin/flagged-accounts");
+        const response = await apiClient.get("/admin/flagged-accounts", { params });
         this.flaggedAccounts = response.data.data;
+        this.flaggedPagination = response.data.meta;
       } catch (error) {
         this.flaggedError = getApiError(error, "We couldn't load flagged accounts right now. Please try again.").message;
       } finally {
@@ -199,12 +203,13 @@ export const useAdminStore = defineStore("admin", {
       this.reportContextError = "";
     },
 
-    async fetchOrganiserRequests() {
+    async fetchOrganiserRequests(params = {}) {
       this.isLoadingOrganiserRequests = true;
       this.organiserRequestsError = "";
       try {
-        const response = await apiClient.get("/admin/organiser-requests");
+        const response = await apiClient.get("/admin/organiser-requests", { params });
         this.organiserRequests = response.data.data;
+        this.organiserRequestsPagination = response.data.meta;
       } catch (error) {
         this.organiserRequestsError = getApiError(
           error,
@@ -239,12 +244,13 @@ export const useAdminStore = defineStore("admin", {
       }
     },
 
-    async fetchAdmins() {
+    async fetchAdmins(params = {}) {
       this.isLoadingAdmins = true;
       this.adminsError = "";
       try {
-        const response = await apiClient.get("/admin/admins");
+        const response = await apiClient.get("/admin/admins", { params });
         this.admins = response.data.data;
+        this.adminsPagination = response.data.meta;
       } catch (error) {
         this.adminsError = getApiError(error, "We couldn't load admins right now. Please try again.").message;
       } finally {

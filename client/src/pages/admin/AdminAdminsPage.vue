@@ -22,6 +22,19 @@
       </div>
     </div>
 
+    <div
+      v-if="adminStore.adminsPagination && adminStore.adminsPagination.last_page > 1"
+      class="flex flex-wrap items-center justify-between gap-3 mb-8"
+    >
+      <SecondaryButton :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</SecondaryButton>
+      <span class="text-sm text-gray-500">
+        Page {{ adminStore.adminsPagination.current_page }} of {{ adminStore.adminsPagination.last_page }}
+      </span>
+      <SecondaryButton :disabled="currentPage === adminStore.adminsPagination.last_page" @click="goToPage(currentPage + 1)">
+        Next
+      </SecondaryButton>
+    </div>
+
     <div class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 max-w-md">
       <h2 class="text-base font-semibold text-gray-900 mb-4">Add an admin</h2>
       <form @submit.prevent="submitCreate" class="space-y-4">
@@ -67,6 +80,7 @@ import { getApiError } from "../../services/apiError.js";
 const adminStore = useAdminStore();
 const userStore = useUserStore();
 const busyAdminIds = reactive(new Set());
+const currentPage = ref(1);
 
 const form = reactive({
   first_name: "",
@@ -106,7 +120,14 @@ async function submitCreate() {
   }
 }
 
-onMounted(() => {
-  adminStore.fetchAdmins();
-});
+function load() {
+  adminStore.fetchAdmins({ page: currentPage.value });
+}
+
+function goToPage(page) {
+  currentPage.value = page;
+  load();
+}
+
+onMounted(load);
 </script>
