@@ -48,9 +48,6 @@
             <SecondaryButton :disabled="isBusy(user.id)" @click="toggleSuspend(user)">
               {{ user.is_suspended ? "Unsuspend" : "Suspend" }}
             </SecondaryButton>
-            <SecondaryButton v-if="user.id !== userStore.user?.id" :disabled="isBusy(user.id)" @click="toggleAdmin(user)">
-              {{ user.is_admin ? "Revoke admin access" : "Grant admin access" }}
-            </SecondaryButton>
             <DangerButton v-if="user.id !== userStore.user?.id" :disabled="isBusy(user.id)" @click="remove(user)">
               Delete
             </DangerButton>
@@ -121,22 +118,6 @@ async function toggleSuspend(user) {
     }
   } catch (error) {
     actionError.value = getApiError(error, "We couldn't update that account. Please try again.").message;
-  } finally {
-    busyUserIds.delete(user.id);
-  }
-}
-
-async function toggleAdmin(user) {
-  busyUserIds.add(user.id);
-  actionError.value = "";
-  try {
-    if (user.is_admin) {
-      await adminStore.demoteAdmin(user.id);
-    } else {
-      await adminStore.promoteAdmin(user.id);
-    }
-  } catch (error) {
-    actionError.value = getApiError(error, "We couldn't update that account's admin access. Please try again.").message;
   } finally {
     busyUserIds.delete(user.id);
   }
