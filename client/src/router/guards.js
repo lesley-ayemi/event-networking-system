@@ -2,6 +2,9 @@ export function resolveNavigation(to, authState) {
   const requiresAuth = to.meta?.requiresAuth === true;
 
   if (!requiresAuth) {
+    if (to.meta?.guestOnly === true && authState.isAuthenticated) {
+      return { path: authState.isAdmin ? "/admin" : "/dashboard" };
+    }
     return true;
   }
 

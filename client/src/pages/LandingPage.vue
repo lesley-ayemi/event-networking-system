@@ -5,13 +5,26 @@
         Event<span class="text-indigo-600">Networking</span>
       </RouterLink>
       <nav class="flex items-center gap-4">
-        <RouterLink to="/login" class="text-sm font-medium text-gray-600 hover:text-gray-900">Log in</RouterLink>
-        <RouterLink
-          to="/register"
-          class="inline-flex items-center px-4 py-2 bg-indigo-600 rounded-xl font-semibold text-sm text-white shadow-sm hover:bg-indigo-700 transition"
-        >
-          Get started
-        </RouterLink>
+        <template v-if="userStore.user">
+          <button type="button" class="text-sm font-medium text-gray-600 hover:text-gray-900" @click="handleLogout">
+            Log out
+          </button>
+          <RouterLink
+            :to="dashboardLink"
+            class="inline-flex items-center px-4 py-2 bg-indigo-600 rounded-xl font-semibold text-sm text-white shadow-sm hover:bg-indigo-700 transition"
+          >
+            {{ isAdmin ? "Admin dashboard" : "Back to dashboard" }}
+          </RouterLink>
+        </template>
+        <template v-else>
+          <RouterLink to="/login" class="text-sm font-medium text-gray-600 hover:text-gray-900">Log in</RouterLink>
+          <RouterLink
+            to="/register"
+            class="inline-flex items-center px-4 py-2 bg-indigo-600 rounded-xl font-semibold text-sm text-white shadow-sm hover:bg-indigo-700 transition"
+          >
+            Get started
+          </RouterLink>
+        </template>
       </nav>
     </header>
 
@@ -34,18 +47,35 @@
           before you ever have to make small talk in person.
         </p>
         <div class="mt-8 flex items-center justify-center gap-4">
-          <RouterLink
-            to="/register"
-            class="inline-flex items-center px-6 py-3 bg-indigo-600 rounded-xl font-semibold text-white shadow-sm hover:bg-indigo-700 hover:shadow-md transition"
-          >
-            Get started — it's free
-          </RouterLink>
-          <RouterLink
-            to="/login"
-            class="inline-flex items-center px-6 py-3 bg-white border border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
-          >
-            Log in
-          </RouterLink>
+          <template v-if="userStore.user">
+            <RouterLink
+              :to="dashboardLink"
+              class="inline-flex items-center px-6 py-3 bg-indigo-600 rounded-xl font-semibold text-white shadow-sm hover:bg-indigo-700 hover:shadow-md transition"
+            >
+              {{ isAdmin ? "Go to admin dashboard" : "Go to dashboard" }}
+            </RouterLink>
+            <button
+              type="button"
+              class="inline-flex items-center px-6 py-3 bg-white border border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+              @click="handleLogout"
+            >
+              Log out
+            </button>
+          </template>
+          <template v-else>
+            <RouterLink
+              to="/register"
+              class="inline-flex items-center px-6 py-3 bg-indigo-600 rounded-xl font-semibold text-white shadow-sm hover:bg-indigo-700 hover:shadow-md transition"
+            >
+              Get started — it's free
+            </RouterLink>
+            <RouterLink
+              to="/login"
+              class="inline-flex items-center px-6 py-3 bg-white border border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+            >
+              Log in
+            </RouterLink>
+          </template>
         </div>
       </div>
     </section>
@@ -99,10 +129,10 @@
     <section class="max-w-6xl mx-auto px-6 pb-20 text-center">
       <p class="text-2xl font-bold text-gray-900">Ready to meet people worth knowing?</p>
       <RouterLink
-        to="/register"
+        :to="userStore.user ? dashboardLink : '/register'"
         class="mt-6 inline-flex items-center px-6 py-3 bg-accent-500 rounded-xl font-semibold text-white shadow-sm hover:bg-accent-600 hover:shadow-md transition"
       >
-        Create your free account
+        {{ userStore.user ? "Go to dashboard" : "Create your free account" }}
       </RouterLink>
     </section>
 
@@ -113,7 +143,27 @@
 </template>
 
 <script setup>
-import { RouterLink } from "vue-router";
+import { computed } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import { useAuthStore } from "../stores/authStore.js";
+import { useUserStore } from "../stores/userStore.js";
+
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const router = useRouter();
+
+const isAdmin = computed(() => Boolean(userStore.user?.is_admin));
+const dashboardLink = computed(() => (isAdmin.value ? "/admin" : "/dashboard"));
+
+async function handleLogout() {
+  try {
+    await authStore.logout();
+  } catch (error) {
+    // logout() clears the local session in its own finally block even when
+    // the request fails, so there's nothing left to recover from here.
+  }
+  router.push("/");
+}
 
 const steps = [
   {

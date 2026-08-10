@@ -35,8 +35,8 @@ import AdminAuditLogPage from "../pages/admin/AdminAuditLogPage.vue";
 
 const routes = [
   { path: "/", component: LandingPage, meta: { requiresAuth: false } },
-  { path: "/register", component: RegisterPage, meta: { requiresAuth: false } },
-  { path: "/login", component: LoginPage, meta: { requiresAuth: false } },
+  { path: "/register", component: RegisterPage, meta: { requiresAuth: false, guestOnly: true } },
+  { path: "/login", component: LoginPage, meta: { requiresAuth: false, guestOnly: true } },
   { path: "/forgot-password", component: ForgotPasswordPage, meta: { requiresAuth: false } },
   { path: "/reset-password", component: ResetPasswordPage, meta: { requiresAuth: false } },
   { path: "/onboarding", component: OnboardingPage, meta: { requiresAuth: true } },

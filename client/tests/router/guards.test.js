@@ -43,4 +43,22 @@ describe("resolveNavigation", () => {
     const result = resolveNavigation(to, { isAuthenticated: true, isApprovedOrganiser: false });
     expect(result).toEqual({ path: "/profile" });
   });
+
+  it("allows navigation to a guest-only route when unauthenticated", () => {
+    const to = { meta: { requiresAuth: false, guestOnly: true }, path: "/login" };
+    const result = resolveNavigation(to, { isAuthenticated: false });
+    expect(result).toBe(true);
+  });
+
+  it("redirects to /dashboard when navigating to a guest-only route while authenticated", () => {
+    const to = { meta: { requiresAuth: false, guestOnly: true }, path: "/login" };
+    const result = resolveNavigation(to, { isAuthenticated: true, isAdmin: false });
+    expect(result).toEqual({ path: "/dashboard" });
+  });
+
+  it("redirects to /admin when navigating to a guest-only route while authenticated as an admin", () => {
+    const to = { meta: { requiresAuth: false, guestOnly: true }, path: "/register" };
+    const result = resolveNavigation(to, { isAuthenticated: true, isAdmin: true });
+    expect(result).toEqual({ path: "/admin" });
+  });
 });
