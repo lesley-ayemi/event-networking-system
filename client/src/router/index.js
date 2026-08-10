@@ -23,6 +23,7 @@ import MessagesPage from "../pages/MessagesPage.vue";
 import ChatPage from "../pages/ChatPage.vue";
 import ProfilePage from "../pages/ProfilePage.vue";
 import UserProfilePage from "../pages/UserProfilePage.vue";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage.vue";
 import AdminUsersPage from "../pages/admin/AdminUsersPage.vue";
 import AdminUserDetailPage from "../pages/admin/AdminUserDetailPage.vue";
 import AdminReportsPage from "../pages/admin/AdminReportsPage.vue";
@@ -58,6 +59,7 @@ const routes = [
   },
   { path: "/profile", component: ProfilePage, meta: { requiresAuth: true } },
   { path: "/users/:id", component: UserProfilePage, meta: { requiresAuth: true } },
+  { path: "/admin", component: AdminDashboardPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/admin/users", component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/admin/users/:id", component: AdminUserDetailPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/admin/reports", component: AdminReportsPage, meta: { requiresAuth: true, requiresAdmin: true } },
