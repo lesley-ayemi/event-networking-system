@@ -23,6 +23,7 @@ function buildRouter() {
       { path: "/register", component: { template: "<div />" } },
       { path: "/forgot-password", component: { template: "<div />" } },
       { path: "/dashboard", component: { template: "<div />" } },
+      { path: "/admin", component: { template: "<div />" } },
     ],
   });
 }
@@ -59,6 +60,21 @@ describe("LoginPage", () => {
 
     expect(post).toHaveBeenCalledWith("/login", { email: "lesley@example.com", password: "supersecret" });
     expect(router.currentRoute.value.path).toBe("/dashboard");
+  });
+
+  it("logs in and redirects to /admin when the user is an admin", async () => {
+    post.mockResolvedValue({
+      data: { user: { id: 1, first_name: "Ava", email: "ava@example.com", is_admin: true }, token: "token-1" },
+    });
+
+    const { wrapper, router } = await mountLoginPage();
+
+    await wrapper.find("#email").setValue("ava@example.com");
+    await wrapper.find("#password").setValue("supersecret");
+    await wrapper.find("form").trigger("submit.prevent");
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/admin");
   });
 
   it("shows an error message and stays on the page when login fails", async () => {
