@@ -41,6 +41,42 @@ describe("friendsStore", () => {
     expect(store.outgoingRequests).toEqual([{ id: 20 }]);
   });
 
+  it("fetchAll() skips a second call within the cache window", async () => {
+    get.mockResolvedValue({ data: { data: [] } });
+    const store = useFriendsStore();
+
+    await store.fetchAll();
+    await store.fetchAll();
+
+    expect(get).toHaveBeenCalledTimes(3);
+  });
+
+  it("fetchAll() dedupes concurrent calls made before the first resolves", async () => {
+    const resolvers = [];
+    get.mockImplementation(() => new Promise((resolve) => resolvers.push(resolve)));
+    const store = useFriendsStore();
+
+    const first = store.fetchAll();
+    const second = store.fetchAll();
+    resolvers.forEach((resolve) => resolve({ data: { data: [] } }));
+    await Promise.all([first, second]);
+
+    expect(get).toHaveBeenCalledTimes(3);
+  });
+
+  it("fetchAll() refetches once the cache window has passed", async () => {
+    vi.useFakeTimers();
+    get.mockResolvedValue({ data: { data: [] } });
+    const store = useFriendsStore();
+
+    await store.fetchAll();
+    await vi.advanceTimersByTimeAsync(30001);
+    await store.fetchAll();
+
+    expect(get).toHaveBeenCalledTimes(6);
+    vi.useRealTimers();
+  });
+
   it("fetchAll() records an error on failure", async () => {
     get.mockRejectedValue(new Error("network error"));
 

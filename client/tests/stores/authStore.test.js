@@ -120,6 +120,46 @@ describe("authStore", () => {
     expect(store.isAuthenticated).toBe(false);
   });
 
+  it("restoreSession() retries and succeeds after a 429", async () => {
+    vi.useFakeTimers();
+    localStorage.setItem("authToken", "existing-token");
+    get.mockRejectedValueOnce({ response: { status: 429 } });
+    get.mockResolvedValueOnce({ data: { id: 4, email: "restored@example.com" } });
+
+    const store = useAuthStore();
+    const promise = store.restoreSession();
+    await vi.runAllTimersAsync();
+    await promise;
+
+    expect(get).toHaveBeenCalledTimes(2);
+    expect(store.isAuthenticated).toBe(true);
+    expect(useUserStore().user.email).toBe("restored@example.com");
+    expect(localStorage.getItem("authToken")).toBe("existing-token");
+    vi.useRealTimers();
+  });
+
+  it("restoreSession() clears the session on a real 401", async () => {
+    localStorage.setItem("authToken", "stale-token");
+    get.mockRejectedValue({ response: { status: 401 } });
+
+    const store = useAuthStore();
+    await store.restoreSession();
+
+    expect(store.isAuthenticated).toBe(false);
+    expect(localStorage.getItem("authToken")).toBeNull();
+  });
+
+  it("restoreSession() leaves the stored token alone on a non-401, non-429 failure", async () => {
+    localStorage.setItem("authToken", "existing-token");
+    get.mockRejectedValue({ response: { status: 500 } });
+
+    const store = useAuthStore();
+    await store.restoreSession();
+
+    expect(store.isAuthenticated).toBe(false);
+    expect(localStorage.getItem("authToken")).toBe("existing-token");
+  });
+
   it("forgotPassword() posts the email and returns the response", async () => {
     post.mockResolvedValue({ data: { message: "If an account exists for that email, a password reset link is on its way." } });
 

@@ -2,6 +2,12 @@ import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
 import { getApiError } from "../services/apiError.js";
 
+// See conversationsStore's STALE_AFTER_MS comment — DefaultLayout re-mounts
+// on every navigation and calls fetchAll() each time, so without a cache
+// window this fires 3 requests (friends + incoming + outgoing) on every
+// single page change.
+const STALE_AFTER_MS = 30000;
+
 export const useFriendsStore = defineStore("friends", {
   state: () => ({
     friends: [],
@@ -9,26 +15,44 @@ export const useFriendsStore = defineStore("friends", {
     outgoingRequests: [],
     isLoading: false,
     error: "",
+    lastFetchedAt: 0,
+    _fetchPromise: null,
   }),
 
   actions: {
-    async fetchAll() {
+    // See conversationsStore's fetchConversations() comment — DefaultLayout
+    // and the current page (e.g. FriendsPage, DashboardPage) both call this
+    // in the same render tick, before either request resolves and updates
+    // lastFetchedAt, so an in-flight promise has to be tracked too or both
+    // slip past the freshness check.
+    fetchAll() {
+      if (this.lastFetchedAt && Date.now() - this.lastFetchedAt < STALE_AFTER_MS) {
+        return Promise.resolve();
+      }
+      if (this._fetchPromise) {
+        return this._fetchPromise;
+      }
       this.isLoading = true;
       this.error = "";
-      try {
-        const [friends, incoming, outgoing] = await Promise.all([
-          apiClient.get("/friends"),
-          apiClient.get("/friends/requests/incoming"),
-          apiClient.get("/friends/requests/outgoing"),
-        ]);
-        this.friends = friends.data.data;
-        this.incomingRequests = incoming.data.data;
-        this.outgoingRequests = outgoing.data.data;
-      } catch (error) {
-        this.error = getApiError(error, "We couldn't load your friends right now. Please try again.").message;
-      } finally {
-        this.isLoading = false;
-      }
+      this._fetchPromise = Promise.all([
+        apiClient.get("/friends"),
+        apiClient.get("/friends/requests/incoming"),
+        apiClient.get("/friends/requests/outgoing"),
+      ])
+        .then(([friends, incoming, outgoing]) => {
+          this.friends = friends.data.data;
+          this.incomingRequests = incoming.data.data;
+          this.outgoingRequests = outgoing.data.data;
+          this.lastFetchedAt = Date.now();
+        })
+        .catch((error) => {
+          this.error = getApiError(error, "We couldn't load your friends right now. Please try again.").message;
+        })
+        .finally(() => {
+          this.isLoading = false;
+          this._fetchPromise = null;
+        });
+      return this._fetchPromise;
     },
 
     async sendFriendRequest(recipientId) {

@@ -44,6 +44,42 @@ describe("conversationsStore", () => {
     expect(store.conversations).toEqual(conversations);
   });
 
+  it("fetchConversations() skips a second call within the cache window", async () => {
+    get.mockResolvedValue({ data: { data: [] } });
+    const store = useConversationsStore();
+
+    await store.fetchConversations();
+    await store.fetchConversations();
+
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+
+  it("fetchConversations() dedupes concurrent calls made before the first resolves", async () => {
+    let resolveGet;
+    get.mockReturnValue(new Promise((resolve) => { resolveGet = resolve; }));
+    const store = useConversationsStore();
+
+    const first = store.fetchConversations();
+    const second = store.fetchConversations();
+    resolveGet({ data: { data: [] } });
+    await Promise.all([first, second]);
+
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+
+  it("fetchConversations() refetches once the cache window has passed", async () => {
+    vi.useFakeTimers();
+    get.mockResolvedValue({ data: { data: [] } });
+    const store = useConversationsStore();
+
+    await store.fetchConversations();
+    await vi.advanceTimersByTimeAsync(30001);
+    await store.fetchConversations();
+
+    expect(get).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
   it("unreadTotal sums unread_count across conversations", () => {
     const store = useConversationsStore();
     store.conversations = [{ id: 1, unread_count: 2 }, { id: 2, unread_count: 3 }];

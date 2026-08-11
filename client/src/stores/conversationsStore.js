@@ -3,6 +3,14 @@ import { apiClient } from "../services/apiClient.js";
 import { getApiError } from "../services/apiError.js";
 import { echo } from "../services/echo.js";
 
+// DefaultLayout re-mounts on every page navigation (each page wraps itself
+// in <DefaultLayout> rather than sharing one persistent instance), and it
+// calls fetchConversations() on mount to keep the unread badge current.
+// Without this cache, clicking through several pages in a row refetches the
+// whole conversation list every single time, which is exactly the kind of
+// burst that trips the API's per-minute rate limit.
+const STALE_AFTER_MS = 30000;
+
 export const useConversationsStore = defineStore("conversations", {
   state: () => ({
     conversations: [],
@@ -11,6 +19,8 @@ export const useConversationsStore = defineStore("conversations", {
     isLoading: false,
     error: "",
     subscribedConversationId: null,
+    lastFetchedAt: 0,
+    _fetchPromise: null,
   }),
 
   getters: {
@@ -18,17 +28,34 @@ export const useConversationsStore = defineStore("conversations", {
   },
 
   actions: {
-    async fetchConversations() {
+    // DefaultLayout's onMounted and the current page's own onMounted (e.g.
+    // MessagesPage, DashboardPage) both call this in the same render tick —
+    // before either request has resolved and updated lastFetchedAt. Without
+    // tracking the in-flight promise, both slip past the freshness check
+    // above and fire duplicate requests.
+    fetchConversations() {
+      if (this.lastFetchedAt && Date.now() - this.lastFetchedAt < STALE_AFTER_MS) {
+        return Promise.resolve();
+      }
+      if (this._fetchPromise) {
+        return this._fetchPromise;
+      }
       this.isLoading = true;
       this.error = "";
-      try {
-        const response = await apiClient.get("/conversations");
-        this.conversations = response.data.data;
-      } catch (error) {
-        this.error = getApiError(error, "We couldn't load your conversations right now. Please try again.").message;
-      } finally {
-        this.isLoading = false;
-      }
+      this._fetchPromise = apiClient
+        .get("/conversations")
+        .then((response) => {
+          this.conversations = response.data.data;
+          this.lastFetchedAt = Date.now();
+        })
+        .catch((error) => {
+          this.error = getApiError(error, "We couldn't load your conversations right now. Please try again.").message;
+        })
+        .finally(() => {
+          this.isLoading = false;
+          this._fetchPromise = null;
+        });
+      return this._fetchPromise;
     },
 
     async startConversation(recipientId) {

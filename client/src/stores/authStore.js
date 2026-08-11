@@ -39,13 +39,36 @@ export const useAuthStore = defineStore("auth", {
       return response.data;
     },
 
+    // Runs once on app boot to rebuild the session from the stored token.
+    // A 429 here (e.g. the user was rate-limited right before refreshing)
+    // isn't proof the token is bad — retrying a couple of times with a short
+    // backoff avoids bouncing someone with a perfectly valid session to
+    // /login just because this one request landed in a busy window. Only a
+    // real 401 means the token itself is invalid, so only that clears it.
     async restoreSession() {
       const token = localStorage.getItem("authToken");
       if (!token) {
         return;
       }
-      const response = await apiClient.get("/user");
-      useUserStore().setUser(response.data);
+
+      const maxAttempts = 3;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          const response = await apiClient.get("/user");
+          useUserStore().setUser(response.data);
+          return;
+        } catch (error) {
+          if (error.response?.status === 401) {
+            this._clearSession();
+            return;
+          }
+          if (error.response?.status === 429 && attempt < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+            continue;
+          }
+          return;
+        }
+      }
     },
 
     _setSession(user, token) {
