@@ -43,8 +43,9 @@
           <span class="text-indigo-600">at your own pace.</span>
         </h1>
         <p class="mt-5 text-lg text-gray-600 max-w-xl mx-auto">
-          Discover events, get matched with people you'll actually click with, and start the conversation
-          before you ever have to make small talk in person.
+          Pick an event. Tell us how you like to talk to people. We'll show you a
+          few others going who match — and you can message them days before you
+          walk in, so the first conversation isn't a cold one.
         </p>
         <div class="mt-8 flex items-center justify-center gap-4">
           <template v-if="userStore.user">
@@ -83,7 +84,7 @@
     <!-- How it works -->
     <section class="max-w-6xl mx-auto px-6 py-16">
       <h2 class="text-sm font-semibold text-indigo-600 uppercase tracking-wide text-center">How it works</h2>
-      <p class="mt-2 text-2xl font-bold text-gray-900 text-center">Three steps to a genuine connection</p>
+      <p class="mt-2 text-2xl font-bold text-gray-900 text-center">From booking a ticket to knowing someone there</p>
 
       <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
         <div v-for="(step, index) in steps" :key="step.title" class="text-center">
@@ -99,7 +100,7 @@
     <!-- Feature grid -->
     <section class="bg-gray-50 py-16">
       <div class="max-w-6xl mx-auto px-6">
-        <p class="text-2xl font-bold text-gray-900 text-center">Built for how real networking actually feels</p>
+        <p class="text-2xl font-bold text-gray-900 text-center">Built for people who don't want to work the room</p>
         <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="feature in features" :key="feature.title" class="bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-6">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" :class="feature.badgeClass">
@@ -115,19 +116,20 @@
     <!-- Safety callout -->
     <section class="max-w-6xl mx-auto px-6 py-16">
       <div class="bg-indigo-600 rounded-2xl px-8 py-10 sm:px-12 sm:py-14 text-center">
-        <p class="text-sm font-semibold text-indigo-200 uppercase tracking-wide">Safety comes first</p>
+        <p class="text-sm font-semibold text-indigo-200 uppercase tracking-wide">Safety</p>
         <h2 class="mt-2 text-2xl sm:text-3xl font-bold text-white">
-          Block, report, and set boundaries — always in your control
+          You decide who can reach you, and how
         </h2>
         <p class="mt-3 text-indigo-100 max-w-xl mx-auto">
-          Every conversation respects the limits you set, and every report is reviewed by a real moderation team.
+          Blocking takes one tap and needs no explanation. Reports go to a real
+          person, and whatever they decide gets written to an audit log.
         </p>
       </div>
     </section>
 
     <!-- Final CTA -->
     <section class="max-w-6xl mx-auto px-6 pb-20 text-center">
-      <p class="text-2xl font-bold text-gray-900">Ready to meet people worth knowing?</p>
+      <p class="text-2xl font-bold text-gray-900">Got an event coming up?</p>
       <RouterLink
         :to="userStore.user ? dashboardLink : '/register'"
         class="mt-6 inline-flex items-center px-6 py-3 bg-accent-500 rounded-xl font-semibold text-white shadow-sm hover:bg-accent-600 hover:shadow-md transition"
@@ -167,54 +169,63 @@ async function handleLogout() {
 
 const steps = [
   {
-    title: "Discover events",
-    description: "Browse by industry, format, and interaction style to find events worth your time.",
+    title: "Find something worth going to",
+    description:
+      "Filter by industry, date, price, and format. Accessibility needs are a filter too, not a footnote.",
   },
   {
-    title: "Get matched",
-    description: "A transparent compatibility score shows exactly why you and someone else might click.",
+    title: "Answer a few questions",
+    description:
+      "One-to-one or small group? Happy to be approached, or would you rather message first? Your answers drive who you're shown.",
   },
   {
-    title: "Connect on your terms",
-    description: "Set your availability and boundaries, then message before you ever meet in person.",
+    title: "Talk before you turn up",
+    description:
+      "Message the people you matched with in the days beforehand, so nobody arrives to a room full of strangers.",
   },
 ];
 
 const features = [
   {
     emoji: "🎯",
-    title: "Transparent matching",
-    description: "See the real reasons behind every compatibility score — no black box.",
+    title: "Scores that explain themselves",
+    description:
+      "Every match lists the specific things you have in common. If the reasoning looks wrong to you, ignore it.",
     badgeClass: "bg-indigo-50",
   },
   {
     emoji: "💬",
-    title: "Real-time messaging",
-    description: "Instant conversations with conversation starters when you don't know what to say.",
+    title: "Messaging that starts itself",
+    description:
+      "Chat arrives live. And if you're staring at an empty box, there are openers you can borrow.",
     badgeClass: "bg-accent-50",
   },
   {
     emoji: "🕊️",
-    title: "Low-pressure by design",
-    description: "Set your availability status and conversation boundaries so people know how to approach you.",
+    title: "Say how you want to be approached",
+    description:
+      "Text only. No spontaneous calls. Ask before adding me to a group. People see your boundaries before they message.",
     badgeClass: "bg-emerald-50",
   },
   {
-    emoji: "📅",
-    title: "Event discovery",
-    description: "Filter by accessibility needs, format, and group size, then bookmark what looks interesting.",
+    emoji: "♿",
+    title: "Accessibility you can filter on",
+    description:
+      "Wheelchair access, ASL interpretation, captioning, a quiet room — searchable, not buried in the description.",
     badgeClass: "bg-indigo-50",
   },
   {
     emoji: "🛡️",
-    title: "Built-in safety tools",
-    description: "Block or report anyone in a couple of taps — every report reaches a real moderator.",
+    title: "Blocking and reporting that work",
+    description:
+      "Block anyone instantly. Reports go to a real moderation queue, and every action taken is logged.",
     badgeClass: "bg-accent-50",
   },
   {
     emoji: "✅",
-    title: "Verified organisers",
-    description: "Events are created by approved organisers, so listings stay trustworthy.",
+    title: "Organisers are approved first",
+    description:
+      "Anyone can ask to run events, but an admin reviews the request before a single listing goes up.",
     badgeClass: "bg-emerald-50",
   },
 ];
