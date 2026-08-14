@@ -18,7 +18,8 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          # composer.lock resolves to Symfony 8, which needs >= 8.4.1.
+          php-version: "8.4"
           extensions: mbstring, pdo, pdo_sqlite, sqlite3, bcmath, intl
           coverage: none
 
@@ -58,6 +59,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prepare environment
+        run: cp .env.example .env
 
       - name: Run tests
         run: npm test
