@@ -25,9 +25,12 @@ php artisan migrate --force
 
 # Only for the throwaway SQLite case: give a fresh database some events so the
 # listing pages aren't empty. A real database keeps whatever is already there.
+# DemoSeeder specifically, not DatabaseSeeder: the latter runs EventSeeder,
+# which uses model factories, which need faker - a require-dev package that
+# isn't in the production image.
 if [ "${EPHEMERAL_DB}" = "1" ]; then
   echo "Seeding demo data into the ephemeral database..."
-  php artisan db:seed --force || true
+  php artisan db:seed --class=DemoSeeder --force
 fi
 
 php artisan config:cache
