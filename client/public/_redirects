@@ -1,0 +1,4 @@
+# Vue Router uses history mode, so a direct load or refresh on any route
+# (e.g. /dashboard) has to fall through to index.html instead of 404ing
+# against a file that doesn't exist on Render's static file server.
+/*    /index.html   200
