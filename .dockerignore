@@ -1,0 +1,23 @@
+# Build context is the repo root, but the Dockerfile only needs server/.
+# Everything else here is excluded so it's never uploaded to the builder.
+.git
+.github
+.claude
+client/
+docs/
+PLAN.md
+README.md
+setup.sh
+
+server/.env
+server/.env.*
+!server/.env.example
+server/vendor/
+server/node_modules/
+server/tests/
+server/storage/logs/*
+server/storage/framework/cache/*
+server/storage/framework/sessions/*
+server/storage/framework/views/*
+server/bootstrap/cache/*
+server/database/*.sqlite

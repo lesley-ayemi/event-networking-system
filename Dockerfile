@@ -1,4 +1,5 @@
-# Render has no native PHP runtime, so the API ships as a container.
+# Root-level so Render can build with its default ./Dockerfile path.
+# The API itself lives in server/; everything below is scoped to it.
 FROM php:8.4-cli-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -11,24 +12,22 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Copy the manifests first so composer's layer is cached across code changes.
-COPY composer.json composer.lock ./
+# Manifests first so composer's layer survives unrelated code changes.
+COPY server/composer.json server/composer.lock ./
 RUN composer install --no-interaction --prefer-dist --no-dev --no-scripts --no-autoloader
 
-COPY . .
+COPY server/ ./
 
 # dump-autoload fires post-autoload-dump -> artisan package:discover, which has
 # to boot the app. Give it a .env to boot against; Render's real environment
-# variables take precedence at runtime (Dotenv won't overwrite ones already set).
+# variables win at runtime (Dotenv won't overwrite ones already set).
 RUN cp -n .env.example .env || true \
     && composer dump-autoload --optimize --no-dev \
     && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh && cp docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Render supplies $PORT; default keeps `docker run` usable locally.
 ENV PORT=8000
 EXPOSE 8000
 
