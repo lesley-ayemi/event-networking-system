@@ -1,4 +1,9 @@
 # Vue Router uses history mode, so a direct load or refresh on any route
-# (e.g. /dashboard) has to fall through to index.html instead of 404ing
-# against a file that doesn't exist on Render's static file server.
+# (e.g. /dashboard) has to fall through to index.html rather than 404 against
+# a file that doesn't exist.
+#
+# NOTE: Render does NOT read this file - it's the Netlify/Cloudflare Pages
+# convention, kept here for portability. On Render the same rule has to be
+# added per-service under Redirects/Rewrites:
+#   Source /*  ->  Destination /index.html  ->  Action: Rewrite
 /*    /index.html   200
