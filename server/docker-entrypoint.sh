@@ -1,12 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Render's filesystem is rebuilt on every deploy, so the storage symlink and
-# the migrations have to be (re)applied each boot rather than once at setup.
+# No managed database wired up yet? Fall back to SQLite on the container's
+# own disk so the API still boots and the app is browsable. This is a demo
+# stopgap, not a deployment target: Render rebuilds the filesystem on every
+# deploy and on wake from idle, so anything written here is lost. Set DB_URL
+# (e.g. a Neon connection string) and this branch is skipped entirely.
+if [ -z "${DB_URL:-}" ] && [ -z "${DB_HOST:-}" ]; then
+  echo "WARNING: no DB_URL or DB_HOST set - falling back to ephemeral SQLite."
+  echo "WARNING: data will not survive a redeploy or a spin-down from idle."
+  export DB_CONNECTION=sqlite
+  export DB_DATABASE=/app/database/database.sqlite
+  mkdir -p /app/database
+  touch "${DB_DATABASE}"
+  EPHEMERAL_DB=1
+else
+  EPHEMERAL_DB=0
+fi
+
 php artisan storage:link --force || true
 
 echo "Running migrations..."
 php artisan migrate --force
+
+# Only for the throwaway SQLite case: give a fresh database some events so the
+# listing pages aren't empty. A real database keeps whatever is already there.
+if [ "${EPHEMERAL_DB}" = "1" ]; then
+  echo "Seeding demo data into the ephemeral database..."
+  php artisan db:seed --force || true
+fi
 
 php artisan config:cache
 php artisan route:cache
