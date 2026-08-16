@@ -10,6 +10,12 @@
             <div class="hidden md:flex items-center gap-6">
               <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" class="text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap">
                 {{ link.label }}
+                <span
+                  v-if="badgeCount(link.to) > 0"
+                  class="ml-1 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-indigo-600 text-white text-[10px] font-medium align-top"
+                >
+                  {{ badgeCount(link.to) }}
+                </span>
               </RouterLink>
               <RouterLink
                 v-if="userStore.user?.is_admin"
@@ -62,6 +68,12 @@
             class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
           >
             {{ link.label }}
+            <span
+              v-if="badgeCount(link.to) > 0"
+              class="ml-1 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-indigo-600 text-white text-[10px] font-medium align-top"
+            >
+              {{ badgeCount(link.to) }}
+            </span>
           </RouterLink>
           <RouterLink
             v-if="userStore.user?.is_admin"
@@ -94,7 +106,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import NotificationBell from "../components/NotificationBell.vue";
 import { useConversationsStore } from "../stores/conversationsStore.js";
@@ -136,8 +148,30 @@ async function handleLogout() {
   router.push("/login");
 }
 
+function badgeCount(to) {
+  if (to === "/friends") return friendsStore.incomingRequests.length;
+  if (to === "/messages") return conversationsStore.unreadTotal;
+  return 0;
+}
+
+// Nav badges only update on navigation otherwise, since fetchAll()/
+// fetchConversations() are only called on mount and DefaultLayout re-mounts
+// per page. Both stores skip a fetch within their own 30s staleness window
+// (see friendsStore/conversationsStore), so this polls just past that so
+// every tick actually lands a request instead of getting silently skipped.
+const POLL_INTERVAL_MS = 35000;
+let pollTimer = null;
+
 onMounted(() => {
   conversationsStore.fetchConversations();
   friendsStore.fetchAll();
+  pollTimer = setInterval(() => {
+    conversationsStore.fetchConversations();
+    friendsStore.fetchAll();
+  }, POLL_INTERVAL_MS);
+});
+
+onUnmounted(() => {
+  clearInterval(pollTimer);
 });
 </script>
