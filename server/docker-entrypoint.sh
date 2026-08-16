@@ -22,9 +22,6 @@ if [ -z "${DB_URL:-}" ] && [ -z "${DB_HOST:-}" ]; then
   export DB_DATABASE=/app/database/database.sqlite
   mkdir -p /app/database
   touch "${DB_DATABASE}"
-  EPHEMERAL_DB=1
-else
-  EPHEMERAL_DB=0
 fi
 
 php artisan storage:link --force || true
@@ -32,15 +29,15 @@ php artisan storage:link --force || true
 echo "Running migrations..."
 php artisan migrate --force
 
-# Only for the throwaway SQLite case: give a fresh database some events so the
-# listing pages aren't empty. A real database keeps whatever is already there.
-# DemoSeeder specifically, not DatabaseSeeder: the latter runs EventSeeder,
-# which uses model factories, which need faker - a require-dev package that
-# isn't in the production image.
-if [ "${EPHEMERAL_DB}" = "1" ]; then
-  echo "Seeding demo data into the ephemeral database..."
-  php artisan db:seed --class=DemoSeeder --force
-fi
+# Unconditional rather than gated on EPHEMERAL_DB: DemoSeeder already bails
+# out if any event exists (see its own guard), so this seeds an empty
+# database exactly once - the ephemeral SQLite fallback on every boot, or a
+# brand-new real database on its first ever boot - and no-ops forever after
+# real content exists. DemoSeeder specifically, not DatabaseSeeder: the
+# latter runs EventSeeder, which uses model factories, which need faker - a
+# require-dev package that isn't in the production image.
+echo "Seeding demo data if the database is empty..."
+php artisan db:seed --class=DemoSeeder --force
 
 php artisan config:cache
 php artisan route:cache
