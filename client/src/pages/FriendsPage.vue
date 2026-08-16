@@ -2,6 +2,42 @@
   <DefaultLayout>
     <h1 class="text-lg font-medium text-gray-900 mb-6">Friends</h1>
 
+    <section class="mb-8">
+      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Find people</h2>
+      <form class="flex gap-3" @submit.prevent="search">
+        <TextInput v-model="searchQuery" type="text" placeholder="Search by name" class="flex-1" />
+        <PrimaryButton type="submit" :disabled="friendsStore.isSearching || !searchQuery.trim()">Search</PrimaryButton>
+      </form>
+
+      <p v-if="friendsStore.isSearching" class="text-sm text-gray-500 mt-3">Searching…</p>
+      <p v-else-if="friendsStore.searchError" class="text-sm text-red-600 mt-3">{{ friendsStore.searchError }}</p>
+      <p v-else-if="hasSearched && friendsStore.searchResults.length === 0" class="text-sm text-gray-500 mt-3">
+        No one matched that search.
+      </p>
+
+      <div v-if="friendsStore.searchResults.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <div v-for="person in friendsStore.searchResults" :key="person.id" class="h-full bg-white shadow-sm ring-1 ring-gray-100 rounded-xl p-5 flex flex-col">
+          <RouterLink :to="`/users/${person.id}`" class="flex items-center gap-3 hover:opacity-80">
+            <Avatar :user="person" />
+            <div>
+              <p class="font-semibold text-gray-900 text-sm">{{ person.first_name }} {{ person.last_name }}</p>
+              <p class="text-xs text-gray-500">{{ personLine(person) }}</p>
+            </div>
+          </RouterLink>
+          <div class="mt-auto pt-4">
+            <SecondaryButton
+              v-if="relationshipStatus(person.id) === null"
+              :disabled="isBusy"
+              @click="sendRequest(person.id)"
+            >
+              Send friend request
+            </SecondaryButton>
+            <span v-else class="text-xs text-gray-500">{{ relationshipStatus(person.id) }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <p v-if="friendsStore.isLoading" class="text-sm text-gray-500">Loading…</p>
     <p v-else-if="friendsStore.error" class="text-sm text-red-600">{{ friendsStore.error }}</p>
     <p v-if="actionError" class="text-sm text-red-600 mb-4">{{ actionError }}</p>
@@ -82,6 +118,7 @@ import AvailabilityBadge from "../components/AvailabilityBadge.vue";
 import PrimaryButton from "../components/PrimaryButton.vue";
 import SecondaryButton from "../components/SecondaryButton.vue";
 import DangerButton from "../components/DangerButton.vue";
+import TextInput from "../components/TextInput.vue";
 import { useFriendsStore } from "../stores/friendsStore.js";
 import { useConversationsStore } from "../stores/conversationsStore.js";
 import { getApiError } from "../services/apiError.js";
@@ -93,6 +130,32 @@ const isBusy = ref(false);
 const actionError = ref("");
 const messagingUserIds = reactive(new Set());
 const messageErrors = reactive({});
+const searchQuery = ref("");
+const hasSearched = ref(false);
+
+function search() {
+  hasSearched.value = true;
+  friendsStore.searchUsers(searchQuery.value);
+}
+
+function relationshipStatus(userId) {
+  if (friendsStore.friends.some((friend) => friend.id === userId)) return "Already friends";
+  if (friendsStore.outgoingRequests.some((request) => request.recipient.id === userId)) return "Request sent";
+  if (friendsStore.incomingRequests.some((request) => request.sender.id === userId)) return "Check your requests";
+  return null;
+}
+
+async function sendRequest(userId) {
+  isBusy.value = true;
+  actionError.value = "";
+  try {
+    await friendsStore.sendFriendRequest(userId);
+  } catch (error) {
+    actionError.value = getApiError(error, "We couldn't send that request. Please try again.").message;
+  } finally {
+    isBusy.value = false;
+  }
+}
 
 function isMessaging(userId) {
   return messagingUserIds.has(userId);

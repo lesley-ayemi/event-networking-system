@@ -17,6 +17,9 @@ export const useFriendsStore = defineStore("friends", {
     error: "",
     lastFetchedAt: 0,
     _fetchPromise: null,
+    searchResults: [],
+    isSearching: false,
+    searchError: "",
   }),
 
   actions: {
@@ -53,6 +56,29 @@ export const useFriendsStore = defineStore("friends", {
           this._fetchPromise = null;
         });
       return this._fetchPromise;
+    },
+
+    async searchUsers(query) {
+      const term = query.trim();
+      if (!term) {
+        this.searchResults = [];
+        return;
+      }
+      this.isSearching = true;
+      this.searchError = "";
+      try {
+        const response = await apiClient.get("/users/search", { params: { q: term } });
+        this.searchResults = response.data.data;
+      } catch (error) {
+        this.searchError = getApiError(error, "We couldn't search right now. Please try again.").message;
+      } finally {
+        this.isSearching = false;
+      }
+    },
+
+    clearSearch() {
+      this.searchResults = [];
+      this.searchError = "";
     },
 
     async sendFriendRequest(recipientId) {
