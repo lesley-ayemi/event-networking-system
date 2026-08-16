@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This image runs two different roles depending on PROCESS_TYPE: the default
+# is the HTTP API (php artisan serve). A second Render service runs the same
+# image with PROCESS_TYPE=reverb to run the WebSocket server instead, so
+# real-time delivery doesn't need a separate Dockerfile or codebase.
+if [ "${PROCESS_TYPE:-api}" = "reverb" ]; then
+  echo "Starting Reverb on port ${PORT}..."
+  exec php artisan reverb:start --host=0.0.0.0 --port="${PORT}"
+fi
+
 # No managed database wired up yet? Fall back to SQLite on the container's
 # own disk so the API still boots and the app is browsable. This is a demo
 # stopgap, not a deployment target: Render rebuilds the filesystem on every
